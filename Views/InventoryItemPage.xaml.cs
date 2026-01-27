@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AdminUP
+namespace AdminUP.Views
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для InventoryItemPage.xaml
     /// </summary>
-    public partial class MainWindow : Page
+    public partial class InventoryItemPage : Page
     {
-        public MainWindow()
+        public InventoryItemPage()
         {
             InitializeComponent();
         }

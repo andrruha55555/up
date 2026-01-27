@@ -1,0 +1,33 @@
+﻿<Page x:Class="AdminUP.Views.EquipmentPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Оборудование">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Button Content="Добавить" Width="100"/>
+            <Button Content="Редактировать" Width="120"/>
+            <Button Content="Удалить" Width="100"/>
+            <TextBox Width="200" Margin="10 0"/>
+            <Button Content="Найти" Width="80"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" Margin="10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Width="50"/>
+                <DataGridTextColumn Header="Название" Width="200"/>
+                <DataGridTextColumn Header="Инв.номер" Width="100"/>
+                <DataGridTextColumn Header="Аудитория" Width="80"/>
+                <DataGridTextColumn Header="Ответственный" Width="120"/>
+                <DataGridTextColumn Header="Стоимость" Width="100"/>
+                <DataGridTextColumn Header="Статус" Width="100"/>
+                <DataGridTextColumn Header="Модель" Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>

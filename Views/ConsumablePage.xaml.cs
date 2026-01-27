@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AdminUP
+namespace AdminUP.Views
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для ConsumablePage.xaml
     /// </summary>
-    public partial class MainWindow : Page
+    public partial class ConsumablePage : Page
     {
-        public MainWindow()
+        public ConsumablePage()
         {
             InitializeComponent();
         }

@@ -1,0 +1,220 @@
+﻿<Window x:Class="AdminUP.MainPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AdminUP - Панель управления" 
+        Height="800" Width="1400"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5">
+
+    <Grid>
+        <!-- Верхняя панель -->
+        <Border Height="60" Background="#0060AC" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" Margin="20 0">
+                <TextBlock Text="🏢 AdminUP" Foreground="White" FontSize="22" 
+                           FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text=" | Панель управления всеми таблицами" 
+                           Foreground="White" FontSize="16" 
+                           Margin="10 0 0 0" VerticalAlignment="Center"/>
+                <TextBlock Text="Пользователь: Администратор" 
+                           Foreground="White" FontSize="14" 
+                           Margin="700 0 0 0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Контейнер для всех таблиц -->
+        <TabControl Margin="10 70 10 10">
+
+            <!-- Вкладка 1: Оборудование -->
+            <TabItem Header="📦 Оборудование">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Название" Width="200"/>
+                        <DataGridTextColumn Header="Инв.номер" Width="100"/>
+                        <DataGridTextColumn Header="Аудитория" Width="80"/>
+                        <DataGridTextColumn Header="Ответственный" Width="120"/>
+                        <DataGridTextColumn Header="Стоимость" Width="100"/>
+                        <DataGridTextColumn Header="Статус" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 2: Пользователи -->
+            <TabItem Header="👥 Пользователи">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Логин" Width="100"/>
+                        <DataGridTextColumn Header="Фамилия" Width="120"/>
+                        <DataGridTextColumn Header="Имя" Width="120"/>
+                        <DataGridTextColumn Header="Роль" Width="100"/>
+                        <DataGridTextColumn Header="Email" Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 3: Аудитории -->
+            <TabItem Header="🏫 Аудитории">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Название" Width="250"/>
+                        <DataGridTextColumn Header="Сокращение" Width="100"/>
+                        <DataGridTextColumn Header="Ответственный" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 4: Расходные материалы -->
+            <TabItem Header="🖨️ Расходники">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Название" Width="200"/>
+                        <DataGridTextColumn Header="Количество" Width="80"/>
+                        <DataGridTextColumn Header="Дата поступления" Width="120"/>
+                        <DataGridTextColumn Header="Тип" Width="100"/>
+                        <DataGridTextColumn Header="Ответственный" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 5: Инвентаризации -->
+            <TabItem Header="📋 Инвентаризации">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Название" Width="250"/>
+                        <DataGridTextColumn Header="Дата начала" Width="120"/>
+                        <DataGridTextColumn Header="Дата окончания" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 6: Сетевые настройки -->
+            <TabItem Header="🌐 Сеть">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Оборудование" Width="100"/>
+                        <DataGridTextColumn Header="IP адрес" Width="120"/>
+                        <DataGridTextColumn Header="Маска" Width="120"/>
+                        <DataGridTextColumn Header="Шлюз" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 7: ПО -->
+            <TabItem Header="🛠️ ПО">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Название ПО" Width="200"/>
+                        <DataGridTextColumn Header="Разработчик" Width="120"/>
+                        <DataGridTextColumn Header="Версия" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 8: Модели -->
+            <TabItem Header="🖥️ Модели">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Название модели" Width="250"/>
+                        <DataGridTextColumn Header="Тип оборудования" Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 9: Статусы -->
+            <TabItem Header="📈 Статусы">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Статус" Width="250"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 10: Типы оборудования -->
+            <TabItem Header="💻 Типы">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Тип оборудования" Width="250"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 11: Направления -->
+            <TabItem Header="🎯 Направления">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Направление" Width="300"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 12: Разработчики -->
+            <TabItem Header="👨‍💻 Разработчики">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Разработчик" Width="300"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 13: Типы расходников -->
+            <TabItem Header="📊 Типы расходников">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Тип" Width="250"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 14: Характеристики -->
+            <TabItem Header="📝 Характеристики">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Расходник ID" Width="80"/>
+                        <DataGridTextColumn Header="Характеристика" Width="200"/>
+                        <DataGridTextColumn Header="Значение" Width="200"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка 15: Элементы инвентаризации -->
+            <TabItem Header="✓ Инвентаризация">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Width="50"/>
+                        <DataGridTextColumn Header="Инвентаризация" Width="100"/>
+                        <DataGridTextColumn Header="Оборудование" Width="100"/>
+                        <DataGridTextColumn Header="Проверил" Width="120"/>
+                        <DataGridTextColumn Header="Дата" Width="120"/>
+                        <DataGridTextColumn Header="Комментарий" Width="250"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- Панель инструментов внизу -->
+        <Border Height="50" Background="#E0E0E0" VerticalAlignment="Bottom">
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <Button Content="➕ Добавить" Width="100" Margin="0 0 10 0"/>
+                <Button Content="✏️ Редактировать" Width="120" Margin="0 0 10 0"/>
+                <Button Content="🗑️ Удалить" Width="100" Margin="0 0 10 0"/>
+                <Button Content="📥 Экспорт" Width="100" Margin="0 0 10 0"/>
+                <TextBox Width="200" Text="Поиск..." Margin="0 0 10 0"/>
+                <Button Content="🔍 Поиск" Width="80"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
