@@ -5,18 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiUp.Controllers
 {
-    [Route("api/ClassroomsController")]
+    [Route("api/ModelsController")]
     [ApiExplorerSettings(GroupName = "v1")]
-    public class ClassroomsController : Controller
+    public class ModelsController : Controller
     {
-        private readonly ClassroomsContext _context;
-        public ClassroomsController(ClassroomsContext context) { _context = context; }
+        private readonly ModelsContext _context;
+        public ModelsController(ModelsContext context) { _context = context; }
 
         [Route("List")]
         [HttpGet]
         public async Task<ActionResult> List()
         {
-            try { return Ok(await _context.Classrooms.ToListAsync()); }
+            try { return Ok(await _context.Models.ToListAsync()); }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
 
@@ -26,8 +26,8 @@ namespace ApiUp.Controllers
         {
             try
             {
-                var item = await _context.Classrooms.Where(x => x.id == id).FirstOrDefaultAsync();
-                if (item == null) return NotFound($"Аудитория с ID {id} не найдена");
+                var item = await _context.Models.Where(x => x.id == id).FirstOrDefaultAsync();
+                if (item == null) return NotFound($"Модель с ID {id} не найдена");
                 return Ok(item);
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
@@ -36,14 +36,14 @@ namespace ApiUp.Controllers
         [Route("Add")]
         [HttpPost]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ActionResult> Add([FromBody] Classroom item)
+        public async Task<ActionResult> Add([FromBody] ModelEntity item)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
-                _context.Classrooms.Add(item);
+                _context.Models.Add(item);
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Аудитория создана", id = item.id });
+                return Ok(new { message = "Модель создана", id = item.id });
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
@@ -51,22 +51,19 @@ namespace ApiUp.Controllers
         [Route("Update")]
         [HttpPut]
         [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ActionResult> Update(int id, [FromBody] Classroom dto)
+        public async Task<ActionResult> Update(int id, [FromBody] ModelEntity dto)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
-
-                var item = await _context.Classrooms.Where(x => x.id == id).FirstOrDefaultAsync();
-                if (item == null) return NotFound($"Аудитория с ID {id} не найдена");
+                var item = await _context.Models.Where(x => x.id == id).FirstOrDefaultAsync();
+                if (item == null) return NotFound($"Модель с ID {id} не найдена");
 
                 item.name = dto.name;
-                item.short_name = dto.short_name;
-                item.responsible_user_id = dto.responsible_user_id;
-                item.temp_responsible_user_id = dto.temp_responsible_user_id;
+                item.equipment_type_id = dto.equipment_type_id;
 
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Аудитория обновлена" });
+                return Ok(new { message = "Модель обновлена" });
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
@@ -78,12 +75,12 @@ namespace ApiUp.Controllers
         {
             try
             {
-                var item = await _context.Classrooms.Where(x => x.id == id).FirstOrDefaultAsync();
-                if (item == null) return NotFound($"Аудитория с ID {id} не найдена");
+                var item = await _context.Models.Where(x => x.id == id).FirstOrDefaultAsync();
+                if (item == null) return NotFound($"Модель с ID {id} не найдена");
 
-                _context.Classrooms.Remove(item);
+                _context.Models.Remove(item);
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Аудитория удалена" });
+                return Ok(new { message = "Модель удалена" });
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }

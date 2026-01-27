@@ -97,17 +97,5 @@ namespace ApiUp.Controllers
             }
             catch (Exception exp) { Console.WriteLine($"Error in Users Delete: {exp.Message}"); return StatusCode(500, "Internal server error"); }
         }
-
-        [Route("TestConnection")]
-        [HttpGet]
-        public async Task<ActionResult> TestConnection()
-        {
-            try
-            {
-                var canConnect = await _context.Database.CanConnectAsync();
-                return Ok(new { canConnect, database = _context.Database.GetDbConnection().Database, server = _context.Database.GetDbConnection().DataSource });
-            }
-            catch (Exception ex) { return StatusCode(500, new { error = ex.Message, innerError = ex.InnerException?.Message }); }
-        }
     }
 }
