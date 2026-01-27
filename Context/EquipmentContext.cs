@@ -1,4 +1,4 @@
-﻿using ApiUp.Model;
+﻿using ApiUp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiUp.Context

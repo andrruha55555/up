@@ -1,10 +1,9 @@
-﻿namespace ApiUp.Model
+﻿namespace ApiUp.Models;
+
+public class SoftwareEntity
 {
-    public class SoftwareEntity
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-        public int? developer_id { get; set; }
-        public string version { get; set; }
-    }
+    public int id { get; set; }
+    public string name { get; set; }
+    public int? developer_id { get; set; }
+    public string version { get; set; }
 }

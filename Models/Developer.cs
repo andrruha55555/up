@@ -1,8 +1,7 @@
-﻿namespace ApiUp.Model
+﻿namespace ApiUp.Models;
+
+public class Developer
 {
-    public class Developer
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    public int id { get; set; }
+    public string name { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace ApiUp.Model
+﻿namespace ApiUp.Models;
+
+public class EquipmentSoftware
 {
-    public class EquipmentSoftware
-    {
-        public int equipment_id { get; set; }
-        public int software_id { get; set; }
-    }
+    public int equipment_id { get; set; }
+    public int software_id { get; set; }
 }
