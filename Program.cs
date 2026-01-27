@@ -3,16 +3,14 @@ using ApiUp.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Логирование как в примере
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 
-// Версия MySQL СТРОГО под твою БД (5.7.39)
 var mySqlVersion = new MySqlServerVersion(new Version(5, 7, 39));
 
-// Регистрируем КАЖДЫЙ DbContext отдельно (как у тебя)
+
 builder.Services.AddDbContext<UsersContext>(o =>
 {
     o.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), mySqlVersion);
@@ -135,7 +133,7 @@ builder.Services.AddDbContext<ConsumableCharacteristicsContext>(o =>
 builder.Services.AddControllers();
 builder.Services.AddMvc(option => option.EnableEndpointRouting = true);
 
-// Swagger как в примере (v1-v4)
+
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Version = "v1", Title = "GET запросы" });
@@ -146,7 +144,7 @@ builder.Services.AddSwaggerGen(option =>
 
 var app = builder.Build();
 
-// Логирование запросов
+
 app.Use(async (context, next) =>
 {
     Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
@@ -166,7 +164,7 @@ app.Use(async (context, next) =>
     }
 });
 
-// EnsureCreated как в примере (НЕ удаляет существующую БД, только создаёт если её нет)
+
 using (var scope = app.Services.CreateScope())
 {
     var s = scope.ServiceProvider;
