@@ -212,7 +212,7 @@
                 <Button Content="✏️ Редактировать" Width="120" Margin="0 0 10 0"/>
                 <Button Content="🗑️ Удалить" Width="100" Margin="0 0 10 0"/>
                 <Button Content="📥 Экспорт" Width="100" Margin="0 0 10 0"/>
-                <TextBox Width="200" Text="Поиск..." Margin="0 0 10 0"/>
+                <TextBox Width="200"  Margin="0 0 10 0"/>
                 <Button Content="🔍 Поиск" Width="80"/>
             </StackPanel>
         </Border>
