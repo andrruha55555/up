@@ -1,0 +1,104 @@
+﻿<UserControl x:Class="AdminUP.Views.Controls.EquipmentEditControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="600">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Редактирование оборудования" 
+                   FontSize="18" FontWeight="Bold" Margin="0 0 0 20"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:" Margin="5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Margin="5"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Инвентарный номер:" Margin="5"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InventoryNumber}" Margin="5"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Аудитория:" Margin="5"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" 
+                              ItemsSource="{Binding AvailableClassrooms}"
+                              DisplayMemberPath="Name"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding ClassroomId}"
+                              Margin="5"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Ответственный:" Margin="5"/>
+                    <ComboBox Grid.Row="3" Grid.Column="1" 
+                              ItemsSource="{Binding AvailableUsers}"
+                              DisplayMemberPath="FullName"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding ResponsibleUserId}"
+                              Margin="5"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Стоимость:" Margin="5"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Cost}" Margin="5"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Направление:" Margin="5"/>
+                    <ComboBox Grid.Row="5" Grid.Column="1" 
+                              ItemsSource="{Binding AvailableDirections}"
+                              DisplayMemberPath="Name"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding DirectionId}"
+                              Margin="5"/>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Статус:" Margin="5"/>
+                    <ComboBox Grid.Row="6" Grid.Column="1" 
+                              ItemsSource="{Binding AvailableStatuses}"
+                              DisplayMemberPath="Name"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding StatusId}"
+                              Margin="5"/>
+
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Модель:" Margin="5"/>
+                    <ComboBox Grid.Row="7" Grid.Column="1" 
+                              ItemsSource="{Binding AvailableModels}"
+                              DisplayMemberPath="Name"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding ModelId}"
+                              Margin="5"/>
+
+                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Комментарий:" Margin="5"/>
+                    <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding Comment}" 
+                             Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="5"/>
+
+                    <TextBlock Grid.Row="9" Grid.Column="0" Text="Путь к изображению:" Margin="5"/>
+                    <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding ImagePath}" Margin="5"/>
+
+                    <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" 
+                                Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 20 0 0">
+                        <Button Content="Сохранить" Width="100" Margin="5"/>
+                        <Button Content="Отмена" Width="100" Margin="5"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
