@@ -1,28 +1,91 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AdminUP.Models;
+using AdminUP.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AdminUP.Views
 {
-    /// <summary>
-    /// Логика взаимодействия для ConsumableTypePage.xaml
-    /// </summary>
     public partial class ConsumableTypePage : Page
     {
+        private ConsumableTypePageViewModel _viewModel;
+
         public ConsumableTypePage()
         {
             InitializeComponent();
+
+            _viewModel = new ConsumableTypePageViewModel(App.ApiService, App.CacheService);
+            DataContext = _viewModel;
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _viewModel.LoadConsumableTypesAsync();
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            var newType = new ConsumableType();
+            ShowEditDialog(newType, "Добавление типа расходника");
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedConsumableType != null)
+            {
+                ShowEditDialog(_viewModel.SelectedConsumableType, "Редактирование типа расходника");
+            }
+            else
+            {
+                MessageBox.Show("Выберите тип расходника для редактирования", "Информация",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedConsumableType != null)
+            {
+                await _viewModel.DeleteConsumableTypeAsync(_viewModel.SelectedConsumableType.Id);
+            }
+            else
+            {
+                MessageBox.Show("Выберите тип расходника для удаления", "Информация",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.FilterConsumableTypes();
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = string.Empty;
+            _viewModel.SearchText = string.Empty;
+        }
+
+        private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            EditButton_Click(sender, e);
+        }
+
+        private async void ShowEditDialog(ConsumableType consumableType, string title)
+        {
+            var editDialog = new EditDialog(consumableType, title);
+            editDialog.Owner = Window.GetWindow(this);
+
+            if (editDialog.ShowDialog() == true)
+            {
+                var editedType = editDialog.GetEditedItem() as ConsumableType;
+                if (editedType != null)
+                {
+                    if (editedType.Id == 0)
+                        await _viewModel.AddConsumableTypeAsync(editedType);
+                    else
+                        await _viewModel.UpdateConsumableTypeAsync(editedType.Id, editedType);
+                }
+            }
         }
     }
 }

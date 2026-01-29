@@ -10,37 +10,34 @@ using System.Windows;
 
 namespace AdminUP.ViewModels
 {
-    public class ConsumableCharacteristicPageViewModel : INotifyPropertyChanged
+    public class ConsumableTypePageViewModel : INotifyPropertyChanged
     {
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<ConsumableCharacteristic> _characteristicList;
-        private ConsumableCharacteristic _selectedCharacteristic;
+        private ObservableCollection<ConsumableType> _consumableTypeList;
+        private ConsumableType _selectedConsumableType;
         private bool _isLoading;
         private string _searchText;
-        private int? _selectedConsumableId;
 
-        public ObservableCollection<ConsumableCharacteristic> CharacteristicList
+        public ObservableCollection<ConsumableType> ConsumableTypeList
         {
-            get => _characteristicList;
+            get => _consumableTypeList;
             set
             {
-                _characteristicList = value;
+                _consumableTypeList = value;
                 OnPropertyChanged();
             }
         }
 
-        public ObservableCollection<Consumable> ConsumableList { get; set; }
-
-        public ConsumableCharacteristic SelectedCharacteristic
+        public ConsumableType SelectedConsumableType
         {
-            get => _selectedCharacteristic;
+            get => _selectedConsumableType;
             set
             {
-                _selectedCharacteristic = value;
+                _selectedConsumableType = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsCharacteristicSelected));
+                OnPropertyChanged(nameof(IsConsumableTypeSelected));
             }
         }
 
@@ -61,44 +58,46 @@ namespace AdminUP.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                FilterCharacteristics();
+                FilterConsumableTypes();
             }
         }
 
-        public int? SelectedConsumableId
-        {
-            get => _selectedConsumableId;
-            set
-            {
-                _selectedConsumableId = value;
-                OnPropertyChanged();
-                FilterCharacteristics();
-            }
-        }
+        public bool IsConsumableTypeSelected => SelectedConsumableType != null;
 
-        public bool IsCharacteristicSelected => SelectedCharacteristic != null;
+        public ObservableCollection<ConsumableType> FilteredConsumableTypeList { get; set; }
 
-        public ObservableCollection<ConsumableCharacteristic> FilteredCharacteristicList { get; set; }
-
-        public ConsumableCharacteristicPageViewModel(ApiService apiService, CacheService cacheService)
+        public ConsumableTypePageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            CharacteristicList = new ObservableCollection<ConsumableCharacteristic>();
-            ConsumableList = new ObservableCollection<Consumable>();
-            FilteredCharacteristicList = new ObservableCollection<ConsumableCharacteristic>();
+            ConsumableTypeList = new ObservableCollection<ConsumableType>();
+            FilteredConsumableTypeList = new ObservableCollection<ConsumableType>();
         }
 
-        public async Task LoadDataAsync()
+        public async Task LoadConsumableTypesAsync()
         {
             IsLoading = true;
             try
             {
-                await Task.WhenAll(
-                    LoadCharacteristicsAsync(),
-                    LoadConsumablesAsync()
-                );
+                var types = await _cacheService.GetOrSetAsync("consumable_types_page_list",
+                    async () => await _apiService.GetListAsync<ConsumableType>("ConsumableTypesController"));
+
+                ConsumableTypeList.Clear();
+                if (types != null)
+                {
+                    foreach (var item in types)
+                    {
+                        ConsumableTypeList.Add(item);
+                    }
+                }
+
+                FilterConsumableTypes();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки типов расходников: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -106,72 +105,39 @@ namespace AdminUP.ViewModels
             }
         }
 
-        private async Task LoadCharacteristicsAsync()
+        public void FilterConsumableTypes()
         {
-            var characteristics = await _cacheService.GetOrSetAsync("characteristics_page_list",
-                async () => await _apiService.GetListAsync<ConsumableCharacteristic>("ConsumableCharacteristicsController"));
+            FilteredConsumableTypeList.Clear();
 
-            CharacteristicList.Clear();
-            if (characteristics != null)
+            if (string.IsNullOrWhiteSpace(SearchText))
             {
-                foreach (var item in characteristics)
+                foreach (var item in ConsumableTypeList)
                 {
-                    CharacteristicList.Add(item);
+                    FilteredConsumableTypeList.Add(item);
                 }
             }
-
-            FilterCharacteristics();
-        }
-
-        private async Task LoadConsumablesAsync()
-        {
-            var consumables = await _cacheService.GetOrSetAsync("consumables_for_characteristics",
-                async () => await _apiService.GetListAsync<Consumable>("ConsumablesController"));
-
-            ConsumableList.Clear();
-            if (consumables != null)
-            {
-                foreach (var item in consumables)
-                {
-                    ConsumableList.Add(item);
-                }
-            }
-        }
-
-        public void FilterCharacteristics()
-        {
-            FilteredCharacteristicList.Clear();
-
-            IEnumerable<ConsumableCharacteristic> filtered = CharacteristicList;
-
-            if (SelectedConsumableId.HasValue && SelectedConsumableId > 0)
-            {
-                filtered = filtered.Where(c => c.ConsumableId == SelectedConsumableId.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(SearchText))
+            else
             {
                 var searchLower = SearchText.ToLower();
-                filtered = filtered.Where(c =>
-                    (c.CharacteristicName?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.CharacteristicValue?.ToLower().Contains(searchLower) ?? false));
-            }
+                var filtered = ConsumableTypeList.Where(t =>
+                    (t.Name?.ToLower().Contains(searchLower) ?? false));
 
-            foreach (var item in filtered)
-            {
-                FilteredCharacteristicList.Add(item);
+                foreach (var item in filtered)
+                {
+                    FilteredConsumableTypeList.Add(item);
+                }
             }
         }
 
-        public async Task<bool> AddCharacteristicAsync(ConsumableCharacteristic characteristic)
+        public async Task<bool> AddConsumableTypeAsync(ConsumableType consumableType)
         {
             try
             {
-                var success = await _apiService.AddItemAsync("ConsumableCharacteristicsController", characteristic);
+                var success = await _apiService.AddItemAsync("ConsumableTypesController", consumableType);
                 if (success)
                 {
-                    _cacheService.Remove("characteristics_page_list");
-                    await LoadCharacteristicsAsync();
+                    _cacheService.Remove("consumable_types_page_list");
+                    await LoadConsumableTypesAsync();
                     return true;
                 }
                 return false;
@@ -184,15 +150,15 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> UpdateCharacteristicAsync(int id, ConsumableCharacteristic characteristic)
+        public async Task<bool> UpdateConsumableTypeAsync(int id, ConsumableType consumableType)
         {
             try
             {
-                var success = await _apiService.UpdateItemAsync("ConsumableCharacteristicsController", id, characteristic);
+                var success = await _apiService.UpdateItemAsync("ConsumableTypesController", id, consumableType);
                 if (success)
                 {
-                    _cacheService.Remove("characteristics_page_list");
-                    await LoadCharacteristicsAsync();
+                    _cacheService.Remove("consumable_types_page_list");
+                    await LoadConsumableTypesAsync();
                     return true;
                 }
                 return false;
@@ -205,20 +171,20 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> DeleteCharacteristicAsync(int id)
+        public async Task<bool> DeleteConsumableTypeAsync(int id)
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить эту характеристику?",
+                var result = MessageBox.Show("Вы уверены, что хотите удалить этот тип расходника?",
                     "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return false;
 
-                var success = await _apiService.DeleteItemAsync("ConsumableCharacteristicsController", id);
+                var success = await _apiService.DeleteItemAsync("ConsumableTypesController", id);
                 if (success)
                 {
-                    _cacheService.Remove("characteristics_page_list");
-                    await LoadCharacteristicsAsync();
+                    _cacheService.Remove("consumable_types_page_list");
+                    await LoadConsumableTypesAsync();
                     return true;
                 }
                 return false;

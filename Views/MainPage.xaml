@@ -45,6 +45,10 @@
                 Margin="0,60,0,50" BorderBrush="#DDDDDD" BorderThickness="0,0,1,0">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
+                    <Button Content="📝 История оборудования" Style="{StaticResource MenuButton}" 
+                            Tag="EquipmentHistoryPage" Click="MenuButton_Click"/>
+                    <Button Content="🔗 Оборудование-ПО" Style="{StaticResource MenuButton}" 
+                            Tag="EquipmentSoftwarePage" Click="MenuButton_Click"/>
                     <Button Content="📦 Оборудование" Style="{StaticResource MenuButton}" 
                             Tag="EquipmentPage" Click="MenuButton_Click"/>
                     <Button Content="👥 Пользователи" Style="{StaticResource MenuButton}" 

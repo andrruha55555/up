@@ -1,28 +1,91 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AdminUP.Models;
+using AdminUP.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AdminUP.Views
 {
-    /// <summary>
-    /// Логика взаимодействия для DirectionPage.xaml
-    /// </summary>
     public partial class DirectionPage : Page
     {
+        private DirectionPageViewModel _viewModel;
+
         public DirectionPage()
         {
             InitializeComponent();
+
+            _viewModel = new DirectionPageViewModel(App.ApiService, App.CacheService);
+            DataContext = _viewModel;
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _viewModel.LoadDirectionsAsync();
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            var newDirection = new Direction();
+            ShowEditDialog(newDirection, "Добавление направления");
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedDirection != null)
+            {
+                ShowEditDialog(_viewModel.SelectedDirection, "Редактирование направления");
+            }
+            else
+            {
+                MessageBox.Show("Выберите направление для редактирования", "Информация",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedDirection != null)
+            {
+                await _viewModel.DeleteDirectionAsync(_viewModel.SelectedDirection.Id);
+            }
+            else
+            {
+                MessageBox.Show("Выберите направление для удаления", "Информация",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.FilterDirections();
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = string.Empty;
+            _viewModel.SearchText = string.Empty;
+        }
+
+        private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            EditButton_Click(sender, e);
+        }
+
+        private async void ShowEditDialog(Direction direction, string title)
+        {
+            var editDialog = new EditDialog(direction, title);
+            editDialog.Owner = Window.GetWindow(this);
+
+            if (editDialog.ShowDialog() == true)
+            {
+                var editedDirection = editDialog.GetEditedItem() as Direction;
+                if (editedDirection != null)
+                {
+                    if (editedDirection.Id == 0)
+                        await _viewModel.AddDirectionAsync(editedDirection);
+                    else
+                        await _viewModel.UpdateDirectionAsync(editedDirection.Id, editedDirection);
+                }
+            }
         }
     }
 }

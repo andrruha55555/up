@@ -30,6 +30,14 @@ namespace AdminUP.Views
             {
                 switch (pageName)
                 {
+                    case "EquipmentHistoryPage":
+                        MainFrame.Navigate(new EquipmentHistoryPage());
+                        CurrentPageTitle = "📝 История оборудования";
+                        break;
+                    case "EquipmentSoftwarePage":
+                        MainFrame.Navigate(new EquipmentSoftwarePage());
+                        CurrentPageTitle = "🔗 Оборудование-ПО";
+                        break;
                     case "EquipmentPage":
                         MainFrame.Navigate(new EquipmentPage());
                         CurrentPageTitle = "📦 Оборудование";
