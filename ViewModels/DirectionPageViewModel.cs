@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using AdminUP.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,34 +10,34 @@ using System.Windows;
 
 namespace AdminUP.ViewModels
 {
-    public class EquipmentPageViewModel : INotifyPropertyChanged
+    public class DirectionPageViewModel : INotifyPropertyChanged
     {
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Equipment> _equipmentList;
-        private Equipment _selectedEquipment;
+        private ObservableCollection<Direction> _directionList;
+        private Direction _selectedDirection;
         private bool _isLoading;
         private string _searchText;
 
-        public ObservableCollection<Equipment> EquipmentList
+        public ObservableCollection<Direction> DirectionList
         {
-            get => _equipmentList;
+            get => _directionList;
             set
             {
-                _equipmentList = value;
+                _directionList = value;
                 OnPropertyChanged();
             }
         }
 
-        public Equipment SelectedEquipment
+        public Direction SelectedDirection
         {
-            get => _selectedEquipment;
+            get => _selectedDirection;
             set
             {
-                _selectedEquipment = value;
+                _selectedDirection = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsEquipmentSelected));
+                OnPropertyChanged(nameof(IsDirectionSelected));
             }
         }
 
@@ -59,45 +58,45 @@ namespace AdminUP.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                FilterEquipment();
+                FilterDirections();
             }
         }
 
-        public bool IsEquipmentSelected => SelectedEquipment != null;
+        public bool IsDirectionSelected => SelectedDirection != null;
 
-        public ObservableCollection<Equipment> FilteredEquipmentList { get; set; }
+        public ObservableCollection<Direction> FilteredDirectionList { get; set; }
 
-        public EquipmentPageViewModel(ApiService apiService, CacheService cacheService)
+        public DirectionPageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            EquipmentList = new ObservableCollection<Equipment>();
-            FilteredEquipmentList = new ObservableCollection<Equipment>();
+            DirectionList = new ObservableCollection<Direction>();
+            FilteredDirectionList = new ObservableCollection<Direction>();
         }
 
-        public async Task LoadEquipmentAsync()
+        public async Task LoadDirectionsAsync()
         {
             IsLoading = true;
             try
             {
-                var equipment = await _cacheService.GetOrSetAsync("equipment_page_list",
-                    async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
+                var directions = await _cacheService.GetOrSetAsync("directions_page_list",
+                    async () => await _apiService.GetListAsync<Direction>("DirectionsController"));
 
-                EquipmentList.Clear();
-                if (equipment != null)
+                DirectionList.Clear();
+                if (directions != null)
                 {
-                    foreach (var item in equipment)
+                    foreach (var item in directions)
                     {
-                        EquipmentList.Add(item);
+                        DirectionList.Add(item);
                     }
                 }
 
-                FilterEquipment();
+                FilterDirections();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки оборудования: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка загрузки направлений: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -106,41 +105,39 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public void FilterEquipment()
+        public void FilterDirections()
         {
-            FilteredEquipmentList.Clear();
+            FilteredDirectionList.Clear();
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                foreach (var item in EquipmentList)
+                foreach (var item in DirectionList)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredDirectionList.Add(item);
                 }
             }
             else
             {
                 var searchLower = SearchText.ToLower();
-                var filtered = EquipmentList.Where(e =>
-                    (e.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.InventoryNumber?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.Comment?.ToLower().Contains(searchLower) ?? false));
+                var filtered = DirectionList.Where(d =>
+                    (d.Name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredDirectionList.Add(item);
                 }
             }
         }
 
-        public async Task<bool> AddEquipmentAsync(Equipment equipment)
+        public async Task<bool> AddDirectionAsync(Direction direction)
         {
             try
             {
-                var success = await _apiService.AddItemAsync("EquipmentController", equipment);
+                var success = await _apiService.AddItemAsync("DirectionsController", direction);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("directions_page_list");
+                    await LoadDirectionsAsync();
                     return true;
                 }
                 return false;
@@ -153,15 +150,15 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> UpdateEquipmentAsync(int id, Equipment equipment)
+        public async Task<bool> UpdateDirectionAsync(int id, Direction direction)
         {
             try
             {
-                var success = await _apiService.UpdateItemAsync("EquipmentController", id, equipment);
+                var success = await _apiService.UpdateItemAsync("DirectionsController", id, direction);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("directions_page_list");
+                    await LoadDirectionsAsync();
                     return true;
                 }
                 return false;
@@ -174,20 +171,20 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> DeleteEquipmentAsync(int id)
+        public async Task<bool> DeleteDirectionAsync(int id)
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить это оборудование?",
+                var result = MessageBox.Show("Вы уверены, что хотите удалить это направление?",
                     "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return false;
 
-                var success = await _apiService.DeleteItemAsync("EquipmentController", id);
+                var success = await _apiService.DeleteItemAsync("DirectionsController", id);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("directions_page_list");
+                    await LoadDirectionsAsync();
                     return true;
                 }
                 return false;

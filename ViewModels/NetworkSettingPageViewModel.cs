@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using AdminUP.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,34 +10,34 @@ using System.Windows;
 
 namespace AdminUP.ViewModels
 {
-    public class EquipmentPageViewModel : INotifyPropertyChanged
+    public class NetworkSettingPageViewModel : INotifyPropertyChanged
     {
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Equipment> _equipmentList;
-        private Equipment _selectedEquipment;
+        private ObservableCollection<NetworkSetting> _networkSettingList;
+        private NetworkSetting _selectedNetworkSetting;
         private bool _isLoading;
         private string _searchText;
 
-        public ObservableCollection<Equipment> EquipmentList
+        public ObservableCollection<NetworkSetting> NetworkSettingList
         {
-            get => _equipmentList;
+            get => _networkSettingList;
             set
             {
-                _equipmentList = value;
+                _networkSettingList = value;
                 OnPropertyChanged();
             }
         }
 
-        public Equipment SelectedEquipment
+        public NetworkSetting SelectedNetworkSetting
         {
-            get => _selectedEquipment;
+            get => _selectedNetworkSetting;
             set
             {
-                _selectedEquipment = value;
+                _selectedNetworkSetting = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsEquipmentSelected));
+                OnPropertyChanged(nameof(IsNetworkSettingSelected));
             }
         }
 
@@ -59,45 +58,45 @@ namespace AdminUP.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                FilterEquipment();
+                FilterNetworkSettings();
             }
         }
 
-        public bool IsEquipmentSelected => SelectedEquipment != null;
+        public bool IsNetworkSettingSelected => SelectedNetworkSetting != null;
 
-        public ObservableCollection<Equipment> FilteredEquipmentList { get; set; }
+        public ObservableCollection<NetworkSetting> FilteredNetworkSettingList { get; set; }
 
-        public EquipmentPageViewModel(ApiService apiService, CacheService cacheService)
+        public NetworkSettingPageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            EquipmentList = new ObservableCollection<Equipment>();
-            FilteredEquipmentList = new ObservableCollection<Equipment>();
+            NetworkSettingList = new ObservableCollection<NetworkSetting>();
+            FilteredNetworkSettingList = new ObservableCollection<NetworkSetting>();
         }
 
-        public async Task LoadEquipmentAsync()
+        public async Task LoadNetworkSettingsAsync()
         {
             IsLoading = true;
             try
             {
-                var equipment = await _cacheService.GetOrSetAsync("equipment_page_list",
-                    async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
+                var settings = await _cacheService.GetOrSetAsync("network_settings_page_list",
+                    async () => await _apiService.GetListAsync<NetworkSetting>("NetworkSettingsController"));
 
-                EquipmentList.Clear();
-                if (equipment != null)
+                NetworkSettingList.Clear();
+                if (settings != null)
                 {
-                    foreach (var item in equipment)
+                    foreach (var item in settings)
                     {
-                        EquipmentList.Add(item);
+                        NetworkSettingList.Add(item);
                     }
                 }
 
-                FilterEquipment();
+                FilterNetworkSettings();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки оборудования: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка загрузки сетевых настроек: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -106,41 +105,40 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public void FilterEquipment()
+        public void FilterNetworkSettings()
         {
-            FilteredEquipmentList.Clear();
+            FilteredNetworkSettingList.Clear();
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                foreach (var item in EquipmentList)
+                foreach (var item in NetworkSettingList)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredNetworkSettingList.Add(item);
                 }
             }
             else
             {
                 var searchLower = SearchText.ToLower();
-                var filtered = EquipmentList.Where(e =>
-                    (e.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.InventoryNumber?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.Comment?.ToLower().Contains(searchLower) ?? false));
+                var filtered = NetworkSettingList.Where(n =>
+                    (n.IpAddress?.ToLower().Contains(searchLower) ?? false) ||
+                    (n.Gateway?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredNetworkSettingList.Add(item);
                 }
             }
         }
 
-        public async Task<bool> AddEquipmentAsync(Equipment equipment)
+        public async Task<bool> AddNetworkSettingAsync(NetworkSetting networkSetting)
         {
             try
             {
-                var success = await _apiService.AddItemAsync("EquipmentController", equipment);
+                var success = await _apiService.AddItemAsync("NetworkSettingsController", networkSetting);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("network_settings_page_list");
+                    await LoadNetworkSettingsAsync();
                     return true;
                 }
                 return false;
@@ -153,15 +151,15 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> UpdateEquipmentAsync(int id, Equipment equipment)
+        public async Task<bool> UpdateNetworkSettingAsync(int id, NetworkSetting networkSetting)
         {
             try
             {
-                var success = await _apiService.UpdateItemAsync("EquipmentController", id, equipment);
+                var success = await _apiService.UpdateItemAsync("NetworkSettingsController", id, networkSetting);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("network_settings_page_list");
+                    await LoadNetworkSettingsAsync();
                     return true;
                 }
                 return false;
@@ -174,20 +172,20 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> DeleteEquipmentAsync(int id)
+        public async Task<bool> DeleteNetworkSettingAsync(int id)
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить это оборудование?",
+                var result = MessageBox.Show("Вы уверены, что хотите удалить эти сетевые настройки?",
                     "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return false;
 
-                var success = await _apiService.DeleteItemAsync("EquipmentController", id);
+                var success = await _apiService.DeleteItemAsync("NetworkSettingsController", id);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("network_settings_page_list");
+                    await LoadNetworkSettingsAsync();
                     return true;
                 }
                 return false;

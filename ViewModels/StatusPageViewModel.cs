@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using AdminUP.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,34 +10,34 @@ using System.Windows;
 
 namespace AdminUP.ViewModels
 {
-    public class EquipmentPageViewModel : INotifyPropertyChanged
+    public class StatusPageViewModel : INotifyPropertyChanged
     {
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Equipment> _equipmentList;
-        private Equipment _selectedEquipment;
+        private ObservableCollection<Status> _statusList;
+        private Status _selectedStatus;
         private bool _isLoading;
         private string _searchText;
 
-        public ObservableCollection<Equipment> EquipmentList
+        public ObservableCollection<Status> StatusList
         {
-            get => _equipmentList;
+            get => _statusList;
             set
             {
-                _equipmentList = value;
+                _statusList = value;
                 OnPropertyChanged();
             }
         }
 
-        public Equipment SelectedEquipment
+        public Status SelectedStatus
         {
-            get => _selectedEquipment;
+            get => _selectedStatus;
             set
             {
-                _selectedEquipment = value;
+                _selectedStatus = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsEquipmentSelected));
+                OnPropertyChanged(nameof(IsStatusSelected));
             }
         }
 
@@ -59,45 +58,45 @@ namespace AdminUP.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                FilterEquipment();
+                FilterStatuses();
             }
         }
 
-        public bool IsEquipmentSelected => SelectedEquipment != null;
+        public bool IsStatusSelected => SelectedStatus != null;
 
-        public ObservableCollection<Equipment> FilteredEquipmentList { get; set; }
+        public ObservableCollection<Status> FilteredStatusList { get; set; }
 
-        public EquipmentPageViewModel(ApiService apiService, CacheService cacheService)
+        public StatusPageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            EquipmentList = new ObservableCollection<Equipment>();
-            FilteredEquipmentList = new ObservableCollection<Equipment>();
+            StatusList = new ObservableCollection<Status>();
+            FilteredStatusList = new ObservableCollection<Status>();
         }
 
-        public async Task LoadEquipmentAsync()
+        public async Task LoadStatusesAsync()
         {
             IsLoading = true;
             try
             {
-                var equipment = await _cacheService.GetOrSetAsync("equipment_page_list",
-                    async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
+                var statuses = await _cacheService.GetOrSetAsync("statuses_page_list",
+                    async () => await _apiService.GetListAsync<Status>("StatusesController"));
 
-                EquipmentList.Clear();
-                if (equipment != null)
+                StatusList.Clear();
+                if (statuses != null)
                 {
-                    foreach (var item in equipment)
+                    foreach (var item in statuses)
                     {
-                        EquipmentList.Add(item);
+                        StatusList.Add(item);
                     }
                 }
 
-                FilterEquipment();
+                FilterStatuses();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки оборудования: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка загрузки статусов: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -106,41 +105,39 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public void FilterEquipment()
+        public void FilterStatuses()
         {
-            FilteredEquipmentList.Clear();
+            FilteredStatusList.Clear();
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                foreach (var item in EquipmentList)
+                foreach (var item in StatusList)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredStatusList.Add(item);
                 }
             }
             else
             {
                 var searchLower = SearchText.ToLower();
-                var filtered = EquipmentList.Where(e =>
-                    (e.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.InventoryNumber?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.Comment?.ToLower().Contains(searchLower) ?? false));
+                var filtered = StatusList.Where(s =>
+                    (s.Name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredStatusList.Add(item);
                 }
             }
         }
 
-        public async Task<bool> AddEquipmentAsync(Equipment equipment)
+        public async Task<bool> AddStatusAsync(Status status)
         {
             try
             {
-                var success = await _apiService.AddItemAsync("EquipmentController", equipment);
+                var success = await _apiService.AddItemAsync("StatusesController", status);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("statuses_page_list");
+                    await LoadStatusesAsync();
                     return true;
                 }
                 return false;
@@ -153,15 +150,15 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> UpdateEquipmentAsync(int id, Equipment equipment)
+        public async Task<bool> UpdateStatusAsync(int id, Status status)
         {
             try
             {
-                var success = await _apiService.UpdateItemAsync("EquipmentController", id, equipment);
+                var success = await _apiService.UpdateItemAsync("StatusesController", id, status);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("statuses_page_list");
+                    await LoadStatusesAsync();
                     return true;
                 }
                 return false;
@@ -174,20 +171,20 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> DeleteEquipmentAsync(int id)
+        public async Task<bool> DeleteStatusAsync(int id)
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить это оборудование?",
+                var result = MessageBox.Show("Вы уверены, что хотите удалить этот статус?",
                     "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return false;
 
-                var success = await _apiService.DeleteItemAsync("EquipmentController", id);
+                var success = await _apiService.DeleteItemAsync("StatusesController", id);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("statuses_page_list");
+                    await LoadStatusesAsync();
                     return true;
                 }
                 return false;

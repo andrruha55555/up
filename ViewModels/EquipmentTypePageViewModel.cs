@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using AdminUP.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,34 +10,34 @@ using System.Windows;
 
 namespace AdminUP.ViewModels
 {
-    public class EquipmentPageViewModel : INotifyPropertyChanged
+    public class EquipmentTypePageViewModel : INotifyPropertyChanged
     {
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Equipment> _equipmentList;
-        private Equipment _selectedEquipment;
+        private ObservableCollection<EquipmentType> _equipmentTypeList;
+        private EquipmentType _selectedEquipmentType;
         private bool _isLoading;
         private string _searchText;
 
-        public ObservableCollection<Equipment> EquipmentList
+        public ObservableCollection<EquipmentType> EquipmentTypeList
         {
-            get => _equipmentList;
+            get => _equipmentTypeList;
             set
             {
-                _equipmentList = value;
+                _equipmentTypeList = value;
                 OnPropertyChanged();
             }
         }
 
-        public Equipment SelectedEquipment
+        public EquipmentType SelectedEquipmentType
         {
-            get => _selectedEquipment;
+            get => _selectedEquipmentType;
             set
             {
-                _selectedEquipment = value;
+                _selectedEquipmentType = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsEquipmentSelected));
+                OnPropertyChanged(nameof(IsEquipmentTypeSelected));
             }
         }
 
@@ -59,45 +58,45 @@ namespace AdminUP.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                FilterEquipment();
+                FilterEquipmentTypes();
             }
         }
 
-        public bool IsEquipmentSelected => SelectedEquipment != null;
+        public bool IsEquipmentTypeSelected => SelectedEquipmentType != null;
 
-        public ObservableCollection<Equipment> FilteredEquipmentList { get; set; }
+        public ObservableCollection<EquipmentType> FilteredEquipmentTypeList { get; set; }
 
-        public EquipmentPageViewModel(ApiService apiService, CacheService cacheService)
+        public EquipmentTypePageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            EquipmentList = new ObservableCollection<Equipment>();
-            FilteredEquipmentList = new ObservableCollection<Equipment>();
+            EquipmentTypeList = new ObservableCollection<EquipmentType>();
+            FilteredEquipmentTypeList = new ObservableCollection<EquipmentType>();
         }
 
-        public async Task LoadEquipmentAsync()
+        public async Task LoadEquipmentTypesAsync()
         {
             IsLoading = true;
             try
             {
-                var equipment = await _cacheService.GetOrSetAsync("equipment_page_list",
-                    async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
+                var types = await _cacheService.GetOrSetAsync("equipment_types_page_list",
+                    async () => await _apiService.GetListAsync<EquipmentType>("EquipmentTypesController"));
 
-                EquipmentList.Clear();
-                if (equipment != null)
+                EquipmentTypeList.Clear();
+                if (types != null)
                 {
-                    foreach (var item in equipment)
+                    foreach (var item in types)
                     {
-                        EquipmentList.Add(item);
+                        EquipmentTypeList.Add(item);
                     }
                 }
 
-                FilterEquipment();
+                FilterEquipmentTypes();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки оборудования: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка загрузки типов оборудования: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -106,41 +105,39 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public void FilterEquipment()
+        public void FilterEquipmentTypes()
         {
-            FilteredEquipmentList.Clear();
+            FilteredEquipmentTypeList.Clear();
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                foreach (var item in EquipmentList)
+                foreach (var item in EquipmentTypeList)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredEquipmentTypeList.Add(item);
                 }
             }
             else
             {
                 var searchLower = SearchText.ToLower();
-                var filtered = EquipmentList.Where(e =>
-                    (e.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.InventoryNumber?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.Comment?.ToLower().Contains(searchLower) ?? false));
+                var filtered = EquipmentTypeList.Where(t =>
+                    (t.Name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredEquipmentTypeList.Add(item);
                 }
             }
         }
 
-        public async Task<bool> AddEquipmentAsync(Equipment equipment)
+        public async Task<bool> AddEquipmentTypeAsync(EquipmentType equipmentType)
         {
             try
             {
-                var success = await _apiService.AddItemAsync("EquipmentController", equipment);
+                var success = await _apiService.AddItemAsync("EquipmentTypesController", equipmentType);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("equipment_types_page_list");
+                    await LoadEquipmentTypesAsync();
                     return true;
                 }
                 return false;
@@ -153,15 +150,15 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> UpdateEquipmentAsync(int id, Equipment equipment)
+        public async Task<bool> UpdateEquipmentTypeAsync(int id, EquipmentType equipmentType)
         {
             try
             {
-                var success = await _apiService.UpdateItemAsync("EquipmentController", id, equipment);
+                var success = await _apiService.UpdateItemAsync("EquipmentTypesController", id, equipmentType);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("equipment_types_page_list");
+                    await LoadEquipmentTypesAsync();
                     return true;
                 }
                 return false;
@@ -174,20 +171,20 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> DeleteEquipmentAsync(int id)
+        public async Task<bool> DeleteEquipmentTypeAsync(int id)
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить это оборудование?",
+                var result = MessageBox.Show("Вы уверены, что хотите удалить этот тип оборудования?",
                     "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return false;
 
-                var success = await _apiService.DeleteItemAsync("EquipmentController", id);
+                var success = await _apiService.DeleteItemAsync("EquipmentTypesController", id);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("equipment_types_page_list");
+                    await LoadEquipmentTypesAsync();
                     return true;
                 }
                 return false;

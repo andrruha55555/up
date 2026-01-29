@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using AdminUP.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,34 +10,34 @@ using System.Windows;
 
 namespace AdminUP.ViewModels
 {
-    public class EquipmentPageViewModel : INotifyPropertyChanged
+    public class ClassroomPageViewModel : INotifyPropertyChanged
     {
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Equipment> _equipmentList;
-        private Equipment _selectedEquipment;
+        private ObservableCollection<Classroom> _classroomList;
+        private Classroom _selectedClassroom;
         private bool _isLoading;
         private string _searchText;
 
-        public ObservableCollection<Equipment> EquipmentList
+        public ObservableCollection<Classroom> ClassroomList
         {
-            get => _equipmentList;
+            get => _classroomList;
             set
             {
-                _equipmentList = value;
+                _classroomList = value;
                 OnPropertyChanged();
             }
         }
 
-        public Equipment SelectedEquipment
+        public Classroom SelectedClassroom
         {
-            get => _selectedEquipment;
+            get => _selectedClassroom;
             set
             {
-                _selectedEquipment = value;
+                _selectedClassroom = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsEquipmentSelected));
+                OnPropertyChanged(nameof(IsClassroomSelected));
             }
         }
 
@@ -59,45 +58,45 @@ namespace AdminUP.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                FilterEquipment();
+                FilterClassrooms();
             }
         }
 
-        public bool IsEquipmentSelected => SelectedEquipment != null;
+        public bool IsClassroomSelected => SelectedClassroom != null;
 
-        public ObservableCollection<Equipment> FilteredEquipmentList { get; set; }
+        public ObservableCollection<Classroom> FilteredClassroomList { get; set; }
 
-        public EquipmentPageViewModel(ApiService apiService, CacheService cacheService)
+        public ClassroomPageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            EquipmentList = new ObservableCollection<Equipment>();
-            FilteredEquipmentList = new ObservableCollection<Equipment>();
+            ClassroomList = new ObservableCollection<Classroom>();
+            FilteredClassroomList = new ObservableCollection<Classroom>();
         }
 
-        public async Task LoadEquipmentAsync()
+        public async Task LoadClassroomsAsync()
         {
             IsLoading = true;
             try
             {
-                var equipment = await _cacheService.GetOrSetAsync("equipment_page_list",
-                    async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
+                var classrooms = await _cacheService.GetOrSetAsync("classrooms_page_list",
+                    async () => await _apiService.GetListAsync<Classroom>("ClassroomsController"));
 
-                EquipmentList.Clear();
-                if (equipment != null)
+                ClassroomList.Clear();
+                if (classrooms != null)
                 {
-                    foreach (var item in equipment)
+                    foreach (var item in classrooms)
                     {
-                        EquipmentList.Add(item);
+                        ClassroomList.Add(item);
                     }
                 }
 
-                FilterEquipment();
+                FilterClassrooms();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки оборудования: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка загрузки аудиторий: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -106,41 +105,40 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public void FilterEquipment()
+        public void FilterClassrooms()
         {
-            FilteredEquipmentList.Clear();
+            FilteredClassroomList.Clear();
 
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                foreach (var item in EquipmentList)
+                foreach (var item in ClassroomList)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredClassroomList.Add(item);
                 }
             }
             else
             {
                 var searchLower = SearchText.ToLower();
-                var filtered = EquipmentList.Where(e =>
-                    (e.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.InventoryNumber?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.Comment?.ToLower().Contains(searchLower) ?? false));
+                var filtered = ClassroomList.Where(c =>
+                    (c.Name?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.ShortName?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {
-                    FilteredEquipmentList.Add(item);
+                    FilteredClassroomList.Add(item);
                 }
             }
         }
 
-        public async Task<bool> AddEquipmentAsync(Equipment equipment)
+        public async Task<bool> AddClassroomAsync(Classroom classroom)
         {
             try
             {
-                var success = await _apiService.AddItemAsync("EquipmentController", equipment);
+                var success = await _apiService.AddItemAsync("ClassroomsController", classroom);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("classrooms_page_list");
+                    await LoadClassroomsAsync();
                     return true;
                 }
                 return false;
@@ -153,15 +151,15 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> UpdateEquipmentAsync(int id, Equipment equipment)
+        public async Task<bool> UpdateClassroomAsync(int id, Classroom classroom)
         {
             try
             {
-                var success = await _apiService.UpdateItemAsync("EquipmentController", id, equipment);
+                var success = await _apiService.UpdateItemAsync("ClassroomsController", id, classroom);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("classrooms_page_list");
+                    await LoadClassroomsAsync();
                     return true;
                 }
                 return false;
@@ -174,20 +172,20 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public async Task<bool> DeleteEquipmentAsync(int id)
+        public async Task<bool> DeleteClassroomAsync(int id)
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить это оборудование?",
+                var result = MessageBox.Show("Вы уверены, что хотите удалить эту аудиторию?",
                     "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result != MessageBoxResult.Yes) return false;
 
-                var success = await _apiService.DeleteItemAsync("EquipmentController", id);
+                var success = await _apiService.DeleteItemAsync("ClassroomsController", id);
                 if (success)
                 {
-                    _cacheService.Remove("equipment_page_list");
-                    await LoadEquipmentAsync();
+                    _cacheService.Remove("classrooms_page_list");
+                    await LoadClassroomsAsync();
                     return true;
                 }
                 return false;

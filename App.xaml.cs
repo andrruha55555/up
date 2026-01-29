@@ -1,5 +1,4 @@
 ﻿using AdminUP.Services;
-using AdminUP.ViewModels;
 using AdminUP.Views;
 using System.Windows;
 
@@ -11,7 +10,6 @@ namespace AdminUP
         public static AuthService AuthService { get; private set; }
         public static CacheService CacheService { get; private set; }
         public static ExportService ExportService { get; private set; }
-        public static MainViewModel MainViewModel { get; private set; }
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -25,9 +23,6 @@ namespace AdminUP
             var loginWindow = new LoginWindow();
             if (loginWindow.ShowDialog() == true)
             {
-                // Создаем главную ViewModel
-                MainViewModel = new MainViewModel(ApiService, CacheService);
-
                 // Показываем главное окно
                 var mainWindow = new MainPage();
                 mainWindow.Show();
@@ -40,7 +35,6 @@ namespace AdminUP
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
-            // Очистка ресурсов
             CacheService?.Clear();
         }
 

@@ -1,42 +1,178 @@
-﻿using AdminUP.Models;
-using AdminUP.ViewModels;
-using AdminUP.Views;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
-namespace AdminUP
+namespace AdminUP.Views
 {
     public partial class MainPage : Window
     {
-        private MainViewModel _viewModel;
-        public MainPage()
-        {
-            InitializeComponent();
-            _viewModel = App.MainViewModel;
-            DataContext = _viewModel;
-        }
+        private string _currentPageTitle;
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        public string CurrentPageTitle
         {
-            await _viewModel.LoadAllDataAsync();
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            // Подтверждение выхода
-            var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Подтверждение выхода",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result != MessageBoxResult.Yes)
+            get => _currentPageTitle;
+            set
             {
-                e.Cancel = true;
+                _currentPageTitle = value;
+                // Реализовать INotifyPropertyChanged если нужно
             }
         }
 
-        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+        public MainPage()
         {
-            await _viewModel.LoadAllDataAsync();
+            InitializeComponent();
+            NavigateToPage("EquipmentPage");
+        }
+
+        private void NavigateToPage(string pageName)
+        {
+            try
+            {
+                switch (pageName)
+                {
+                    case "EquipmentPage":
+                        MainFrame.Navigate(new EquipmentPage());
+                        CurrentPageTitle = "📦 Оборудование";
+                        break;
+                    case "UserPage":
+                        MainFrame.Navigate(new UserPage());
+                        CurrentPageTitle = "👥 Пользователи";
+                        break;
+                    case "ClassroomPage":
+                        MainFrame.Navigate(new ClassroomPage());
+                        CurrentPageTitle = "🏫 Аудитории";
+                        break;
+                    case "ConsumablePage":
+                        MainFrame.Navigate(new ConsumablePage());
+                        CurrentPageTitle = "🖨️ Расходные материалы";
+                        break;
+                    case "StatusPage":
+                        MainFrame.Navigate(new StatusPage());
+                        CurrentPageTitle = "📈 Статусы оборудования";
+                        break;
+                    case "EquipmentTypePage":
+                        MainFrame.Navigate(new EquipmentTypePage());
+                        CurrentPageTitle = "💻 Типы оборудования";
+                        break;
+                    case "ModelPage":
+                        MainFrame.Navigate(new ModelPage());
+                        CurrentPageTitle = "🖥️ Модели оборудования";
+                        break;
+                    case "ConsumableTypePage":
+                        MainFrame.Navigate(new ConsumableTypePage());
+                        CurrentPageTitle = "📊 Типы расходных материалов";
+                        break;
+                    case "ConsumableCharacteristicPage":
+                        MainFrame.Navigate(new ConsumableCharacteristicPage());
+                        CurrentPageTitle = "📝 Характеристики расходных материалов";
+                        break;
+                    case "DeveloperPage":
+                        MainFrame.Navigate(new DeveloperPage());
+                        CurrentPageTitle = "👨‍💻 Разработчики ПО";
+                        break;
+                    case "DirectionPage":
+                        MainFrame.Navigate(new DirectionPage());
+                        CurrentPageTitle = "🎯 Направления";
+                        break;
+                    case "SoftwarePage":
+                        MainFrame.Navigate(new SoftwarePage());
+                        CurrentPageTitle = "🛠️ Программное обеспечение";
+                        break;
+                    case "InventoryPage":
+                        MainFrame.Navigate(new InventoryPage());
+                        CurrentPageTitle = "📋 Инвентаризации";
+                        break;
+                    case "InventoryItemPage":
+                        MainFrame.Navigate(new InventoryItemPage());
+                        CurrentPageTitle = "✓ Элементы инвентаризации";
+                        break;
+                    case "NetworkSettingPage":
+                        MainFrame.Navigate(new NetworkSettingPage());
+                        CurrentPageTitle = "🌐 Сетевые настройки";
+                        break;
+                    default:
+                        MainFrame.Navigate(new EquipmentPage());
+                        CurrentPageTitle = "📦 Оборудование";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки страницы: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string pageName)
+            {
+                NavigateToPage(pageName);
+            }
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Вызываем метод добавления текущей страницы
+            if (MainFrame.Content is Page currentPage)
+            {
+                var addMethod = currentPage.GetType().GetMethod("AddButton_Click");
+                addMethod?.Invoke(currentPage, new object[] { sender, e });
+            }
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainFrame.Content is Page currentPage)
+            {
+                var editMethod = currentPage.GetType().GetMethod("EditButton_Click");
+                editMethod?.Invoke(currentPage, new object[] { sender, e });
+            }
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainFrame.Content is Page currentPage)
+            {
+                var deleteMethod = currentPage.GetType().GetMethod("DeleteButton_Click");
+                deleteMethod?.Invoke(currentPage, new object[] { sender, e });
+            }
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainFrame.Content is Page currentPage)
+            {
+                var searchMethod = currentPage.GetType().GetMethod("SearchButton_Click");
+                searchMethod?.Invoke(currentPage, new object[] { sender, e });
+            }
+        }
+
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainFrame.Content is Page currentPage)
+            {
+                var clearMethod = currentPage.GetType().GetMethod("ClearButton_Click");
+                clearMethod?.Invoke(currentPage, new object[] { sender, e });
+            }
+        }
+
+        private void SearchTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                SearchButton_Click(sender, e);
+            }
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Обновляем текущую страницу
+            if (MainFrame.Content is Page currentPage)
+            {
+                var loadedMethod = currentPage.GetType().GetMethod("Page_Loaded");
+                loadedMethod?.Invoke(currentPage, new object[] { currentPage, new RoutedEventArgs() });
+            }
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
@@ -48,184 +184,19 @@ namespace AdminUP
             this.Close();
         }
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            object newItem = null;
-            string title = "Добавление";
-
-            // Определяем тип нового элемента в зависимости от активной вкладки
-            switch (MainTabControl.SelectedIndex)
-            {
-                case 0: // Оборудование
-                    newItem = new Equipment();
-                    title = "Добавление оборудования";
-                    break;
-                case 1: // Пользователи
-                    newItem = new User();
-                    title = "Добавление пользователя";
-                    break;
-                case 2: // Аудитории
-                    newItem = new Classroom();
-                    title = "Добавление аудитории";
-                    break;
-                    // Добавить остальные случаи...
-            }
-
-            if (newItem != null)
-            {
-                ShowEditDialog(newItem, title);
-            }
+            // Инициализация
         }
 
-        private void EditButton_Click(object sender, RoutedEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            object selectedItem = GetSelectedItem();
+            var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Подтверждение выхода",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            if (selectedItem != null)
+            if (result != MessageBoxResult.Yes)
             {
-                string title = "Редактирование";
-
-                // Определяем тип для заголовка
-                if (selectedItem is Equipment) title = "Редактирование оборудования";
-                else if (selectedItem is User) title = "Редактирование пользователя";
-                else if (selectedItem is Classroom) title = "Редактирование аудитории";
-                // Добавить остальные...
-
-                ShowEditDialog(selectedItem, title);
-            }
-            else
-            {
-                MessageBox.Show("Выберите элемент для редактирования", "Информация",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedItem = GetSelectedItem();
-
-            if (selectedItem != null)
-            {
-                bool success = false;
-
-                // Удаление в зависимости от типа
-                if (selectedItem is Equipment equipment)
-                {
-                    success = await _viewModel.DeleteEquipmentAsync(equipment.Id);
-                }
-                else if (selectedItem is User user)
-                {
-                    // Реализовать удаление пользователя
-                    MessageBox.Show("Удаление пользователей пока не реализовано", "Информация",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                // Добавить остальные...
-
-                if (success)
-                {
-                    await _viewModel.LoadAllDataAsync();
-                }
-            }
-            else
-            {
-                MessageBox.Show("Выберите элемент для удаления", "Информация",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private async void ExportButton_Click(object sender, RoutedEventArgs e)
-        {
-            switch (MainTabControl.SelectedIndex)
-            {
-                case 0: // Оборудование
-                    await _viewModel.ExportEquipmentToExcel();
-                    break;
-                case 1: // Пользователи
-                    await _viewModel.ExportUsersToExcel();
-                    break;
-                    // Добавить остальные...
-            }
-        }
-
-        private void PrintButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Печать пока не реализована", "Информация",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                PerformSearch();
-            }
-        }
-
-        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            SearchTextBox.Text = string.Empty;
-            _viewModel.SearchText = string.Empty;
-        }
-
-        private void EquipmentGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            EditButton_Click(sender, e);
-        }
-
-        private object GetSelectedItem()
-        {
-            switch (MainTabControl.SelectedIndex)
-            {
-                case 0: return EquipmentGrid.SelectedItem;
-                case 1: return UserGrid.SelectedItem;
-                // Добавить для остальных DataGrid
-                default: return null;
-            }
-        }
-
-        private void PerformSearch()
-        {
-            var searchText = _viewModel.SearchText;
-            if (!string.IsNullOrWhiteSpace(searchText))
-            {
-                switch (MainTabControl.SelectedIndex)
-                {
-                    case 0: // Оборудование
-                        _viewModel.SearchEquipment(searchText);
-                        break;
-                        // Добавить для остальных коллекций
-                }
-            }
-        }
-
-        private async void ShowEditDialog(object item, string title)
-        {
-            var editDialog = new EditDialog(item, title);
-            editDialog.Owner = this;
-
-            if (editDialog.ShowDialog() == true)
-            {
-                var editedItem = editDialog.GetEditedItem();
-
-                // Сохраняем изменения
-                if (editedItem != null)
-                {
-                    bool success = false;
-
-                    if (editedItem is Equipment equipment)
-                    {
-                        if (equipment.Id == 0)
-                            success = await _viewModel.AddEquipmentAsync(equipment);
-                        else
-                            success = await _viewModel.UpdateEquipmentAsync(equipment);
-                    }
-                    // Добавить обработку других типов...
-
-                    if (success)
-                    {
-                        await _viewModel.LoadAllDataAsync();
-                    }
-                }
+                e.Cancel = true;
             }
         }
     }
