@@ -59,8 +59,7 @@
                      Margin="5" MaxLength="15" Tag="Например: 1.1.1.1"/>
         </Grid>
 
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}" 
-                      Margin="5" Visibility="{Binding HasErrors, Converter={StaticResource BoolToVis}}">
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}" >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding}" Style="{StaticResource ErrorText}"/>

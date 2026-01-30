@@ -44,8 +44,7 @@
                      Margin="5" MaxLength="50" Tag="Например: 23H2, 2025.001.20234"/>
         </Grid>
 
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}" 
-                      Margin="5" Visibility="{Binding HasErrors, Converter={StaticResource BoolToVis}}">
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}" >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding}" Style="{StaticResource ErrorText}"/>

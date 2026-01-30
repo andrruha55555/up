@@ -5,9 +5,6 @@
       Title="Сетевые настройки"
       Loaded="Page_Loaded">
 
-    <Page.Resources>
-        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
-    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
