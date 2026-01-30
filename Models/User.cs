@@ -1,4 +1,6 @@
-﻿namespace AdminUP.Models
+﻿using System.Text.Json.Serialization;
+
+namespace AdminUP.Models
 {
     public partial class User
     {
@@ -18,6 +20,8 @@
 
         public string Role { get; set; } = "User";
 
-        public string PasswordHash { get; set; } = string.Empty;
+
+        [JsonPropertyName("password_hash")]
+        public string PasswordHash { get; set; }
     }
 }

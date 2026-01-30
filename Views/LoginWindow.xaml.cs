@@ -1,15 +1,12 @@
 ﻿using System.Windows;
-using AdminUP.Services;
 
 namespace AdminUP.Views
 {
     public partial class LoginWindow : Window
     {
-        private AuthService _authService;
         public LoginWindow()
         {
             InitializeComponent();
-            _authService = new AuthService();
         }
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
@@ -26,7 +23,7 @@ namespace AdminUP.Views
 
             LoginButton.IsEnabled = false;
 
-            var success = await _authService.LoginAsync(login, password);
+            var success = await App.AuthService.LoginAsync(login, password);
 
             LoginButton.IsEnabled = true;
 

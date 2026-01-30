@@ -8,6 +8,9 @@ namespace AdminUP.Views
     {
         private string _currentPageTitle;
 
+        // ✅ флаг: закрываем без подтверждения (logout/переключение окон)
+        private bool _closeWithoutConfirm = false;
+
         public string CurrentPageTitle
         {
             get => _currentPageTitle;
@@ -121,7 +124,6 @@ namespace AdminUP.Views
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            // Вызываем метод добавления текущей страницы
             if (MainFrame.Content is Page currentPage)
             {
                 var addMethod = currentPage.GetType().GetMethod("AddButton_Click");
@@ -175,7 +177,6 @@ namespace AdminUP.Views
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            // Обновляем текущую страницу
             if (MainFrame.Content is Page currentPage)
             {
                 var loadedMethod = currentPage.GetType().GetMethod("Page_Loaded");
@@ -187,25 +188,23 @@ namespace AdminUP.Views
         {
             App.AuthService.Logout();
 
+            _closeWithoutConfirm = true;   // ✅ важно
             var loginWindow = new LoginWindow();
             loginWindow.Show();
-            this.Close();
-        }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Инициализация
+            Close(); // теперь confirm не появится
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (_closeWithoutConfirm) return; 
+
             var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Подтверждение выхода",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result != MessageBoxResult.Yes)
-            {
                 e.Cancel = true;
-            }
         }
     }
 }
+

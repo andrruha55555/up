@@ -102,7 +102,7 @@ namespace AdminUP.ViewModels
         {
             _apiService = apiService;
             _cacheService = cacheService;
-            _authService = new AuthService();
+            _authService = App.AuthService;
             _exportService = new ExportService();
 
             InitializeCollections();
@@ -297,7 +297,6 @@ namespace AdminUP.ViewModels
         {
             if (string.IsNullOrWhiteSpace(searchText))
             {
-                // Сброс поиска - показываем все
                 return;
             }
 
@@ -306,8 +305,6 @@ namespace AdminUP.ViewModels
                 (e.Name?.ToLower().Contains(searchText) ?? false) ||
                 (e.InventoryNumber?.ToLower().Contains(searchText) ?? false) ||
                 (e.Comment?.ToLower().Contains(searchText) ?? false));
-
-            // Обновляем отображение (можно использовать отдельную коллекцию для отфильтрованных данных)
         }
 
         public async Task ExportEquipmentToExcel()
@@ -337,5 +334,6 @@ namespace AdminUP.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
     }
 }

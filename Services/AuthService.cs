@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using AdminUP.Models;
-using AdminUP.Security;
-using System.Collections.Generic;
 
 namespace AdminUP.Services
 {
@@ -38,15 +37,22 @@ namespace AdminUP.Services
                     return false;
                 }
 
-                bool passwordValid;
-                try
+                bool passwordValid = false;
+
+                // 1) bcrypt ($2y$...)
+                if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash.StartsWith("$2"))
                 {
-                    // ВАЖНО: используем ТВОЙ BCrypt из AdminUP.Security
-                    passwordValid = BCrypt.Verify(password, user.PasswordHash);
+                    passwordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
                 }
-                catch
+                // 2) fallback: если вдруг хранится в твоём формате v1$...
+                else if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash.StartsWith("v1$"))
                 {
-                    passwordValid = password == "admin"; // демо
+                    passwordValid = AdminUP.Security.BCrypt.Verify(password, user.PasswordHash);
+                }
+                else
+                {
+                    // временно (если где-то лежит plain text)
+                    passwordValid = password == user.PasswordHash;
                 }
 
                 if (!passwordValid)
@@ -59,7 +65,6 @@ namespace AdminUP.Services
                 CurrentUser = user.Login;
                 CurrentRole = user.Role;
                 IsAuthenticated = true;
-
                 return true;
             }
             catch (Exception ex)
@@ -75,19 +80,6 @@ namespace AdminUP.Services
             CurrentUser = null;
             CurrentRole = null;
             IsAuthenticated = false;
-        }
-
-        public bool HasPermission(string requiredRole)
-        {
-            if (!IsAuthenticated) return false;
-
-            return CurrentRole switch
-            {
-                "admin" => true,
-                "teacher" => requiredRole == "teacher" || requiredRole == "staff",
-                "staff" => requiredRole == "staff",
-                _ => false
-            };
         }
 
         private async Task<List<User>> GetUsersAsync()
@@ -106,6 +98,18 @@ namespace AdminUP.Services
             {
                 return null;
             }
+        }
+        public bool HasPermission(string requiredRole)
+        {
+            if (!IsAuthenticated) return false;
+
+            return CurrentRole switch
+            {
+                "admin" => true,
+                "teacher" => requiredRole == "teacher" || requiredRole == "staff",
+                "staff" => requiredRole == "staff",
+                _ => false
+            };
         }
     }
 }
