@@ -1,7 +1,13 @@
 ﻿<Page x:Class="AdminUP.Views.NetworkSettingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Сетевые настройки">
+      xmlns:converters="clr-namespace:AdminUP.Converters"
+      Title="Сетевые настройки"
+      Loaded="Page_Loaded">
+
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -10,23 +16,40 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-            <Button Content="Добавить" Width="100"/>
-            <Button Content="Редактировать" Width="120"/>
-            <Button Content="Удалить" Width="100"/>
-            <Button Content="Проверить сеть" Width="120"/>
-            <TextBox Width="200" Margin="10 0"/>
+            <Button Content="Добавить" Width="100" Click="AddButton_Click"/>
+            <Button Content="Редактировать" Width="120" Click="EditButton_Click"/>
+            <Button Content="Удалить" Width="100" Click="DeleteButton_Click"/>
+            <Button Content="Проверить сеть" Width="140" Click="CheckNetworkButton_Click"/>
+            <TextBox x:Name="SearchTextBox" Width="200" Margin="10 0"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Найти" Width="80" Click="SearchButton_Click"/>
+            <Button Content="Очистить" Width="80" Margin="5,0,0,0" Click="ClearButton_Click"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" Margin="10">
+        <DataGrid Grid.Row="1" Margin="10"
+                  ItemsSource="{Binding FilteredNetworkList}"
+                  SelectedItem="{Binding SelectedNetworkSetting}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Width="50"/>
-                <DataGridTextColumn Header="Оборудование" Width="100"/>
-                <DataGridTextColumn Header="IP адрес" Width="120"/>
-                <DataGridTextColumn Header="Маска" Width="120"/>
-                <DataGridTextColumn Header="Шлюз" Width="120"/>
-                <DataGridTextColumn Header="DNS1" Width="120"/>
-                <DataGridTextColumn Header="DNS2" Width="120"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="160"/>
+                <DataGridTextColumn Header="IP адрес" Binding="{Binding IpAddress}" Width="120"/>
+                <DataGridTextColumn Header="Маска" Binding="{Binding SubnetMask}" Width="120"/>
+                <DataGridTextColumn Header="Шлюз" Binding="{Binding Gateway}" Width="120"/>
+                <DataGridTextColumn Header="DNS1" Binding="{Binding Dns1}" Width="120"/>
+                <DataGridTextColumn Header="DNS2" Binding="{Binding Dns2}" Width="120"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="#88000000"
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="20"/>
+                <TextBlock Text="Загрузка данных..." Foreground="White" Margin="0 10 0 0"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

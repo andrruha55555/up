@@ -6,98 +6,68 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace AdminUP.ViewModels
 {
     public class ModelPageViewModel : INotifyPropertyChanged
     {
-        private readonly ApiService _apiService;
-        private readonly CacheService _cacheService;
+        private readonly ApiService _api;
+        private readonly CacheService _cache;
 
-        private ObservableCollection<Model> _modelList;
-        private Model _selectedModel;
-        private bool _isLoading;
-        private string _searchText;
+        public ObservableCollection<EquipmentModel> ModelList { get; } = new();
+        public ObservableCollection<EquipmentModel> FilteredModelList { get; } = new();
+        public ObservableCollection<EquipmentType> EquipmentTypeList { get; } = new();
 
-        public ObservableCollection<Model> ModelList
-        {
-            get => _modelList;
-            set
-            {
-                _modelList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Model SelectedModel
+        private EquipmentModel? _selectedModel;
+        public EquipmentModel? SelectedModel
         {
             get => _selectedModel;
-            set
-            {
-                _selectedModel = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsModelSelected));
-            }
+            set { _selectedModel = value; OnPropertyChanged(); }
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
-        }
-
+        private string _searchText = "";
         public string SearchText
         {
             get => _searchText;
-            set
-            {
-                _searchText = value;
-                OnPropertyChanged();
-                FilterModels();
-            }
+            set { _searchText = value; OnPropertyChanged(); FilterModels(); }
         }
 
-        public bool IsModelSelected => SelectedModel != null;
-
-        public ObservableCollection<Model> FilteredModelList { get; set; }
-
-        public ModelPageViewModel(ApiService apiService, CacheService cacheService)
+        private bool _isLoading;
+        public bool IsLoading
         {
-            _apiService = apiService;
-            _cacheService = cacheService;
-
-            ModelList = new ObservableCollection<Model>();
-            FilteredModelList = new ObservableCollection<Model>();
+            get => _isLoading;
+            set { _isLoading = value; OnPropertyChanged(); }
         }
 
-        public async Task LoadModelsAsync()
+        public ModelPageViewModel(ApiService api, CacheService cache)
         {
-            IsLoading = true;
+            _api = api;
+            _cache = cache;
+        }
+
+        public async Task LoadDataAsync()
+        {
             try
             {
-                var models = await _cacheService.GetOrSetAsync("models_page_list",
-                    async () => await _apiService.GetListAsync<Model>("ModelsController"));
+                IsLoading = true;
+
+                var types = await _cache.GetOrAddAsync("equipment_types", async () =>
+                    await _api.GetListAsync<EquipmentType>("EquipmentTypesController"));
+
+                EquipmentTypeList.Clear();
+                foreach (var t in types) EquipmentTypeList.Add(t);
+
+                var models = await _cache.GetOrAddAsync("models", async () =>
+                    await _api.GetListAsync<EquipmentModel>("ModelsController"));
 
                 ModelList.Clear();
-                if (models != null)
+                foreach (var m in models)
                 {
-                    foreach (var item in models)
-                    {
-                        ModelList.Add(item);
-                    }
+                    m.EquipmentTypeName = EquipmentTypeList.FirstOrDefault(x => x.Id == m.EquipmentTypeId)?.Name ?? "";
+                    ModelList.Add(m);
                 }
 
                 FilterModels();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки моделей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -108,99 +78,43 @@ namespace AdminUP.ViewModels
         public void FilterModels()
         {
             FilteredModelList.Clear();
+            var q = (SearchText ?? "").Trim().ToLowerInvariant();
 
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                foreach (var item in ModelList)
-                {
-                    FilteredModelList.Add(item);
-                }
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = ModelList.Where(m =>
-                    (m.Name?.ToLower().Contains(searchLower) ?? false));
+            var items = ModelList.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(q))
+                items = items.Where(x =>
+                    (x.Name ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.EquipmentTypeName ?? "").ToLowerInvariant().Contains(q));
 
-                foreach (var item in filtered)
-                {
-                    FilteredModelList.Add(item);
-                }
-            }
+            foreach (var i in items) FilteredModelList.Add(i);
         }
 
-        public async Task<bool> AddModelAsync(Model model)
+        public async Task<bool> AddModelAsync(EquipmentModel item)
         {
-            try
-            {
-                var success = await _apiService.AddItemAsync("ModelsController", model);
-                if (success)
-                {
-                    _cacheService.Remove("models_page_list");
-                    await LoadModelsAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка добавления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.AddItemAsync("ModelsController", item);
+            _cache.Remove("models");
+            await LoadDataAsync();
+            return ok;
         }
 
-        public async Task<bool> UpdateModelAsync(int id, Model model)
+        public async Task<bool> UpdateModelAsync(int id, EquipmentModel item)
         {
-            try
-            {
-                var success = await _apiService.UpdateItemAsync("ModelsController", id, model);
-                if (success)
-                {
-                    _cacheService.Remove("models_page_list");
-                    await LoadModelsAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка обновления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.UpdateItemAsync("ModelsController", id, item);
+            _cache.Remove("models");
+            await LoadDataAsync();
+            return ok;
         }
 
         public async Task<bool> DeleteModelAsync(int id)
         {
-            try
-            {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить эту модель?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes) return false;
-
-                var success = await _apiService.DeleteItemAsync("ModelsController", id);
-                if (success)
-                {
-                    _cacheService.Remove("models_page_list");
-                    await LoadModelsAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.DeleteItemAsync("ModelsController", id);
+            _cache.Remove("models");
+            await LoadDataAsync();
+            return ok;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

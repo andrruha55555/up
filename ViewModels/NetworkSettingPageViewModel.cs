@@ -6,98 +6,68 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace AdminUP.ViewModels
 {
     public class NetworkSettingPageViewModel : INotifyPropertyChanged
     {
-        private readonly ApiService _apiService;
-        private readonly CacheService _cacheService;
+        private readonly ApiService _api;
+        private readonly CacheService _cache;
 
-        private ObservableCollection<NetworkSetting> _networkSettingList;
-        private NetworkSetting _selectedNetworkSetting;
-        private bool _isLoading;
-        private string _searchText;
+        public ObservableCollection<NetworkSetting> NetworkList { get; } = new();
+        public ObservableCollection<NetworkSetting> FilteredNetworkList { get; } = new();
+        public ObservableCollection<Equipment> EquipmentList { get; } = new();
 
-        public ObservableCollection<NetworkSetting> NetworkSettingList
+        private NetworkSetting? _selected;
+        public NetworkSetting? SelectedNetworkSetting
         {
-            get => _networkSettingList;
-            set
-            {
-                _networkSettingList = value;
-                OnPropertyChanged();
-            }
+            get => _selected;
+            set { _selected = value; OnPropertyChanged(); }
         }
 
-        public NetworkSetting SelectedNetworkSetting
-        {
-            get => _selectedNetworkSetting;
-            set
-            {
-                _selectedNetworkSetting = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsNetworkSettingSelected));
-            }
-        }
-
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
-        }
-
+        private string _searchText = "";
         public string SearchText
         {
             get => _searchText;
-            set
-            {
-                _searchText = value;
-                OnPropertyChanged();
-                FilterNetworkSettings();
-            }
+            set { _searchText = value; OnPropertyChanged(); FilterNetwork(); }
         }
 
-        public bool IsNetworkSettingSelected => SelectedNetworkSetting != null;
-
-        public ObservableCollection<NetworkSetting> FilteredNetworkSettingList { get; set; }
-
-        public NetworkSettingPageViewModel(ApiService apiService, CacheService cacheService)
+        private bool _isLoading;
+        public bool IsLoading
         {
-            _apiService = apiService;
-            _cacheService = cacheService;
-
-            NetworkSettingList = new ObservableCollection<NetworkSetting>();
-            FilteredNetworkSettingList = new ObservableCollection<NetworkSetting>();
+            get => _isLoading;
+            set { _isLoading = value; OnPropertyChanged(); }
         }
 
-        public async Task LoadNetworkSettingsAsync()
+        public NetworkSettingPageViewModel(ApiService api, CacheService cache)
         {
-            IsLoading = true;
+            _api = api;
+            _cache = cache;
+        }
+
+        public async Task LoadDataAsync()
+        {
             try
             {
-                var settings = await _cacheService.GetOrSetAsync("network_settings_page_list",
-                    async () => await _apiService.GetListAsync<NetworkSetting>("NetworkSettingsController"));
+                IsLoading = true;
 
-                NetworkSettingList.Clear();
-                if (settings != null)
+                var equipment = await _cache.GetOrAddAsync("equipment", async () =>
+                    await _api.GetListAsync<Equipment>("EquipmentController"));
+
+                EquipmentList.Clear();
+                foreach (var e in equipment) EquipmentList.Add(e);
+
+                var list = await _cache.GetOrAddAsync("network_settings", async () =>
+                    await _api.GetListAsync<NetworkSetting>("NetworkSettingsController"));
+
+                NetworkList.Clear();
+                foreach (var n in list)
                 {
-                    foreach (var item in settings)
-                    {
-                        NetworkSettingList.Add(item);
-                    }
+                    n.EquipmentName = EquipmentList.FirstOrDefault(x => x.Id == n.EquipmentId)?.Name ?? "";
+                    NetworkList.Add(n);
                 }
 
-                FilterNetworkSettings();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки сетевых настроек: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                FilterNetwork();
             }
             finally
             {
@@ -105,103 +75,47 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public void FilterNetworkSettings()
+        public void FilterNetwork()
         {
-            FilteredNetworkSettingList.Clear();
+            FilteredNetworkList.Clear();
+            var q = (SearchText ?? "").Trim().ToLowerInvariant();
 
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                foreach (var item in NetworkSettingList)
-                {
-                    FilteredNetworkSettingList.Add(item);
-                }
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = NetworkSettingList.Where(n =>
-                    (n.IpAddress?.ToLower().Contains(searchLower) ?? false) ||
-                    (n.Gateway?.ToLower().Contains(searchLower) ?? false));
+            var items = NetworkList.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(q))
+                items = items.Where(x =>
+                    (x.EquipmentName ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.IpAddress ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.Gateway ?? "").ToLowerInvariant().Contains(q));
 
-                foreach (var item in filtered)
-                {
-                    FilteredNetworkSettingList.Add(item);
-                }
-            }
+            foreach (var i in items) FilteredNetworkList.Add(i);
         }
 
-        public async Task<bool> AddNetworkSettingAsync(NetworkSetting networkSetting)
+        public async Task<bool> AddNetworkSettingAsync(NetworkSetting item)
         {
-            try
-            {
-                var success = await _apiService.AddItemAsync("NetworkSettingsController", networkSetting);
-                if (success)
-                {
-                    _cacheService.Remove("network_settings_page_list");
-                    await LoadNetworkSettingsAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка добавления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.AddItemAsync("NetworkSettingsController", item);
+            _cache.Remove("network_settings");
+            await LoadDataAsync();
+            return ok;
         }
 
-        public async Task<bool> UpdateNetworkSettingAsync(int id, NetworkSetting networkSetting)
+        public async Task<bool> UpdateNetworkSettingAsync(int id, NetworkSetting item)
         {
-            try
-            {
-                var success = await _apiService.UpdateItemAsync("NetworkSettingsController", id, networkSetting);
-                if (success)
-                {
-                    _cacheService.Remove("network_settings_page_list");
-                    await LoadNetworkSettingsAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка обновления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.UpdateItemAsync("NetworkSettingsController", id, item);
+            _cache.Remove("network_settings");
+            await LoadDataAsync();
+            return ok;
         }
 
         public async Task<bool> DeleteNetworkSettingAsync(int id)
         {
-            try
-            {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить эти сетевые настройки?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes) return false;
-
-                var success = await _apiService.DeleteItemAsync("NetworkSettingsController", id);
-                if (success)
-                {
-                    _cacheService.Remove("network_settings_page_list");
-                    await LoadNetworkSettingsAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.DeleteItemAsync("NetworkSettingsController", id);
+            _cache.Remove("network_settings");
+            await LoadDataAsync();
+            return ok;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

@@ -6,98 +6,57 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace AdminUP.ViewModels
 {
     public class InventoryPageViewModel : INotifyPropertyChanged
     {
-        private readonly ApiService _apiService;
-        private readonly CacheService _cacheService;
+        private readonly ApiService _api;
+        private readonly CacheService _cache;
 
-        private ObservableCollection<Inventory> _inventoryList;
-        private Inventory _selectedInventory;
-        private bool _isLoading;
-        private string _searchText;
+        public ObservableCollection<Inventory> InventoryList { get; } = new();
+        public ObservableCollection<Inventory> FilteredInventoryList { get; } = new();
 
-        public ObservableCollection<Inventory> InventoryList
-        {
-            get => _inventoryList;
-            set
-            {
-                _inventoryList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Inventory SelectedInventory
+        private Inventory? _selectedInventory;
+        public Inventory? SelectedInventory
         {
             get => _selectedInventory;
-            set
-            {
-                _selectedInventory = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsInventorySelected));
-            }
+            set { _selectedInventory = value; OnPropertyChanged(); }
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
-        }
-
+        private string _searchText = "";
         public string SearchText
         {
             get => _searchText;
-            set
-            {
-                _searchText = value;
-                OnPropertyChanged();
-                FilterInventories();
-            }
+            set { _searchText = value; OnPropertyChanged(); FilterInventories(); }
         }
 
-        public bool IsInventorySelected => SelectedInventory != null;
-
-        public ObservableCollection<Inventory> FilteredInventoryList { get; set; }
-
-        public InventoryPageViewModel(ApiService apiService, CacheService cacheService)
+        private bool _isLoading;
+        public bool IsLoading
         {
-            _apiService = apiService;
-            _cacheService = cacheService;
+            get => _isLoading;
+            set { _isLoading = value; OnPropertyChanged(); }
+        }
 
-            InventoryList = new ObservableCollection<Inventory>();
-            FilteredInventoryList = new ObservableCollection<Inventory>();
+        public InventoryPageViewModel(ApiService api, CacheService cache)
+        {
+            _api = api;
+            _cache = cache;
         }
 
         public async Task LoadInventoriesAsync()
         {
-            IsLoading = true;
             try
             {
-                var inventories = await _cacheService.GetOrSetAsync("inventories_page_list",
-                    async () => await _apiService.GetListAsync<Inventory>("InventoriesController"));
+                IsLoading = true;
+
+                var list = await _cache.GetOrAddAsync("inventories", async () =>
+                    await _api.GetListAsync<Inventory>("InventoriesController"));
 
                 InventoryList.Clear();
-                if (inventories != null)
-                {
-                    foreach (var item in inventories)
-                    {
-                        InventoryList.Add(item);
-                    }
-                }
+                foreach (var i in list) InventoryList.Add(i);
 
                 FilterInventories();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки инвентаризаций: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -108,99 +67,41 @@ namespace AdminUP.ViewModels
         public void FilterInventories()
         {
             FilteredInventoryList.Clear();
+            var q = (SearchText ?? "").Trim().ToLowerInvariant();
 
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                foreach (var item in InventoryList)
-                {
-                    FilteredInventoryList.Add(item);
-                }
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = InventoryList.Where(i =>
-                    (i.Name?.ToLower().Contains(searchLower) ?? false));
+            var items = InventoryList.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(q))
+                items = items.Where(x => (x.Name ?? "").ToLowerInvariant().Contains(q));
 
-                foreach (var item in filtered)
-                {
-                    FilteredInventoryList.Add(item);
-                }
-            }
+            foreach (var i in items) FilteredInventoryList.Add(i);
         }
 
-        public async Task<bool> AddInventoryAsync(Inventory inventory)
+        public async Task<bool> AddInventoryAsync(Inventory item)
         {
-            try
-            {
-                var success = await _apiService.AddItemAsync("InventoriesController", inventory);
-                if (success)
-                {
-                    _cacheService.Remove("inventories_page_list");
-                    await LoadInventoriesAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка добавления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.AddItemAsync("InventoriesController", item);
+            _cache.Remove("inventories");
+            await LoadInventoriesAsync();
+            return ok;
         }
 
-        public async Task<bool> UpdateInventoryAsync(int id, Inventory inventory)
+        public async Task<bool> UpdateInventoryAsync(int id, Inventory item)
         {
-            try
-            {
-                var success = await _apiService.UpdateItemAsync("InventoriesController", id, inventory);
-                if (success)
-                {
-                    _cacheService.Remove("inventories_page_list");
-                    await LoadInventoriesAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка обновления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.UpdateItemAsync("InventoriesController", id, item);
+            _cache.Remove("inventories");
+            await LoadInventoriesAsync();
+            return ok;
         }
 
         public async Task<bool> DeleteInventoryAsync(int id)
         {
-            try
-            {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить эту инвентаризацию?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes) return false;
-
-                var success = await _apiService.DeleteItemAsync("InventoriesController", id);
-                if (success)
-                {
-                    _cacheService.Remove("inventories_page_list");
-                    await LoadInventoriesAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var ok = await _api.DeleteItemAsync("InventoriesController", id);
+            _cache.Remove("inventories");
+            await LoadInventoriesAsync();
+            return ok;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
