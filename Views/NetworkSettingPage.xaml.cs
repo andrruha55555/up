@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -58,17 +59,20 @@ namespace AdminUP.Views
 
         private void CheckNetworkButton_Click(object sender, RoutedEventArgs e)
         {
-            // Заглушка: можно потом сделать ping/проверку доступности.
             MessageBox.Show("Проверка сети пока не реализована.\n(Можно добавить Ping по IP)", "Информация",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private async void ShowEditDialog(NetworkSetting item, string title)
         {
-            var dlg = new EditDialog(item, title) { Owner = Window.GetWindow(this) };
+            var control = new NetworkSettingEditControl(item);
 
-            if (dlg.ShowDialog() == true && dlg.GetEditedItem() is NetworkSetting edited)
+            var dlg = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
+
+            if (dlg.ShowDialog() == true)
             {
+                var edited = control.GetNetworkSetting();
+
                 if (edited.Id == 0)
                     await _viewModel.AddNetworkSettingAsync(edited);
                 else

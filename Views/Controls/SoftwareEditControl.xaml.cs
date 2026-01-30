@@ -1,17 +1,24 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class SoftwareEditControl : BaseEditControl
+    public partial class SoftwareEditControl : UserControl, INotifyPropertyChanged
     {
-        private Software _software;
-        private ApiService _apiService;
+        private readonly Software _software;
+        private readonly ApiService _apiService;
 
-        public ObservableCollection<Developer> AvailableDevelopers { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
+
+        public ObservableCollection<Developer> AvailableDevelopers { get; } = new();
 
         public SoftwareEditControl(Software software = null)
         {
@@ -19,10 +26,58 @@ namespace AdminUP.Views.Controls
 
             _software = software ?? new Software();
             _apiService = new ApiService();
-            AvailableDevelopers = new ObservableCollection<Developer>();
 
             DataContext = this;
-            LoadDevelopersAsync();
+
+            _ = LoadDevelopersAsync();
+        }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate()
+        {
+            return ValidateData();
+        }
+
+        private bool ValidateData()
+        {
+            ClearValidationErrors();
+
+            if (!ValidateRequiredField(_software.Name, "Название ПО"))
+                return false;
+
+            if (_software.Name?.Length > 100)
+                AddValidationError("Название ПО не должно превышать 100 символов");
+
+            if (_software.Version?.Length > 50)
+                AddValidationError("Версия не должна превышать 50 символов");
+
+            return !HasErrors;
         }
 
         private async Task LoadDevelopersAsync()
@@ -32,9 +87,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableDevelopers.Clear();
                 foreach (var developer in developers)
-                {
                     AvailableDevelopers.Add(developer);
-                }
+
                 RaisePropertyChanged(nameof(AvailableDevelopers));
             }
         }
@@ -78,25 +132,6 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public Software GetSoftware()
-        {
-            return _software;
-        }
-
-        protected override bool ValidateData()
-        {
-            ClearValidationErrors();
-
-            if (!ValidateRequiredField(_software.Name, "Название ПО"))
-                return false;
-
-            if (_software.Name?.Length > 100)
-                AddValidationError("Название ПО не должно превышать 100 символов");
-
-            if (_software.Version?.Length > 50)
-                AddValidationError("Версия не должна превышать 50 символов");
-
-            return !HasErrors;
-        }
+        public Software GetSoftware() => _software;
     }
 }

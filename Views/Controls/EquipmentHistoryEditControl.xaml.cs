@@ -2,15 +2,22 @@
 using AdminUP.Services;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class EquipmentHistoryEditControl : BaseEditControl
+    public partial class EquipmentHistoryEditControl : UserControl, INotifyPropertyChanged
     {
         private EquipmentHistory _equipmentHistory;
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public ObservableCollection<Equipment> AvailableEquipment { get; set; }
         public ObservableCollection<Classroom> AvailableClassrooms { get; set; }
@@ -31,8 +38,27 @@ namespace AdminUP.Views.Controls
             AvailableUsers = new ObservableCollection<User>();
 
             DataContext = this;
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        public bool Validate() => ValidateData();
 
         private async Task LoadDataAsync()
         {
@@ -50,9 +76,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableEquipment.Clear();
                 foreach (var item in equipment)
-                {
                     AvailableEquipment.Add(item);
-                }
+
                 RaisePropertyChanged(nameof(AvailableEquipment));
             }
         }
@@ -64,9 +89,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableClassrooms.Clear();
                 foreach (var classroom in classrooms)
-                {
                     AvailableClassrooms.Add(classroom);
-                }
+
                 RaisePropertyChanged(nameof(AvailableClassrooms));
             }
         }
@@ -78,9 +102,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableUsers.Clear();
                 foreach (var user in users)
-                {
                     AvailableUsers.Add(user);
-                }
+
                 RaisePropertyChanged(nameof(AvailableUsers));
             }
         }
@@ -163,12 +186,9 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public EquipmentHistory GetEquipmentHistory()
-        {
-            return _equipmentHistory;
-        }
+        public EquipmentHistory GetEquipmentHistory() => _equipmentHistory;
 
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 

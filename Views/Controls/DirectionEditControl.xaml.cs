@@ -1,18 +1,59 @@
 ﻿using AdminUP.Models;
-using System.Windows;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class DirectionEditControl : BaseEditControl
+    public partial class DirectionEditControl : UserControl, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         private Direction _direction;
+
+        // Валидация (как у тебя в XAML: ItemsControl ItemsSource="{Binding ValidationErrors}")
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public DirectionEditControl(Direction direction = null)
         {
             InitializeComponent();
+
             _direction = direction ?? new Direction();
+
             DataContext = this;
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        // чтобы диалог/страница могла вызвать валидацию
+        public bool Validate() => ValidateData();
 
         public string Name
         {
@@ -22,17 +63,14 @@ namespace AdminUP.Views.Controls
                 if (_direction != null)
                 {
                     _direction.Name = value;
-                    RaisePropertyChanged(nameof(Name));
+                    RaisePropertyChanged();
                 }
             }
         }
 
-        public Direction GetDirection()
-        {
-            return _direction;
-        }
+        public Direction GetDirection() => _direction;
 
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 

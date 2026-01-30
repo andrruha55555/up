@@ -2,15 +2,22 @@
 using AdminUP.Services;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class InventoryItemEditControl : BaseEditControl
+    public partial class InventoryItemEditControl : UserControl, INotifyPropertyChanged
     {
         private InventoryItem _inventoryItem;
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public ObservableCollection<Inventory> AvailableInventories { get; set; }
         public ObservableCollection<Equipment> AvailableEquipment { get; set; }
@@ -31,7 +38,8 @@ namespace AdminUP.Views.Controls
             AvailableUsers = new ObservableCollection<User>();
 
             DataContext = this;
-            LoadDataAsync();
+
+            _ = LoadDataAsync();
         }
 
         private async Task LoadDataAsync()
@@ -50,9 +58,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableInventories.Clear();
                 foreach (var inventory in inventories)
-                {
                     AvailableInventories.Add(inventory);
-                }
+
                 RaisePropertyChanged(nameof(AvailableInventories));
             }
         }
@@ -64,9 +71,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableEquipment.Clear();
                 foreach (var item in equipment)
-                {
                     AvailableEquipment.Add(item);
-                }
+
                 RaisePropertyChanged(nameof(AvailableEquipment));
             }
         }
@@ -78,9 +84,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableUsers.Clear();
                 foreach (var user in users)
-                {
                     AvailableUsers.Add(user);
-                }
+
                 RaisePropertyChanged(nameof(AvailableUsers));
             }
         }
@@ -93,7 +98,7 @@ namespace AdminUP.Views.Controls
                 if (_inventoryItem != null)
                 {
                     _inventoryItem.InventoryId = value;
-                    RaisePropertyChanged(nameof(InventoryId));
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -106,7 +111,7 @@ namespace AdminUP.Views.Controls
                 if (_inventoryItem != null)
                 {
                     _inventoryItem.EquipmentId = value;
-                    RaisePropertyChanged(nameof(EquipmentId));
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -119,7 +124,7 @@ namespace AdminUP.Views.Controls
                 if (_inventoryItem != null)
                 {
                     _inventoryItem.CheckedByUserId = value;
-                    RaisePropertyChanged(nameof(CheckedByUserId));
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -132,7 +137,7 @@ namespace AdminUP.Views.Controls
                 if (_inventoryItem != null)
                 {
                     _inventoryItem.Comment = value;
-                    RaisePropertyChanged(nameof(Comment));
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -145,17 +150,33 @@ namespace AdminUP.Views.Controls
                 if (_inventoryItem != null)
                 {
                     _inventoryItem.CheckedAt = value;
-                    RaisePropertyChanged(nameof(CheckedAt));
+                    RaisePropertyChanged();
                 }
             }
         }
 
-        public InventoryItem GetInventoryItem()
+        public InventoryItem GetInventoryItem() => _inventoryItem;
+
+        // ===== Валидация (аналог BaseEditControl, но внутри этого файла) =====
+
+        private void RaisePropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private void ClearValidationErrors()
         {
-            return _inventoryItem;
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
         }
 
-        protected override bool ValidateData()
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        public bool Validate()
         {
             ClearValidationErrors();
 

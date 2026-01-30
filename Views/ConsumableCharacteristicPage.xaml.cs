@@ -7,7 +7,7 @@ namespace AdminUP.Views
 {
     public partial class ConsumableCharacteristicPage : Page
     {
-        private ConsumableCharacteristicPageViewModel _viewModel;
+        private readonly ConsumableCharacteristicPageViewModel _viewModel;
 
         public ConsumableCharacteristicPage()
         {
@@ -15,17 +15,17 @@ namespace AdminUP.Views
 
             _viewModel = new ConsumableCharacteristicPageViewModel(App.ApiService, App.CacheService);
             DataContext = _viewModel;
-
-            // Привязка ComboBox
-            ConsumableComboBox.ItemsSource = _viewModel.ConsumableList;
-            ConsumableComboBox.DisplayMemberPath = "Name";
-            ConsumableComboBox.SelectedValuePath = "Id";
-            ConsumableComboBox.SelectedValue = _viewModel.SelectedConsumableId;
         }
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await _viewModel.LoadDataAsync();
+
+            // Привязка ComboBox (после загрузки данных)
+            ConsumableComboBox.ItemsSource = _viewModel.ConsumableList;
+            ConsumableComboBox.DisplayMemberPath = "Name";
+            ConsumableComboBox.SelectedValuePath = "Id";
+            ConsumableComboBox.SelectedValue = _viewModel.SelectedConsumableId;
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -86,12 +86,17 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(ConsumableCharacteristic characteristic, string title)
         {
-            var editDialog = new EditDialog(characteristic, title);
+            // В EditDialog надо передавать UserControl
+            var editControl = new AdminUP.Views.Controls.ConsumableCharacteristicEditControl(characteristic);
+
+            var editDialog = new EditDialog(editControl, title);
             editDialog.Owner = Window.GetWindow(this);
 
             if (editDialog.ShowDialog() == true)
             {
-                var editedCharacteristic = editDialog.GetEditedItem() as ConsumableCharacteristic;
+                // Забираем модель из контрола (вместо GetEditedItem)
+                var editedCharacteristic = editControl.GetCharacteristic();
+
                 if (editedCharacteristic != null)
                 {
                     if (editedCharacteristic.Id == 0)

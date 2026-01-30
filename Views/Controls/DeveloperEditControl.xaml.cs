@@ -1,11 +1,19 @@
 ﻿using AdminUP.Models;
-using System.Windows;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class DeveloperEditControl : BaseEditControl
+    public partial class DeveloperEditControl : UserControl, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         private Developer _developer;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public DeveloperEditControl(Developer developer = null)
         {
@@ -13,6 +21,35 @@ namespace AdminUP.Views.Controls
             _developer = developer ?? new Developer();
             DataContext = this;
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate() => ValidateData();
 
         public string Name
         {
@@ -22,17 +59,14 @@ namespace AdminUP.Views.Controls
                 if (_developer != null)
                 {
                     _developer.Name = value;
-                    RaisePropertyChanged(nameof(Name));
+                    RaisePropertyChanged(); 
                 }
             }
         }
 
-        public Developer GetDeveloper()
-        {
-            return _developer;
-        }
+        public Developer GetDeveloper() => _developer;
 
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 

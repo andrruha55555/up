@@ -1,5 +1,8 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;   // ✅ важно: StatusEditControl
+using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -26,13 +29,22 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(Status status, string title)
         {
-            var editDialog = new EditDialog(status, title);
-            if (editDialog.ShowDialog() == true && editDialog.GetEditedItem() is Status editedStatus)
+            // ✅ EditDialog принимает UserControl
+            var control = new StatusEditControl(status);
+            var editDialog = new EditDialog(control, title);
+
+            editDialog.Owner = Window.GetWindow(this);
+
+            if (editDialog.ShowDialog() == true)
             {
-                if (editedStatus.Id == 0)
-                    await _viewModel.AddStatusAsync(editedStatus);
-                else
-                    await _viewModel.UpdateStatusAsync(editedStatus.Id, editedStatus);
+                var editedStatus = control.GetStatus();
+                if (editedStatus != null)
+                {
+                    if (editedStatus.Id == 0)
+                        await _viewModel.AddStatusAsync(editedStatus);
+                    else
+                        await _viewModel.UpdateStatusAsync(editedStatus.Id, editedStatus);
+                }
             }
         }
 

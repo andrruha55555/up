@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -63,14 +64,21 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(Inventory item, string title)
         {
-            var dlg = new EditDialog(item, title) { Owner = Window.GetWindow(this) };
+            var control = new InventoryEditControl(item);
 
-            if (dlg.ShowDialog() == true && dlg.GetEditedItem() is Inventory edited)
+            var dlg = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
+
+            if (dlg.ShowDialog() == true)
             {
-                if (edited.Id == 0)
-                    await _viewModel.AddInventoryAsync(edited);
-                else
-                    await _viewModel.UpdateInventoryAsync(edited.Id, edited);
+                var edited = control.GetInventory();
+
+                if (edited != null)
+                {
+                    if (edited.Id == 0)
+                        await _viewModel.AddInventoryAsync(edited);
+                    else
+                        await _viewModel.UpdateInventoryAsync(edited.Id, edited);
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -72,12 +73,15 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(Direction direction, string title)
         {
-            var editDialog = new EditDialog(direction, title);
+            var control = new DirectionEditControl(direction);
+
+            var editDialog = new EditDialog(control, title);
             editDialog.Owner = Window.GetWindow(this);
 
             if (editDialog.ShowDialog() == true)
             {
-                var editedDirection = editDialog.GetEditedItem() as Direction;
+                var editedDirection = control.GetDirection();
+
                 if (editedDirection != null)
                 {
                     if (editedDirection.Id == 0)

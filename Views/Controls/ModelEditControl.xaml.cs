@@ -1,17 +1,24 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class ModelEditControl : BaseEditControl
+    public partial class ModelEditControl : UserControl, INotifyPropertyChanged
     {
-        private Model _model;
-        private ApiService _apiService;
+        private readonly Model _model;
+        private readonly ApiService _apiService;
 
-        public ObservableCollection<EquipmentType> AvailableEquipmentTypes { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
+
+        public ObservableCollection<EquipmentType> AvailableEquipmentTypes { get; } = new();
 
         public ModelEditControl(Model model = null)
         {
@@ -19,11 +26,40 @@ namespace AdminUP.Views.Controls
 
             _model = model ?? new Model();
             _apiService = new ApiService();
-            AvailableEquipmentTypes = new ObservableCollection<EquipmentType>();
 
             DataContext = this;
-            LoadEquipmentTypesAsync();
+
+            _ = LoadEquipmentTypesAsync();
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate() => ValidateData();
 
         private async Task LoadEquipmentTypesAsync()
         {
@@ -32,9 +68,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableEquipmentTypes.Clear();
                 foreach (var type in types)
-                {
                     AvailableEquipmentTypes.Add(type);
-                }
+
                 RaisePropertyChanged(nameof(AvailableEquipmentTypes));
             }
         }
@@ -64,23 +99,19 @@ namespace AdminUP.Views.Controls
                 }
             }
         }
+        public Model GetModel() => _model;
 
-        public Model GetModel()
-        {
-            return _model;
-        }
-
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_model.Name, "Название модели"))
+            if (!ValidateRequiredField(_model?.Name, "Название модели"))
                 return false;
 
             if (_model.Name?.Length > 100)
                 AddValidationError("Название модели не должно превышать 100 символов");
 
-            if (_model.EquipmentTypeId <= 0)
+            if ((_model?.EquipmentTypeId ?? 0) <= 0)
                 AddValidationError("Выберите тип оборудования");
 
             return !HasErrors;

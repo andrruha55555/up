@@ -1,35 +1,66 @@
 ﻿using AdminUP.Helpers;
 using AdminUP.Models;
 using AdminUP.Services;
-using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class NetworkSettingEditControl : BaseEditControl
+    public partial class NetworkSettingEditControl : UserControl, INotifyPropertyChanged
     {
-        private NetworkSetting _networkSetting;
-        private ApiService _apiService;
+        private readonly NetworkSetting _networkSetting;
+        private readonly ApiService _apiService;
 
-        public ObservableCollection<Equipment> AvailableEquipment { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
+
+        public ObservableCollection<Equipment> AvailableEquipment { get; } = new();
 
         public NetworkSettingEditControl(NetworkSetting networkSetting = null)
         {
             InitializeComponent();
 
-            _networkSetting = networkSetting ?? new NetworkSetting
-            {
-                CreatedAt = DateTime.Now
-            };
-
+            _networkSetting = networkSetting ?? new NetworkSetting();
             _apiService = new ApiService();
-            AvailableEquipment = new ObservableCollection<Equipment>();
 
             DataContext = this;
-            LoadEquipmentAsync();
+
+            _ = LoadEquipmentAsync();
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate() => ValidateData();
 
         private async Task LoadEquipmentAsync()
         {
@@ -38,9 +69,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableEquipment.Clear();
                 foreach (var item in equipment)
-                {
                     AvailableEquipment.Add(item);
-                }
+
                 RaisePropertyChanged(nameof(AvailableEquipment));
             }
         }
@@ -123,54 +153,38 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public DateTime CreatedAt
-        {
-            get => _networkSetting?.CreatedAt ?? DateTime.Now;
-            set
-            {
-                if (_networkSetting != null)
-                {
-                    _networkSetting.CreatedAt = value;
-                    RaisePropertyChanged(nameof(CreatedAt));
-                }
-            }
-        }
+        public NetworkSetting GetNetworkSetting() => _networkSetting;
 
-        public NetworkSetting GetNetworkSetting()
-        {
-            return _networkSetting;
-        }
-
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 
-            if (_networkSetting.EquipmentId <= 0)
+            if ((_networkSetting?.EquipmentId ?? 0) <= 0)
                 AddValidationError("Выберите оборудование");
 
-            if (!ValidateRequiredField(_networkSetting.IpAddress, "IP адрес"))
+            if (!ValidateRequiredField(_networkSetting?.IpAddress, "IP адрес"))
                 return false;
 
             if (!ValidationHelper.ValidateIpAddress(_networkSetting.IpAddress))
                 AddValidationError("Некорректный IP адрес");
 
-            if (!ValidateRequiredField(_networkSetting.SubnetMask, "Маска подсети"))
+            if (!ValidateRequiredField(_networkSetting?.SubnetMask, "Маска подсети"))
                 return false;
 
             if (!ValidationHelper.ValidateIpAddress(_networkSetting.SubnetMask))
                 AddValidationError("Некорректная маска подсети");
 
-            if (!ValidateRequiredField(_networkSetting.Gateway, "Шлюз"))
+            if (!ValidateRequiredField(_networkSetting?.Gateway, "Шлюз"))
                 return false;
 
             if (!ValidationHelper.ValidateIpAddress(_networkSetting.Gateway))
                 AddValidationError("Некорректный адрес шлюза");
 
-            if (!string.IsNullOrWhiteSpace(_networkSetting.Dns1) &&
+            if (!string.IsNullOrWhiteSpace(_networkSetting?.Dns1) &&
                 !ValidationHelper.ValidateIpAddress(_networkSetting.Dns1))
                 AddValidationError("Некорректный DNS1");
 
-            if (!string.IsNullOrWhiteSpace(_networkSetting.Dns2) &&
+            if (!string.IsNullOrWhiteSpace(_networkSetting?.Dns2) &&
                 !ValidationHelper.ValidateIpAddress(_networkSetting.Dns2))
                 AddValidationError("Некорректный DNS2");
 

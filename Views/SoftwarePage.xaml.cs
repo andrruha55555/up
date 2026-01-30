@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -58,10 +59,17 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(Software software, string title)
         {
-            var dlg = new EditDialog(software, title) { Owner = Window.GetWindow(this) };
+            var control = new SoftwareEditControl(software);
 
-            if (dlg.ShowDialog() == true && dlg.GetEditedItem() is Software edited)
+            var dlg = new EditDialog(control, title)
             {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                var edited = control.GetSoftware();
+
                 if (edited.Id == 0)
                     await _viewModel.AddSoftwareAsync(edited);
                 else

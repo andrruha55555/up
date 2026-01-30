@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -72,12 +73,15 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(EquipmentType equipmentType, string title)
         {
-            var editDialog = new EditDialog(equipmentType, title);
+            var control = new EquipmentTypeEditControl(equipmentType);
+
+            var editDialog = new EditDialog(control, title);
             editDialog.Owner = Window.GetWindow(this);
 
             if (editDialog.ShowDialog() == true)
             {
-                var editedType = editDialog.GetEditedItem() as EquipmentType;
+                var editedType = control.GetEquipmentType();
+
                 if (editedType != null)
                 {
                     if (editedType.Id == 0)

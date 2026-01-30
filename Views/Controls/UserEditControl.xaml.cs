@@ -1,42 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using AdminUP.Models;
+using AdminUP.Security;
 
 namespace AdminUP.Views.Controls
 {
-    /// <summary>
-    /// Логика взаимодействия для UserEditControl.xaml
-    /// </summary>
     public partial class UserEditControl : UserControl
     {
-        private User _user;
-        public UserEditControl(User user = null)
+        private readonly User _user;
+
+        public UserEditControl(User? user = null)
         {
             InitializeComponent();
             _user = user ?? new User();
             DataContext = _user;
         }
 
-        public User GetUser()
-        {
-            return _user;
-        }
+        public User GetUser() => _user;
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Валидация
             if (string.IsNullOrWhiteSpace(_user.Login) ||
                 string.IsNullOrWhiteSpace(_user.LastName) ||
                 string.IsNullOrWhiteSpace(_user.FirstName) ||
@@ -46,22 +29,39 @@ namespace AdminUP.Views.Controls
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            // Если это новый пользователь, хэшируем пароль
-            if (_user.Id == 0 && !string.IsNullOrEmpty(PasswordBox.Password))
+            if (_user.Id == 0)
             {
-                _user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(PasswordBox.Password);
+                if (string.IsNullOrWhiteSpace(PasswordBox.Password))
+                {
+                    MessageBox.Show("Для нового пользователя пароль обязателен!", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _user.PasswordHash = PasswordHasher.Hash(PasswordBox.Password);
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(PasswordBox.Password))
+                    _user.PasswordHash = PasswordHasher.Hash(PasswordBox.Password);
             }
 
-            // Закрываем окно с результатом OK
-            Window.GetWindow(this).DialogResult = true;
-            Window.GetWindow(this).Close();
+            var wnd = Window.GetWindow(this);
+            if (wnd != null)
+            {
+                wnd.DialogResult = true;
+                wnd.Close();
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            Window.GetWindow(this).DialogResult = false;
-            Window.GetWindow(this).Close();
+            var wnd = Window.GetWindow(this);
+            if (wnd != null)
+            {
+                wnd.DialogResult = false;
+                wnd.Close();
+            }
         }
     }
 }

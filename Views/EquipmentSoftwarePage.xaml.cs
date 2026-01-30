@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -74,17 +75,13 @@ namespace AdminUP.Views
         private void EquipmentComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (EquipmentComboBox.SelectedValue is int selectedId)
-            {
                 _viewModel.SelectedEquipmentId = selectedId;
-            }
         }
 
         private void SoftwareComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SoftwareComboBox.SelectedValue is int selectedId)
-            {
                 _viewModel.SelectedSoftwareId = selectedId;
-            }
         }
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -92,19 +89,23 @@ namespace AdminUP.Views
             EditButton_Click(sender, e);
         }
 
-        private async void ShowEditDialog(EquipmentSoftware equipmentSoftware, string title)
+        private async void ShowEditDialog(EquipmentSoftware item, string title)
         {
-            var editDialog = new EditDialog(equipmentSoftware, title);
+            // ВАЖНО: у связи нет Id, ключ составной (EquipmentId + SoftwareId)
+            bool isNew = item.EquipmentId == 0 && item.SoftwareId == 0;
+
+            var control = new EquipmentSoftwareEditControl(item);   // ✅ UserControl
+            var editDialog = new EditDialog(control, title);
             editDialog.Owner = Window.GetWindow(this);
 
             if (editDialog.ShowDialog() == true)
             {
-                var editedEquipmentSoftware = editDialog.GetEditedItem() as EquipmentSoftware;
-                if (editedEquipmentSoftware != null)
-                {
-                    // Для EquipmentSoftware нет ID, поэтому всегда добавляем
-                    await _viewModel.AddEquipmentSoftwareAsync(editedEquipmentSoftware);
-                }
+                var edited = control.GetEquipmentSoftware();
+
+                if (isNew)
+                    await _viewModel.AddEquipmentSoftwareAsync(edited);
+                else
+                    await _viewModel.UpdateEquipmentSoftwareAsync(edited);
             }
         }
     }

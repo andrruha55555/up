@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using AdminUP.Models;
+using AdminUP.Security;
+using System.Collections.Generic;
 
 namespace AdminUP.Services
 {
@@ -27,7 +28,6 @@ namespace AdminUP.Services
         {
             try
             {
-                // Проверяем, есть ли пользователь с таким логином
                 var users = await GetUsersAsync();
                 var user = users?.Find(u => u.Login == login);
 
@@ -38,17 +38,15 @@ namespace AdminUP.Services
                     return false;
                 }
 
-                // В реальном приложении здесь был бы вызов API для проверки пароля
-                // Для демо используем проверку хэша
-                bool passwordValid = false;
+                bool passwordValid;
                 try
                 {
-                    passwordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+                    // ВАЖНО: используем ТВОЙ BCrypt из AdminUP.Security
+                    passwordValid = BCrypt.Verify(password, user.PasswordHash);
                 }
                 catch
                 {
-                    // Если пароль не захеширован BCrypt
-                    passwordValid = password == "admin"; // Демо-доступ
+                    passwordValid = password == "admin"; // демо
                 }
 
                 if (!passwordValid)
@@ -83,10 +81,9 @@ namespace AdminUP.Services
         {
             if (!IsAuthenticated) return false;
 
-            // Проверка ролей
             return CurrentRole switch
             {
-                "admin" => true, // Админ имеет все права
+                "admin" => true,
                 "teacher" => requiredRole == "teacher" || requiredRole == "staff",
                 "staff" => requiredRole == "staff",
                 _ => false

@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -72,19 +73,19 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(Classroom classroom, string title)
         {
-            var editDialog = new EditDialog(classroom, title);
+            var control = new ClassroomEditControl(classroom);
+
+            var editDialog = new EditDialog(control, title);
             editDialog.Owner = Window.GetWindow(this);
 
             if (editDialog.ShowDialog() == true)
             {
-                var editedClassroom = editDialog.GetEditedItem() as Classroom;
-                if (editedClassroom != null)
-                {
-                    if (editedClassroom.Id == 0)
-                        await _viewModel.AddClassroomAsync(editedClassroom);
-                    else
-                        await _viewModel.UpdateClassroomAsync(editedClassroom.Id, editedClassroom);
-                }
+                var editedClassroom = control.GetClassroom();
+
+                if (editedClassroom.Id == 0)
+                    await _viewModel.AddClassroomAsync(editedClassroom);
+                else
+                    await _viewModel.UpdateClassroomAsync(editedClassroom.Id, editedClassroom);
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -14,12 +13,12 @@ namespace AdminUP.ViewModels
         private readonly ApiService _api;
         private readonly CacheService _cache;
 
-        public ObservableCollection<EquipmentModel> ModelList { get; } = new();
-        public ObservableCollection<EquipmentModel> FilteredModelList { get; } = new();
+        public ObservableCollection<Model> ModelList { get; } = new();
+        public ObservableCollection<Model> FilteredModelList { get; } = new();
         public ObservableCollection<EquipmentType> EquipmentTypeList { get; } = new();
 
-        private EquipmentModel? _selectedModel;
-        public EquipmentModel? SelectedModel
+        private Model? _selectedModel;
+        public Model? SelectedModel
         {
             get => _selectedModel;
             set { _selectedModel = value; OnPropertyChanged(); }
@@ -32,13 +31,6 @@ namespace AdminUP.ViewModels
             set { _searchText = value; OnPropertyChanged(); FilterModels(); }
         }
 
-        private bool _isLoading;
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set { _isLoading = value; OnPropertyChanged(); }
-        }
-
         public ModelPageViewModel(ApiService api, CacheService cache)
         {
             _api = api;
@@ -47,32 +39,21 @@ namespace AdminUP.ViewModels
 
         public async Task LoadDataAsync()
         {
-            try
-            {
-                IsLoading = true;
+            var types = await _cache.GetOrSetAsync("equipment_types",
+                async () => await _api.GetListAsync<EquipmentType>("EquipmentTypesController"));
 
-                var types = await _cache.GetOrAddAsync("equipment_types", async () =>
-                    await _api.GetListAsync<EquipmentType>("EquipmentTypesController"));
-
-                EquipmentTypeList.Clear();
+            EquipmentTypeList.Clear();
+            if (types != null)
                 foreach (var t in types) EquipmentTypeList.Add(t);
 
-                var models = await _cache.GetOrAddAsync("models", async () =>
-                    await _api.GetListAsync<EquipmentModel>("ModelsController"));
+            var models = await _cache.GetOrSetAsync("models",
+                async () => await _api.GetListAsync<Model>("ModelsController"));
 
-                ModelList.Clear();
-                foreach (var m in models)
-                {
-                    m.EquipmentTypeName = EquipmentTypeList.FirstOrDefault(x => x.Id == m.EquipmentTypeId)?.Name ?? "";
-                    ModelList.Add(m);
-                }
+            ModelList.Clear();
+            if (models != null)
+                foreach (var m in models) ModelList.Add(m);
 
-                FilterModels();
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            FilterModels();
         }
 
         public void FilterModels()
@@ -82,14 +63,12 @@ namespace AdminUP.ViewModels
 
             var items = ModelList.AsEnumerable();
             if (!string.IsNullOrWhiteSpace(q))
-                items = items.Where(x =>
-                    (x.Name ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.EquipmentTypeName ?? "").ToLowerInvariant().Contains(q));
+                items = items.Where(x => (x.Name ?? "").ToLowerInvariant().Contains(q));
 
             foreach (var i in items) FilteredModelList.Add(i);
         }
 
-        public async Task<bool> AddModelAsync(EquipmentModel item)
+        public async Task<bool> AddModelAsync(Model item)
         {
             var ok = await _api.AddItemAsync("ModelsController", item);
             _cache.Remove("models");
@@ -97,7 +76,7 @@ namespace AdminUP.ViewModels
             return ok;
         }
 
-        public async Task<bool> UpdateModelAsync(int id, EquipmentModel item)
+        public async Task<bool> UpdateModelAsync(int id, Model item)
         {
             var ok = await _api.UpdateItemAsync("ModelsController", id, item);
             _cache.Remove("models");

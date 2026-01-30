@@ -1,95 +1,82 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace AdminUP.Services
 {
     public class CacheService
     {
-        private readonly Dictionary<string, CacheItem> _cache = new Dictionary<string, CacheItem>();
-        private readonly Timer _cleanupTimer;
-
-        public CacheService()
+        private sealed class CacheEntry
         {
-            // Таймер для очистки устаревших записей каждые 5 минут
-            _cleanupTimer = new Timer(300000); // 5 минут
-            _cleanupTimer.Elapsed += CleanupCache;
-            _cleanupTimer.Start();
+            public object Value { get; init; }
+            public DateTime ExpiresAt { get; init; }
         }
 
-        public async Task<T> GetOrSetAsync<T>(string key, Func<Task<T>> getter, TimeSpan? expiration = null)
+        private readonly ConcurrentDictionary<string, CacheEntry> _cache = new();
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
+
+        /// <summary>
+        /// Вернуть значение из кэша или положить туда результат фабрики (один раз).
+        /// </summary>
+        public async Task<T> GetOrSetAsync<T>(
+            string key,
+            Func<Task<T>> factory,
+            TimeSpan? ttl = null)
         {
-            if (_cache.TryGetValue(key, out var cacheItem) &&
-                !cacheItem.IsExpired)
+            ttl ??= TimeSpan.FromMinutes(5);
+
+            if (_cache.TryGetValue(key, out var existing))
             {
-                return (T)cacheItem.Value;
+                if (existing.ExpiresAt > DateTime.Now && existing.Value is T ok)
+                    return ok;
+
+                _cache.TryRemove(key, out _);
             }
 
-            var value = await getter();
-            Set(key, value, expiration);
-            return value;
-        }
-
-        public void Set<T>(string key, T value, TimeSpan? expiration = null)
-        {
-            var expirationTime = expiration ?? TimeSpan.FromMinutes(10);
-            _cache[key] = new CacheItem(value, expirationTime);
-        }
-
-        public bool TryGet<T>(string key, out T value)
-        {
-            if (_cache.TryGetValue(key, out var cacheItem) &&
-                !cacheItem.IsExpired)
+            var gate = _locks.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+            await gate.WaitAsync();
+            try
             {
-                value = (T)cacheItem.Value;
-                return true;
-            }
+                // повторная проверка после блокировки
+                if (_cache.TryGetValue(key, out existing))
+                {
+                    if (existing.ExpiresAt > DateTime.Now && existing.Value is T ok2)
+                        return ok2;
 
-            value = default;
-            return false;
+                    _cache.TryRemove(key, out _);
+                }
+
+                var value = await factory();
+                _cache[key] = new CacheEntry
+                {
+                    Value = value,
+                    ExpiresAt = DateTime.Now.Add(ttl.Value)
+                };
+                return value;
+            }
+            finally
+            {
+                gate.Release();
+            }
         }
 
         public void Remove(string key)
         {
-            _cache.Remove(key);
+            _cache.TryRemove(key, out _);
         }
 
         public void Clear()
         {
             _cache.Clear();
         }
-
-        private void CleanupCache(object sender, ElapsedEventArgs e)
+        public Task<T> GetOrAddAsync<T>(
+          string key,
+          Func<Task<T>> factory,
+         TimeSpan? ttl = null)
         {
-            var expiredKeys = new List<string>();
-
-            foreach (var kvp in _cache)
-            {
-                if (kvp.Value.IsExpired)
-                {
-                    expiredKeys.Add(kvp.Key);
-                }
-            }
-
-            foreach (var key in expiredKeys)
-            {
-                _cache.Remove(key);
-            }
+            return GetOrSetAsync(key, factory, ttl);
         }
 
-        private class CacheItem
-        {
-            public object Value { get; }
-            public DateTime ExpirationTime { get; }
-
-            public bool IsExpired => DateTime.Now > ExpirationTime;
-
-            public CacheItem(object value, TimeSpan expiration)
-            {
-                Value = value;
-                ExpirationTime = DateTime.Now.Add(expiration);
-            }
-        }
     }
 }

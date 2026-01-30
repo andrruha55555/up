@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -72,12 +73,15 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(Consumable consumable, string title)
         {
-            var editDialog = new EditDialog(consumable, title);
+            var control = new ConsumableEditControl(consumable);
+
+            var editDialog = new EditDialog(control, title);
             editDialog.Owner = Window.GetWindow(this);
 
             if (editDialog.ShowDialog() == true)
             {
-                var editedConsumable = editDialog.GetEditedItem() as Consumable;
+                var editedConsumable = control.GetConsumable();
+
                 if (editedConsumable != null)
                 {
                     if (editedConsumable.Id == 0)

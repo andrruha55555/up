@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
+using AdminUP.Views.Controls;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -20,7 +21,7 @@ namespace AdminUP.Views
             => await _viewModel.LoadDataAsync();
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
-            => ShowEditDialog(new EquipmentModel(), "Добавление модели");
+            => ShowEditDialog(new Model(), "Добавление модели");
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
@@ -30,6 +31,7 @@ namespace AdminUP.Views
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
+
             ShowEditDialog(_viewModel.SelectedModel, "Редактирование модели");
         }
 
@@ -41,6 +43,7 @@ namespace AdminUP.Views
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
+
             await _viewModel.DeleteModelAsync(_viewModel.SelectedModel.Id);
         }
 
@@ -56,12 +59,20 @@ namespace AdminUP.Views
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
             => EditButton_Click(sender, e);
 
-        private async void ShowEditDialog(EquipmentModel model, string title)
+        private async void ShowEditDialog(Model model, string title)
         {
-            var dlg = new EditDialog(model, title) { Owner = Window.GetWindow(this) };
+            var control = new ModelEditControl(model);
 
-            if (dlg.ShowDialog() == true && dlg.GetEditedItem() is EquipmentModel edited)
+            var dlg = new EditDialog(control, title)
             {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                var edited = control.GetModel();
+                if (edited == null) return;
+
                 if (edited.Id == 0)
                     await _viewModel.AddModelAsync(edited);
                 else

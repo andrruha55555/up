@@ -1,29 +1,91 @@
-﻿using AdminUP.Helpers;
-using AdminUP.Models;
+﻿using AdminUP.Models;
 using AdminUP.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    /// <summary>
-    /// Логика взаимодействия для ClassroomEditControl.xaml
-    /// </summary>
-    public partial class ClassroomEditControl : BaseEditControl
+    public partial class ClassroomEditControl : UserControl, INotifyPropertyChanged
     {
-        private Classroom _classroom;
-        private ApiService _apiService;
-        public ObservableCollection<User> AvailableUsers { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
+        private Classroom _classroom;
+        private readonly ApiService _apiService;
+
+        public ObservableCollection<User> AvailableUsers { get; private set; } = new();
+
+        // Валидация (как у тебя в других контролах)
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
+
+        public ClassroomEditControl(Classroom classroom = null)
+        {
+            InitializeComponent();
+
+            _classroom = classroom ?? new Classroom();
+            _apiService = new ApiService();
+
+            DataContext = this;
+
+            _ = LoadDataAsync();
+        }
+
+        // ====== Helpers ======
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(HasErrors));
+            RaisePropertyChanged(nameof(ValidationErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate() => ValidateData();
+
+        // ====== Data load ======
+        private async Task LoadDataAsync()
+        {
+            var users = await _apiService.GetListAsync<User>("UsersController");
+            if (users != null)
+            {
+                AvailableUsers.Clear();
+                foreach (var user in users)
+                    AvailableUsers.Add(user);
+
+                RaisePropertyChanged(nameof(AvailableUsers));
+            }
+        }
+
+        // ====== Bindings ======
         public Classroom Classroom
         {
             get => _classroom;
             set
             {
                 _classroom = value;
-                RaisePropertyChanged(nameof(Classroom));
+                RaisePropertyChanged();
             }
         }
 
@@ -35,7 +97,7 @@ namespace AdminUP.Views.Controls
                 if (_classroom != null)
                 {
                     _classroom.Name = value;
-                    RaisePropertyChanged(nameof(Name));
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -48,11 +110,10 @@ namespace AdminUP.Views.Controls
                 if (_classroom != null)
                 {
                     _classroom.ShortName = value;
-                    RaisePropertyChanged(nameof(ShortName));
+                    RaisePropertyChanged();
                 }
             }
         }
-
         public int? ResponsibleUserId
         {
             get => _classroom?.ResponsibleUserId;
@@ -61,7 +122,7 @@ namespace AdminUP.Views.Controls
                 if (_classroom != null)
                 {
                     _classroom.ResponsibleUserId = value;
-                    RaisePropertyChanged(nameof(ResponsibleUserId));
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -74,43 +135,13 @@ namespace AdminUP.Views.Controls
                 if (_classroom != null)
                 {
                     _classroom.TempResponsibleUserId = value;
-                    RaisePropertyChanged(nameof(TempResponsibleUserId));
+                    RaisePropertyChanged();
                 }
             }
         }
 
-        public ClassroomEditControl(Classroom classroom = null)
-        {
-            InitializeComponent();
-
-            _classroom = classroom ?? new Classroom();
-            _apiService = new ApiService();
-            AvailableUsers = new ObservableCollection<User>();
-
-            DataContext = this;
-            LoadDataAsync();
-        }
-
-        private async Task LoadDataAsync()
-        {
-            var users = await _apiService.GetListAsync<User>("UsersController");
-            if (users != null)
-            {
-                AvailableUsers.Clear();
-                foreach (var user in users)
-                {
-                    AvailableUsers.Add(user);
-                }
-                RaisePropertyChanged(nameof(AvailableUsers));
-            }
-        }
-
-        public Classroom GetClassroom()
-        {
-            return _classroom;
-        }
-
-        protected override bool ValidateData()
+        public Classroom GetClassroom() => _classroom;
+        private bool ValidateData()
         {
             ClearValidationErrors();
 
@@ -122,8 +153,6 @@ namespace AdminUP.Views.Controls
 
             if (_classroom.ShortName?.Length > 20)
                 AddValidationError("Сокращение не должно превышать 20 символов");
-
-            // Проверка уникальности (в идеале - через API)
             if (_classroom.ShortName?.All(char.IsDigit) == false)
                 AddValidationError("Сокращение должно содержать только цифры");
 

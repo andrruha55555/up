@@ -1,18 +1,17 @@
-﻿using AdminUP.Models;
-using AdminUP.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using AdminUP.Models;
+using AdminUP.ViewModels;
 
 namespace AdminUP.Views
 {
     public partial class UserPage : Page
     {
-        private UserPageViewModel _viewModel;
+        private readonly UserPageViewModel _viewModel;
 
         public UserPage()
         {
             InitializeComponent();
-
             _viewModel = new UserPageViewModel(App.ApiService, App.CacheService);
             DataContext = _viewModel;
         }
@@ -24,45 +23,31 @@ namespace AdminUP.Views
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var newUser = new User();
-            ShowEditDialog(newUser, "Добавление пользователя");
+            ShowEditDialog(new User(), "Добавление пользователя");
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedUser != null)
-            {
-                ShowEditDialog(_viewModel.SelectedUser, "Редактирование пользователя");
-            }
-            else
+            if (_viewModel.SelectedUser == null)
             {
                 MessageBox.Show("Выберите пользователя для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+
+            ShowEditDialog(_viewModel.SelectedUser, "Редактирование пользователя");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedUser != null)
-            {
-                await _viewModel.DeleteUserAsync(_viewModel.SelectedUser.Id);
-            }
-            else
+            if (_viewModel.SelectedUser == null)
             {
                 MessageBox.Show("Выберите пользователя для удаления", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
-        }
 
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.FilterUsers();
-        }
-
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
-        {
-            SearchTextBox.Text = string.Empty;
-            _viewModel.SearchText = string.Empty;
+            await _viewModel.DeleteUserAsync(_viewModel.SelectedUser.Id);
         }
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -70,15 +55,20 @@ namespace AdminUP.Views
             EditButton_Click(sender, e);
         }
 
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _viewModel.SearchText = SearchTextBox.Text;
+            _viewModel.FilterUsers();
+        }
+
         private async void ShowEditDialog(User user, string title)
         {
-            var editDialog = new EditDialog(user, title);
-            editDialog.Owner = Window.GetWindow(this);
+            var dialog = new EditDialog(new Views.Controls.UserEditControl(user), title);
+            dialog.Owner = Window.GetWindow(this);
 
-            if (editDialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true)
             {
-                var editedUser = editDialog.GetEditedItem() as User;
-                if (editedUser != null)
+                if (dialog.GetEditedItem() is User editedUser)
                 {
                     if (editedUser.Id == 0)
                         await _viewModel.AddUserAsync(editedUser);

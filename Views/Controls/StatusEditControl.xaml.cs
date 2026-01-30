@@ -1,38 +1,38 @@
 ﻿using AdminUP.Models;
-using System.Windows;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class StatusEditControl : BaseEditControl
+    public partial class StatusEditControl : UserControl, INotifyPropertyChanged
     {
-        private Status _status;
+        private readonly Status _status;
 
-        public StatusEditControl(Status status = null)
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+
+        public bool HasErrors => ValidationErrors.Count > 0;
+
+        public StatusEditControl(Status? status = null)
         {
             InitializeComponent();
             _status = status ?? new Status();
             DataContext = this;
         }
 
-        public string Name
+        public string? Name
         {
-            get => _status?.Name;
+            get => _status.Name;
             set
             {
-                if (_status != null)
-                {
-                    _status.Name = value;
-                    RaisePropertyChanged(nameof(Name));
-                }
+                _status.Name = value;
+                RaisePropertyChanged();
             }
         }
 
-        public Status GetStatus()
-        {
-            return _status;
-        }
-
-        protected override bool ValidateData()
+        public Status GetStatus() => _status;
+        public bool Validate()
         {
             ClearValidationErrors();
 
@@ -44,5 +44,22 @@ namespace AdminUP.Views.Controls
 
             return !HasErrors;
         }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        private void ClearValidationErrors() => ValidationErrors.Clear();
+
+        private void AddValidationError(string message) => ValidationErrors.Add(message);
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void RaisePropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

@@ -1,11 +1,19 @@
 ﻿using AdminUP.Models;
-using System.Windows;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class ConsumableTypeEditControl : BaseEditControl
+    public partial class ConsumableTypeEditControl : UserControl, INotifyPropertyChanged
     {
         private ConsumableType _consumableType;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public ConsumableTypeEditControl(ConsumableType consumableType = null)
         {
@@ -13,6 +21,35 @@ namespace AdminUP.Views.Controls
             _consumableType = consumableType ?? new ConsumableType();
             DataContext = this;
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate() => ValidateData();
 
         public string Name
         {
@@ -27,12 +64,9 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public ConsumableType GetConsumableType()
-        {
-            return _consumableType;
-        }
+        public ConsumableType GetConsumableType() => _consumableType;
 
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 

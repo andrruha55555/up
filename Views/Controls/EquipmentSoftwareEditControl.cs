@@ -1,22 +1,33 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class EquipmentSoftwareEditControl : BaseEditControl
+    public partial class EquipmentSoftwareEditControl : UserControl, INotifyPropertyChanged
     {
-        private EquipmentSoftware _equipmentSoftware;
-        private ApiService _apiService;
+        private readonly EquipmentSoftware _equipmentSoftware;
+        private readonly ApiService _apiService;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public ObservableCollection<Equipment> AvailableEquipment { get; set; }
         public ObservableCollection<Software> AvailableSoftware { get; set; }
 
         public EquipmentSoftwareEditControl(EquipmentSoftware equipmentSoftware = null)
         {
-            InitializeComponent();
+            // ВАЖНО: если у тебя НЕТ XAML для этого контрола, то строки InitializeComponent() быть не должно.
+            // Если XAML ЕСТЬ (EquipmentSoftwareEditControl.xaml), то оставь InitializeComponent();
+            // Иначе закомментируй/удали.
+
+            // InitializeComponent();
 
             _equipmentSoftware = equipmentSoftware ?? new EquipmentSoftware();
             _apiService = new ApiService();
@@ -24,8 +35,27 @@ namespace AdminUP.Views.Controls
             AvailableSoftware = new ObservableCollection<Software>();
 
             DataContext = this;
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        public bool Validate() => ValidateData();
 
         private async Task LoadDataAsync()
         {
@@ -42,9 +72,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableEquipment.Clear();
                 foreach (var item in equipment)
-                {
                     AvailableEquipment.Add(item);
-                }
+
                 RaisePropertyChanged(nameof(AvailableEquipment));
             }
         }
@@ -56,9 +85,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableSoftware.Clear();
                 foreach (var item in software)
-                {
                     AvailableSoftware.Add(item);
-                }
+
                 RaisePropertyChanged(nameof(AvailableSoftware));
             }
         }
@@ -89,12 +117,9 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public EquipmentSoftware GetEquipmentSoftware()
-        {
-            return _equipmentSoftware;
-        }
+        public EquipmentSoftware GetEquipmentSoftware() => _equipmentSoftware;
 
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 

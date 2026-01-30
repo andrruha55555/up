@@ -65,7 +65,6 @@
             </Grid>
         </ScrollViewer>
 
-        <!-- Ошибки валидации -->
         <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}" >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>

@@ -1,15 +1,22 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
-    public partial class ConsumableCharacteristicEditControl : BaseEditControl
+    public partial class ConsumableCharacteristicEditControl : UserControl, INotifyPropertyChanged
     {
         private ConsumableCharacteristic _characteristic;
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<string> ValidationErrors { get; } = new();
+        public bool HasErrors => ValidationErrors.Count > 0;
 
         public ObservableCollection<Consumable> AvailableConsumables { get; set; }
 
@@ -22,8 +29,37 @@ namespace AdminUP.Views.Controls
             AvailableConsumables = new ObservableCollection<Consumable>();
 
             DataContext = this;
-            LoadConsumablesAsync();
+            _ = LoadConsumablesAsync();
         }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void ClearValidationErrors()
+        {
+            ValidationErrors.Clear();
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private void AddValidationError(string message)
+        {
+            ValidationErrors.Add(message);
+            RaisePropertyChanged(nameof(ValidationErrors));
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private bool ValidateRequiredField(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddValidationError($"{fieldName} обязательно для заполнения");
+                return false;
+            }
+            return true;
+        }
+
+        public bool Validate() => ValidateData();
 
         private async Task LoadConsumablesAsync()
         {
@@ -32,9 +68,8 @@ namespace AdminUP.Views.Controls
             {
                 AvailableConsumables.Clear();
                 foreach (var consumable in consumables)
-                {
                     AvailableConsumables.Add(consumable);
-                }
+
                 RaisePropertyChanged(nameof(AvailableConsumables));
             }
         }
@@ -78,12 +113,9 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public ConsumableCharacteristic GetCharacteristic()
-        {
-            return _characteristic;
-        }
+        public ConsumableCharacteristic GetCharacteristic() => _characteristic;
 
-        protected override bool ValidateData()
+        private bool ValidateData()
         {
             ClearValidationErrors();
 

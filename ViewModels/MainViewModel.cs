@@ -18,6 +18,18 @@ namespace AdminUP.ViewModels
         private readonly CacheService _cacheService;
         private readonly AuthService _authService;
         private readonly ExportService _exportService;
+        private Task LoadConsumablesAsync() => Task.CompletedTask;
+        private Task LoadStatusesAsync() => Task.CompletedTask;
+        private Task LoadEquipmentTypesAsync() => Task.CompletedTask;
+        private Task LoadModelsAsync() => Task.CompletedTask;
+        private Task LoadConsumableTypesAsync() => Task.CompletedTask;
+        private Task LoadConsumableCharacteristicsAsync() => Task.CompletedTask;
+        private Task LoadDevelopersAsync() => Task.CompletedTask;
+        private Task LoadDirectionsAsync() => Task.CompletedTask;
+        private Task LoadSoftwareAsync() => Task.CompletedTask;
+        private Task LoadInventoriesAsync() => Task.CompletedTask;
+        private Task LoadInventoryItemsAsync() => Task.CompletedTask;
+        private Task LoadNetworkSettingsAsync() => Task.CompletedTask;
 
         // Коллекции
         public ObservableCollection<Equipment> EquipmentList { get; set; }
