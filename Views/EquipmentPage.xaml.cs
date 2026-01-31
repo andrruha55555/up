@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedEquipment != null)
             {
-                await _viewModel.DeleteEquipmentAsync(_viewModel.SelectedEquipment.Id);
+                await _viewModel.DeleteEquipmentAsync(_viewModel.SelectedEquipment.id);
             }
             else
             {
@@ -84,10 +84,10 @@ namespace AdminUP.Views
 
                 if (editedEquipment != null)
                 {
-                    if (editedEquipment.Id == 0)
+                    if (editedEquipment.id == 0)
                         await _viewModel.AddEquipmentAsync(editedEquipment);
                     else
-                        await _viewModel.UpdateEquipmentAsync(editedEquipment.Id, editedEquipment);
+                        await _viewModel.UpdateEquipmentAsync(editedEquipment.id, editedEquipment);
                 }
             }
         }

@@ -146,14 +146,14 @@ namespace AdminUP.ViewModels
 
             if (SelectedInventoryId.HasValue && SelectedInventoryId > 0)
             {
-                filtered = filtered.Where(i => i.InventoryId == SelectedInventoryId.Value);
+                filtered = filtered.Where(i => i.inventory_id == SelectedInventoryId.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var searchLower = SearchText.ToLower();
                 filtered = filtered.Where(i =>
-                    (i.Comment?.ToLower().Contains(searchLower) ?? false));
+                    (i.comment?.ToLower().Contains(searchLower) ?? false));
             }
 
             foreach (var item in filtered)

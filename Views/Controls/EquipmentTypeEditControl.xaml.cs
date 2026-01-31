@@ -53,12 +53,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _equipmentType?.Name;
+            get => _equipmentType?.name;
             set
             {
                 if (_equipmentType != null)
                 {
-                    _equipmentType.Name = value;
+                    _equipmentType.name = value;
                     RaisePropertyChanged(nameof(Name));
                 }
             }
@@ -70,10 +70,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_equipmentType?.Name, "Тип оборудования"))
+            if (!ValidateRequiredField(_equipmentType?.name, "Тип оборудования"))
                 return false;
 
-            if (_equipmentType.Name?.Length > 50)
+            if (_equipmentType.name?.Length > 50)
                 AddValidationError("Тип оборудования не должен превышать 50 символов");
 
             return !HasErrors;

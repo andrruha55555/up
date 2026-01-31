@@ -21,7 +21,6 @@ namespace AdminUP.Views
         {
             await _viewModel.LoadDataAsync();
 
-            // Привязка ComboBox (после загрузки данных)
             ConsumableComboBox.ItemsSource = _viewModel.ConsumableList;
             ConsumableComboBox.DisplayMemberPath = "Name";
             ConsumableComboBox.SelectedValuePath = "Id";
@@ -51,7 +50,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedCharacteristic != null)
             {
-                await _viewModel.DeleteCharacteristicAsync(_viewModel.SelectedCharacteristic.Id);
+                await _viewModel.DeleteCharacteristicAsync(_viewModel.SelectedCharacteristic.id);
             }
             else
             {
@@ -99,10 +98,10 @@ namespace AdminUP.Views
 
                 if (editedCharacteristic != null)
                 {
-                    if (editedCharacteristic.Id == 0)
+                    if (editedCharacteristic.id == 0)
                         await _viewModel.AddCharacteristicAsync(editedCharacteristic);
                     else
-                        await _viewModel.UpdateCharacteristicAsync(editedCharacteristic.Id, editedCharacteristic);
+                        await _viewModel.UpdateCharacteristicAsync(editedCharacteristic.id, editedCharacteristic);
                 }
             }
         }

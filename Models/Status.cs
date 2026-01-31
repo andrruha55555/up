@@ -1,8 +1,7 @@
-﻿namespace AdminUP.Models
+﻿namespace AdminUP.Models;
+
+public class Status
 {
-    public class Status
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+    public int id { get; set; }
+    public string name { get; set; }
 }

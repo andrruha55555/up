@@ -28,7 +28,7 @@ namespace AdminUP.Helpers
         public static bool ValidatePhone(string phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
-                return true; // телефон не обязателен
+                return true; 
 
             return Regex.IsMatch(phone, @"^[\d\s\-\+\(\)]+$");
         }
@@ -60,16 +60,16 @@ namespace AdminUP.Helpers
         {
             var errors = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(equipment.Name))
+            if (string.IsNullOrWhiteSpace(equipment.name))
                 errors.Add("Название оборудования обязательно");
 
-            if (string.IsNullOrWhiteSpace(equipment.InventoryNumber))
+            if (string.IsNullOrWhiteSpace(equipment.inventory_number))
                 errors.Add("Инвентарный номер обязателен");
 
-            if (equipment.Cost.HasValue && equipment.Cost < 0)
+            if (equipment.cost.HasValue && equipment.cost < 0)
                 errors.Add("Стоимость не может быть отрицательной");
 
-            if (equipment.StatusId <= 0)
+            if (equipment.status_id <= 0)
                 errors.Add("Статус обязателен");
 
             return errors;
@@ -79,24 +79,24 @@ namespace AdminUP.Helpers
         {
             var errors = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(user.Login))
+            if (string.IsNullOrWhiteSpace(user.login))
                 errors.Add("Логин обязателен");
-            else if (user.Login.Length < 3)
+            else if (user.login.Length < 3)
                 errors.Add("Логин должен содержать минимум 3 символа");
 
-            if (string.IsNullOrWhiteSpace(user.LastName))
+            if (string.IsNullOrWhiteSpace(user.last_name))
                 errors.Add("Фамилия обязательна");
 
-            if (string.IsNullOrWhiteSpace(user.FirstName))
+            if (string.IsNullOrWhiteSpace(user.first_name))
                 errors.Add("Имя обязательно");
 
-            if (!ValidateEmail(user.Email))
+            if (!ValidateEmail(user.email))
                 errors.Add("Некорректный email");
 
-            if (!string.IsNullOrWhiteSpace(user.Phone) && !ValidatePhone(user.Phone))
+            if (!string.IsNullOrWhiteSpace(user.phone) && !ValidatePhone(user.phone))
                 errors.Add("Некорректный телефон");
 
-            if (string.IsNullOrWhiteSpace(user.Role))
+            if (string.IsNullOrWhiteSpace(user.role))
                 errors.Add("Роль обязательна");
 
             return errors;
@@ -106,16 +106,16 @@ namespace AdminUP.Helpers
         {
             var errors = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(consumable.Name))
+            if (string.IsNullOrWhiteSpace(consumable.name))
                 errors.Add("Название расходника обязательно");
 
-            if (consumable.Quantity < 0)
+            if (consumable.quantity < 0)
                 errors.Add("Количество не может быть отрицательным");
 
-            if (consumable.ArrivalDate > DateTime.Now)
+            if (consumable.arrival_date > DateTime.Now)
                 errors.Add("Дата поступления не может быть в будущем");
 
-            if (consumable.ConsumableTypeId <= 0)
+            if (consumable.consumable_type_id <= 0)
                 errors.Add("Тип расходника обязателен");
 
             return errors;
@@ -125,10 +125,10 @@ namespace AdminUP.Helpers
         {
             var errors = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(classroom.Name))
+            if (string.IsNullOrWhiteSpace(classroom.name))
                 errors.Add("Название аудитории обязательно");
 
-            if (string.IsNullOrWhiteSpace(classroom.ShortName))
+            if (string.IsNullOrWhiteSpace(classroom.short_name))
                 errors.Add("Сокращенное название обязательно");
 
             return errors;
@@ -138,19 +138,19 @@ namespace AdminUP.Helpers
         {
             var errors = new List<string>();
 
-            if (!ValidateIpAddress(networkSetting.IpAddress))
+            if (!ValidateIpAddress(networkSetting.ip_address))
                 errors.Add("Некорректный IP адрес");
 
-            if (!ValidateIpAddress(networkSetting.SubnetMask))
+            if (!ValidateIpAddress(networkSetting.subnet_mask))
                 errors.Add("Некорректная маска подсети");
 
-            if (!ValidateIpAddress(networkSetting.Gateway))
+            if (!ValidateIpAddress(networkSetting.gateway))
                 errors.Add("Некорректный адрес шлюза");
 
-            if (!string.IsNullOrWhiteSpace(networkSetting.Dns1) && !ValidateIpAddress(networkSetting.Dns1))
+            if (!string.IsNullOrWhiteSpace(networkSetting.dns1) && !ValidateIpAddress(networkSetting.dns1))
                 errors.Add("Некорректный DNS1");
 
-            if (!string.IsNullOrWhiteSpace(networkSetting.Dns2) && !ValidateIpAddress(networkSetting.Dns2))
+            if (!string.IsNullOrWhiteSpace(networkSetting.dns2) && !ValidateIpAddress(networkSetting.dns2))
                 errors.Add("Некорректный DNS2");
 
             return errors;

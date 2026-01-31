@@ -38,12 +38,12 @@ namespace AdminUP.ViewModels
         public ObservableCollection<Consumable> ConsumableList { get; set; }
         public ObservableCollection<Status> StatusList { get; set; }
         public ObservableCollection<EquipmentType> EquipmentTypeList { get; set; }
-        public ObservableCollection<Model> ModelList { get; set; }
+        public ObservableCollection<ModelEntity> ModelList { get; set; }
         public ObservableCollection<ConsumableType> ConsumableTypeList { get; set; }
         public ObservableCollection<ConsumableCharacteristic> ConsumableCharacteristicList { get; set; }
         public ObservableCollection<Developer> DeveloperList { get; set; }
         public ObservableCollection<Direction> DirectionList { get; set; }
-        public ObservableCollection<Software> SoftwareList { get; set; }
+        public ObservableCollection<SoftwareEntity> SoftwareList { get; set; }
         public ObservableCollection<Inventory> InventoryList { get; set; }
         public ObservableCollection<InventoryItem> InventoryItemList { get; set; }
         public ObservableCollection<NetworkSetting> NetworkSettingList { get; set; }
@@ -116,12 +116,12 @@ namespace AdminUP.ViewModels
             ConsumableList = new ObservableCollection<Consumable>();
             StatusList = new ObservableCollection<Status>();
             EquipmentTypeList = new ObservableCollection<EquipmentType>();
-            ModelList = new ObservableCollection<Model>();
+            ModelList = new ObservableCollection<ModelEntity>();
             ConsumableTypeList = new ObservableCollection<ConsumableType>();
             ConsumableCharacteristicList = new ObservableCollection<ConsumableCharacteristic>();
             DeveloperList = new ObservableCollection<Developer>();
             DirectionList = new ObservableCollection<Direction>();
-            SoftwareList = new ObservableCollection<Software>();
+            SoftwareList = new ObservableCollection<SoftwareEntity>();
             InventoryList = new ObservableCollection<Inventory>();
             InventoryItemList = new ObservableCollection<InventoryItem>();
             NetworkSettingList = new ObservableCollection<NetworkSetting>();
@@ -238,7 +238,7 @@ namespace AdminUP.ViewModels
 
         public async Task<bool> UpdateEquipmentAsync(Equipment equipment)
         {
-            if (equipment?.Id == null || equipment.Id <= 0)
+            if (equipment?.id == null || equipment.id <= 0)
             {
                 MessageBox.Show("Неверный ID оборудования", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
@@ -253,7 +253,7 @@ namespace AdminUP.ViewModels
                 return false;
             }
 
-            var success = await _apiService.UpdateItemAsync("EquipmentController", equipment.Id, equipment);
+            var success = await _apiService.UpdateItemAsync("EquipmentController", equipment.id, equipment);
             if (success)
             {
                 _cacheService.Remove("equipment_list");
@@ -302,9 +302,9 @@ namespace AdminUP.ViewModels
 
             searchText = searchText.ToLower();
             var filtered = EquipmentList.Where(e =>
-                (e.Name?.ToLower().Contains(searchText) ?? false) ||
-                (e.InventoryNumber?.ToLower().Contains(searchText) ?? false) ||
-                (e.Comment?.ToLower().Contains(searchText) ?? false));
+                (e.name?.ToLower().Contains(searchText) ?? false) ||
+                (e.inventory_number?.ToLower().Contains(searchText) ?? false) ||
+                (e.comment?.ToLower().Contains(searchText) ?? false));
         }
 
         public async Task ExportEquipmentToExcel()

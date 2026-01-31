@@ -71,7 +71,7 @@ namespace AdminUP.ViewModels
 
             var items = InventoryList.AsEnumerable();
             if (!string.IsNullOrWhiteSpace(q))
-                items = items.Where(x => (x.Name ?? "").ToLowerInvariant().Contains(q));
+                items = items.Where(x => (x.name ?? "").ToLowerInvariant().Contains(q));
 
             foreach (var i in items) FilteredInventoryList.Add(i);
         }

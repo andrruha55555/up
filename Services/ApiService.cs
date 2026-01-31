@@ -4,99 +4,115 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AdminUP.Helpers;
 
 namespace AdminUP.Services
 {
     public class ApiService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
         private readonly string _baseUrl;
+
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public ApiService(string baseUrl = "http://localhost:5152")
         {
-            _baseUrl = baseUrl;
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromSeconds(30);
+            _baseUrl = baseUrl.TrimEnd('/');
+            _http = new HttpClient();
         }
 
-        public async Task<List<T>> GetListAsync<T>(string endpoint)
+        // ====== PUBLIC API ======
+
+        public async Task<List<T>?> GetListAsync<T>(string controller)
         {
-            return await NetworkExceptionHandler.HandleRequestAsync(async () =>
-            {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/api/{endpoint}/List");
-                response.EnsureSuccessStatusCode();
-                var content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            }, $"получении списка из {endpoint}");
+            var url = BuildUrl(controller, "List");
+            using var resp = await _http.GetAsync(url);
+            var content = await resp.Content.ReadAsStringAsync();
+
+            if (!resp.IsSuccessStatusCode)
+                throw BuildHttpException("GET", url, resp, content);
+
+            if (string.IsNullOrWhiteSpace(content))
+                return new List<T>();
+
+            return JsonSerializer.Deserialize<List<T>>(content, JsonOptions) ?? new List<T>();
         }
 
-        public async Task<T> GetItemAsync<T>(string endpoint, int id)
+        public async Task<bool> AddItemAsync<T>(string controller, T item)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/api/{endpoint}/Item?id={id}");
-                response.EnsureSuccessStatusCode();
-                var content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting item from {endpoint}: {ex.Message}");
-                return default;
-            }
+            var url = BuildUrl(controller, "Add");
+            var json = JsonSerializer.Serialize(item, JsonOptions);
+            using var resp = await _http.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+
+            var content = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                throw BuildHttpException("POST", url, resp, content);
+
+            return true;
         }
 
-        public async Task<bool> AddItemAsync<T>(string endpoint, T item)
+        public async Task<bool> UpdateItemAsync<T>(string controller, int id, T item)
         {
-            try
-            {
-                var json = JsonSerializer.Serialize(item);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/{endpoint}/Add", content);
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error adding item to {endpoint}: {ex.Message}");
-                return false;
-            }
+            var url = BuildUrl(controller, $"Update/{id}");
+            var json = JsonSerializer.Serialize(item, JsonOptions);
+            using var resp = await _http.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+
+            var content = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                throw BuildHttpException("PUT", url, resp, content);
+
+            return true;
         }
 
-        public async Task<bool> UpdateItemAsync<T>(string endpoint, int id, T item)
+        public async Task<bool> DeleteItemAsync(string controller, int id)
         {
-            try
-            {
-                var json = JsonSerializer.Serialize(item);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PutAsync($"{_baseUrl}/api/{endpoint}/Update?id={id}", content);
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating item in {endpoint}: {ex.Message}");
-                return false;
-            }
+            var url = BuildUrl(controller, $"Delete/{id}");
+            using var resp = await _http.DeleteAsync(url);
+
+            var content = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                throw BuildHttpException("DELETE", url, resp, content);
+
+            return true;
         }
 
-        public async Task<bool> DeleteItemAsync(string endpoint, int id)
+        // ====== HELPERS ======
+
+        private string BuildUrl(string controller, string actionPath)
         {
-            try
-            {
-                var response = await _httpClient.DeleteAsync($"{_baseUrl}/api/{endpoint}/Delete?id={id}");
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting item from {endpoint}: {ex.Message}");
-                return false;
-            }
+            var c = NormalizeController(controller);
+            return $"{_baseUrl}/api/{c}/{actionPath}";
+        }
+
+        private static string NormalizeController(string controller)
+        {
+            if (string.IsNullOrWhiteSpace(controller))
+                throw new ArgumentException("controller пустой");
+
+            var c = controller.Trim();
+
+            // если передали "api/UsersController" или "/api/UsersController"
+            c = c.Replace("\\", "/");
+            if (c.StartsWith("/")) c = c[1..];
+            if (c.StartsWith("api/", StringComparison.OrdinalIgnoreCase))
+                c = c["api/".Length..];
+
+            // если забыли суффикс Controller
+            if (!c.EndsWith("Controller", StringComparison.OrdinalIgnoreCase))
+                c += "Controller";
+
+            return c;
+        }
+
+        private static Exception BuildHttpException(string method, string url, HttpResponseMessage resp, string body)
+        {
+            var msg =
+                $"{method} {url}\n" +
+                $"HTTP {(int)resp.StatusCode} {resp.ReasonPhrase}\n" +
+                $"BODY:\n{body}";
+            return new Exception(msg);
         }
     }
 }

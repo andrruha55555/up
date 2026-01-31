@@ -120,8 +120,8 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = ConsumableList.Where(c =>
-                    (c.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.Description?.ToLower().Contains(searchLower) ?? false));
+                    (c.name?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.description?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {

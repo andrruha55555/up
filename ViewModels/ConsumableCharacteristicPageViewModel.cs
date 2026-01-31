@@ -146,15 +146,15 @@ namespace AdminUP.ViewModels
 
             if (SelectedConsumableId.HasValue && SelectedConsumableId > 0)
             {
-                filtered = filtered.Where(c => c.ConsumableId == SelectedConsumableId.Value);
+                filtered = filtered.Where(c => c.consumable_id == SelectedConsumableId.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var searchLower = SearchText.ToLower();
                 filtered = filtered.Where(c =>
-                    (c.CharacteristicName?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.CharacteristicValue?.ToLower().Contains(searchLower) ?? false));
+                    (c.characteristic_name?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.characteristic_value?.ToLower().Contains(searchLower) ?? false));
             }
 
             foreach (var item in filtered)

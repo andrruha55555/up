@@ -29,7 +29,7 @@ namespace AdminUP.Views.Controls
 
             _inventoryItem = inventoryItem ?? new InventoryItem
             {
-                CheckedAt = DateTime.Now
+                checked_at = DateTime.Now
             };
 
             _apiService = new ApiService();
@@ -92,12 +92,12 @@ namespace AdminUP.Views.Controls
 
         public int InventoryId
         {
-            get => _inventoryItem?.InventoryId ?? 0;
+            get => _inventoryItem?.inventory_id ?? 0;
             set
             {
                 if (_inventoryItem != null)
                 {
-                    _inventoryItem.InventoryId = value;
+                    _inventoryItem.inventory_id = value;
                     RaisePropertyChanged();
                 }
             }
@@ -105,12 +105,12 @@ namespace AdminUP.Views.Controls
 
         public int EquipmentId
         {
-            get => _inventoryItem?.EquipmentId ?? 0;
+            get => _inventoryItem?.equipment_id ?? 0;
             set
             {
                 if (_inventoryItem != null)
                 {
-                    _inventoryItem.EquipmentId = value;
+                    _inventoryItem.equipment_id = value;
                     RaisePropertyChanged();
                 }
             }
@@ -118,12 +118,12 @@ namespace AdminUP.Views.Controls
 
         public int? CheckedByUserId
         {
-            get => _inventoryItem?.CheckedByUserId;
+            get => _inventoryItem?.checked_by_user_id;
             set
             {
                 if (_inventoryItem != null)
                 {
-                    _inventoryItem.CheckedByUserId = value;
+                    _inventoryItem.checked_by_user_id = value;
                     RaisePropertyChanged();
                 }
             }
@@ -131,12 +131,12 @@ namespace AdminUP.Views.Controls
 
         public string Comment
         {
-            get => _inventoryItem?.Comment;
+            get => _inventoryItem?.comment;
             set
             {
                 if (_inventoryItem != null)
                 {
-                    _inventoryItem.Comment = value;
+                    _inventoryItem.comment = value;
                     RaisePropertyChanged();
                 }
             }
@@ -144,12 +144,12 @@ namespace AdminUP.Views.Controls
 
         public DateTime CheckedAt
         {
-            get => _inventoryItem?.CheckedAt ?? DateTime.Now;
+            get => _inventoryItem?.checked_at ?? DateTime.Now;
             set
             {
                 if (_inventoryItem != null)
                 {
-                    _inventoryItem.CheckedAt = value;
+                    _inventoryItem.checked_at = value;
                     RaisePropertyChanged();
                 }
             }
@@ -180,10 +180,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (_inventoryItem.InventoryId <= 0)
+            if (_inventoryItem.inventory_id <= 0)
                 AddValidationError("Выберите инвентаризацию");
 
-            if (_inventoryItem.EquipmentId <= 0)
+            if (_inventoryItem.equipment_id <= 0)
                 AddValidationError("Выберите оборудование");
 
             return !HasErrors;

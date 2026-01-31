@@ -29,7 +29,7 @@ namespace AdminUP.Views.Controls
 
             _equipmentHistory = equipmentHistory ?? new EquipmentHistory
             {
-                ChangedAt = DateTime.Now
+                changed_at = DateTime.Now
             };
 
             _apiService = new ApiService();
@@ -110,12 +110,12 @@ namespace AdminUP.Views.Controls
 
         public int EquipmentId
         {
-            get => _equipmentHistory?.EquipmentId ?? 0;
+            get => _equipmentHistory?.equipment_id ?? 0;
             set
             {
                 if (_equipmentHistory != null)
                 {
-                    _equipmentHistory.EquipmentId = value;
+                    _equipmentHistory.equipment_id = value;
                     RaisePropertyChanged(nameof(EquipmentId));
                 }
             }
@@ -123,12 +123,12 @@ namespace AdminUP.Views.Controls
 
         public int? ClassroomId
         {
-            get => _equipmentHistory?.ClassroomId;
+            get => _equipmentHistory?.classroom_id;
             set
             {
                 if (_equipmentHistory != null)
                 {
-                    _equipmentHistory.ClassroomId = value;
+                    _equipmentHistory.classroom_id = value;
                     RaisePropertyChanged(nameof(ClassroomId));
                 }
             }
@@ -136,12 +136,12 @@ namespace AdminUP.Views.Controls
 
         public int? ResponsibleUserId
         {
-            get => _equipmentHistory?.ResponsibleUserId;
+            get => _equipmentHistory?.responsible_user_id;
             set
             {
                 if (_equipmentHistory != null)
                 {
-                    _equipmentHistory.ResponsibleUserId = value;
+                    _equipmentHistory.responsible_user_id = value;
                     RaisePropertyChanged(nameof(ResponsibleUserId));
                 }
             }
@@ -149,12 +149,12 @@ namespace AdminUP.Views.Controls
 
         public string Comment
         {
-            get => _equipmentHistory?.Comment;
+            get => _equipmentHistory?.comment;
             set
             {
                 if (_equipmentHistory != null)
                 {
-                    _equipmentHistory.Comment = value;
+                    _equipmentHistory.comment = value;
                     RaisePropertyChanged(nameof(Comment));
                 }
             }
@@ -162,12 +162,12 @@ namespace AdminUP.Views.Controls
 
         public DateTime ChangedAt
         {
-            get => _equipmentHistory?.ChangedAt ?? DateTime.Now;
+            get => _equipmentHistory?.changed_at ?? DateTime.Now;
             set
             {
                 if (_equipmentHistory != null)
                 {
-                    _equipmentHistory.ChangedAt = value;
+                    _equipmentHistory.changed_at = value;
                     RaisePropertyChanged(nameof(ChangedAt));
                 }
             }
@@ -175,12 +175,12 @@ namespace AdminUP.Views.Controls
 
         public int? ChangedByUserId
         {
-            get => _equipmentHistory?.ChangedByUserId;
+            get => _equipmentHistory?.changed_by_user_id;
             set
             {
                 if (_equipmentHistory != null)
                 {
-                    _equipmentHistory.ChangedByUserId = value;
+                    _equipmentHistory.changed_by_user_id = value;
                     RaisePropertyChanged(nameof(ChangedByUserId));
                 }
             }
@@ -192,7 +192,7 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (_equipmentHistory.EquipmentId <= 0)
+            if (_equipmentHistory.equipment_id <= 0)
                 AddValidationError("Выберите оборудование");
 
             return !HasErrors;

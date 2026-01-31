@@ -76,12 +76,12 @@ namespace AdminUP.Views.Controls
 
         public int ConsumableId
         {
-            get => _characteristic?.ConsumableId ?? 0;
+            get => _characteristic?.consumable_id ?? 0;
             set
             {
                 if (_characteristic != null)
                 {
-                    _characteristic.ConsumableId = value;
+                    _characteristic.consumable_id = value;
                     RaisePropertyChanged(nameof(ConsumableId));
                 }
             }
@@ -89,12 +89,12 @@ namespace AdminUP.Views.Controls
 
         public string CharacteristicName
         {
-            get => _characteristic?.CharacteristicName;
+            get => _characteristic?.characteristic_name;
             set
             {
                 if (_characteristic != null)
                 {
-                    _characteristic.CharacteristicName = value;
+                    _characteristic.characteristic_value = value;
                     RaisePropertyChanged(nameof(CharacteristicName));
                 }
             }
@@ -102,12 +102,12 @@ namespace AdminUP.Views.Controls
 
         public string CharacteristicValue
         {
-            get => _characteristic?.CharacteristicValue;
+            get => _characteristic?.characteristic_value;
             set
             {
                 if (_characteristic != null)
                 {
-                    _characteristic.CharacteristicValue = value;
+                    _characteristic.characteristic_value = value;
                     RaisePropertyChanged(nameof(CharacteristicValue));
                 }
             }
@@ -119,16 +119,16 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (_characteristic.ConsumableId <= 0)
+            if (_characteristic.consumable_id <= 0)
                 AddValidationError("Выберите расходник");
 
-            if (!ValidateRequiredField(_characteristic.CharacteristicName, "Название характеристики"))
+            if (!ValidateRequiredField(_characteristic.characteristic_name, "Название характеристики"))
                 return false;
 
-            if (_characteristic.CharacteristicName?.Length > 100)
+            if (_characteristic.characteristic_name?.Length > 100)
                 AddValidationError("Название характеристики не должно превышать 100 символов");
 
-            if (!ValidateRequiredField(_characteristic.CharacteristicValue, "Значение характеристики"))
+            if (!ValidateRequiredField(_characteristic.characteristic_value, "Значение характеристики"))
                 return false;
 
             return !HasErrors;

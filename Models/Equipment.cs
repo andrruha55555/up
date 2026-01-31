@@ -1,19 +1,18 @@
-﻿namespace AdminUP.Models
+﻿namespace AdminUP.Models;
+
+public class Equipment
 {
-    public class Equipment
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string InventoryNumber { get; set; }
-        public int? ClassroomId { get; set; }
-        public int? ResponsibleUserId { get; set; }
-        public int? TempResponsibleUserId { get; set; }
-        public decimal? Cost { get; set; }
-        public int? DirectionId { get; set; }
-        public int StatusId { get; set; }
-        public int? ModelId { get; set; }
-        public string Comment { get; set; }
-        public string ImagePath { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
+    public int id { get; set; }
+    public string name { get; set; }
+    public string inventory_number { get; set; }
+    public int? classroom_id { get; set; }
+    public int? responsible_user_id { get; set; }
+    public int? temp_responsible_user_id { get; set; }
+    public decimal? cost { get; set; }
+    public int? direction_id { get; set; }
+    public int status_id { get; set; }
+    public int? model_id { get; set; }
+    public string comment { get; set; }
+    public string image_path { get; set; }
+    public DateTime? created_at { get; set; }
 }

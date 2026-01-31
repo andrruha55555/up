@@ -30,11 +30,11 @@ namespace AdminUP.Views.Controls
             var equipment = DataContext as Equipment;
             if (equipment != null)
             {
-                var text = $"Оборудование: {equipment.Name}\n" +
-                          $"Инвентарный номер: {equipment.InventoryNumber}\n" +
-                          $"Стоимость: {equipment.Cost:N2} руб.\n" +
-                          $"Статус: {equipment.StatusId}\n" +
-                          $"Комментарий: {equipment.Comment}";
+                var text = $"Оборудование: {equipment.name}\n" +
+                          $"Инвентарный номер: {equipment.inventory_number}\n" +
+                          $"Стоимость: {equipment.cost:N2} руб.\n" +
+                          $"Статус: {equipment.status_id}\n" +
+                          $"Комментарий: {equipment.comment}";
 
                 Clipboard.SetText(text);
                 MessageBox.Show("Информация скопирована в буфер обмена", "Успех",

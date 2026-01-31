@@ -120,7 +120,7 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = EquipmentTypeList.Where(t =>
-                    (t.Name?.ToLower().Contains(searchLower) ?? false));
+                    (t.name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {

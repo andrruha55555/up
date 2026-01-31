@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedConsumable != null)
             {
-                await _viewModel.DeleteConsumableAsync(_viewModel.SelectedConsumable.Id);
+                await _viewModel.DeleteConsumableAsync(_viewModel.SelectedConsumable.id);
             }
             else
             {
@@ -84,10 +84,10 @@ namespace AdminUP.Views
 
                 if (editedConsumable != null)
                 {
-                    if (editedConsumable.Id == 0)
+                    if (editedConsumable.id == 0)
                         await _viewModel.AddConsumableAsync(editedConsumable);
                     else
-                        await _viewModel.UpdateConsumableAsync(editedConsumable.Id, editedConsumable);
+                        await _viewModel.UpdateConsumableAsync(editedConsumable.id, editedConsumable);
                 }
             }
         }

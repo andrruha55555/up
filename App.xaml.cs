@@ -1,6 +1,6 @@
-﻿using AdminUP.Services;
+﻿using System.Windows;
+using AdminUP.Services;
 using AdminUP.Views;
-using System.Windows;
 
 namespace AdminUP
 {
@@ -13,37 +13,32 @@ namespace AdminUP
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            // Инициализация сервисов
+            // ✅ чтобы приложение НЕ закрывалось когда закроется LoginWindow
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
             ApiService = new ApiService();
             AuthService = new AuthService();
             CacheService = new CacheService();
             ExportService = new ExportService();
 
-            // Показываем окно входа
             var loginWindow = new LoginWindow();
-            if (loginWindow.ShowDialog() == true)
-            {
-                // Показываем главное окно
-                var mainWindow = new MainPage();
-                mainWindow.Show();
-            }
-            else
+            var ok = loginWindow.ShowDialog() == true;
+
+            if (!ok)
             {
                 Shutdown();
+                return;
             }
-        }
 
-        private void Application_Exit(object sender, ExitEventArgs e)
-        {
-            CacheService?.Clear();
-        }
+            var mainWindow = new MainPage();
 
-        private void Application_DispatcherUnhandledException(object sender,
-            System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
-        {
-            MessageBox.Show($"Произошла ошибка:\n{e.Exception.Message}",
-                "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            e.Handled = true;
+            // ✅ назначаем главное окно
+            MainWindow = mainWindow;
+
+            // ✅ теперь закрытие приложения будет когда закроется MainWindow
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            mainWindow.Show();
         }
     }
 }

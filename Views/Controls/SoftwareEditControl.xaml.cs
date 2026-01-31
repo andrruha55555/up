@@ -10,7 +10,7 @@ namespace AdminUP.Views.Controls
 {
     public partial class SoftwareEditControl : UserControl, INotifyPropertyChanged
     {
-        private readonly Software _software;
+        private readonly SoftwareEntity _software;
         private readonly ApiService _apiService;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -20,11 +20,11 @@ namespace AdminUP.Views.Controls
 
         public ObservableCollection<Developer> AvailableDevelopers { get; } = new();
 
-        public SoftwareEditControl(Software software = null)
+        public SoftwareEditControl(SoftwareEntity software = null)
         {
             InitializeComponent();
 
-            _software = software ?? new Software();
+            _software = software ?? new SoftwareEntity();
             _apiService = new ApiService();
 
             DataContext = this;
@@ -68,13 +68,13 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_software.Name, "Название ПО"))
+            if (!ValidateRequiredField(_software.name, "Название ПО"))
                 return false;
 
-            if (_software.Name?.Length > 100)
+            if (_software.name?.Length > 100)
                 AddValidationError("Название ПО не должно превышать 100 символов");
 
-            if (_software.Version?.Length > 50)
+            if (_software.version?.Length > 50)
                 AddValidationError("Версия не должна превышать 50 символов");
 
             return !HasErrors;
@@ -95,12 +95,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _software?.Name;
+            get => _software?.name;
             set
             {
                 if (_software != null)
                 {
-                    _software.Name = value;
+                    _software.name = value;
                     RaisePropertyChanged(nameof(Name));
                 }
             }
@@ -108,12 +108,12 @@ namespace AdminUP.Views.Controls
 
         public int? DeveloperId
         {
-            get => _software?.DeveloperId;
+            get => _software?.developer_id;
             set
             {
                 if (_software != null)
                 {
-                    _software.DeveloperId = value;
+                    _software.developer_id = value;
                     RaisePropertyChanged(nameof(DeveloperId));
                 }
             }
@@ -121,17 +121,17 @@ namespace AdminUP.Views.Controls
 
         public string Version
         {
-            get => _software?.Version;
+            get => _software?.version;
             set
             {
                 if (_software != null)
                 {
-                    _software.Version = value;
+                    _software.version = value;
                     RaisePropertyChanged(nameof(Version));
                 }
             }
         }
 
-        public Software GetSoftware() => _software;
+        public SoftwareEntity GetSoftware() => _software;
     }
 }

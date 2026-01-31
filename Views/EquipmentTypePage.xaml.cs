@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedEquipmentType != null)
             {
-                await _viewModel.DeleteEquipmentTypeAsync(_viewModel.SelectedEquipmentType.Id);
+                await _viewModel.DeleteEquipmentTypeAsync(_viewModel.SelectedEquipmentType.id);
             }
             else
             {
@@ -84,10 +84,10 @@ namespace AdminUP.Views
 
                 if (editedType != null)
                 {
-                    if (editedType.Id == 0)
+                    if (editedType.id == 0)
                         await _viewModel.AddEquipmentTypeAsync(editedType);
                     else
-                        await _viewModel.UpdateEquipmentTypeAsync(editedType.Id, editedType);
+                        await _viewModel.UpdateEquipmentTypeAsync(editedType.id, editedType);
                 }
             }
         }

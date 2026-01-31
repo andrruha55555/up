@@ -49,7 +49,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedHistory != null)
             {
-                await _viewModel.DeleteHistoryAsync(_viewModel.SelectedHistory.Id);
+                await _viewModel.DeleteHistoryAsync(_viewModel.SelectedHistory.id);
             }
             else
             {
@@ -95,10 +95,10 @@ namespace AdminUP.Views
 
                 if (editedHistory != null)
                 {
-                    if (editedHistory.Id == 0)
+                    if (editedHistory.id == 0)
                         await _viewModel.AddHistoryAsync(editedHistory);
                     else
-                        await _viewModel.UpdateHistoryAsync(editedHistory.Id, editedHistory);
+                        await _viewModel.UpdateHistoryAsync(editedHistory.id, editedHistory);
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace AdminUP.Views.Controls
 {
     public partial class ModelEditControl : UserControl, INotifyPropertyChanged
     {
-        private readonly Model _model;
+        private readonly ModelEntity _model;
         private readonly ApiService _apiService;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -20,11 +20,11 @@ namespace AdminUP.Views.Controls
 
         public ObservableCollection<EquipmentType> AvailableEquipmentTypes { get; } = new();
 
-        public ModelEditControl(Model model = null)
+        public ModelEditControl(ModelEntity model = null)
         {
             InitializeComponent();
 
-            _model = model ?? new Model();
+            _model = model ?? new ModelEntity();
             _apiService = new ApiService();
 
             DataContext = this;
@@ -76,12 +76,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _model?.Name;
+            get => _model?.name;
             set
             {
                 if (_model != null)
                 {
-                    _model.Name = value;
+                    _model.name = value;
                     RaisePropertyChanged(nameof(Name));
                 }
             }
@@ -89,29 +89,29 @@ namespace AdminUP.Views.Controls
 
         public int EquipmentTypeId
         {
-            get => _model?.EquipmentTypeId ?? 0;
+            get => _model?.equipment_type_id ?? 0;
             set
             {
                 if (_model != null)
                 {
-                    _model.EquipmentTypeId = value;
+                    _model.equipment_type_id = value;
                     RaisePropertyChanged(nameof(EquipmentTypeId));
                 }
             }
         }
-        public Model GetModel() => _model;
+        public ModelEntity GetModel() => _model;
 
         private bool ValidateData()
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_model?.Name, "Название модели"))
+            if (!ValidateRequiredField(_model?.name, "Название модели"))
                 return false;
 
-            if (_model.Name?.Length > 100)
+            if (_model.name?.Length > 100)
                 AddValidationError("Название модели не должно превышать 100 символов");
 
-            if ((_model?.EquipmentTypeId ?? 0) <= 0)
+            if ((_model?.equipment_type_id ?? 0) <= 0)
                 AddValidationError("Выберите тип оборудования");
 
             return !HasErrors;

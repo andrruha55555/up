@@ -121,9 +121,9 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = EquipmentList.Where(e =>
-                    (e.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.InventoryNumber?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.Comment?.ToLower().Contains(searchLower) ?? false));
+                    (e.name?.ToLower().Contains(searchLower) ?? false) ||
+                    (e.inventory_number?.ToLower().Contains(searchLower) ?? false) ||
+                    (e.comment?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {

@@ -47,7 +47,7 @@ namespace AdminUP.Views
                 return;
             }
 
-            await _viewModel.DeleteUserAsync(_viewModel.SelectedUser.Id);
+            await _viewModel.DeleteUserAsync(_viewModel.SelectedUser.id);
         }
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -70,12 +70,22 @@ namespace AdminUP.Views
             {
                 if (dialog.GetEditedItem() is User editedUser)
                 {
-                    if (editedUser.Id == 0)
+                    if (editedUser.id == 0)
                         await _viewModel.AddUserAsync(editedUser);
                     else
-                        await _viewModel.UpdateUserAsync(editedUser.Id, editedUser);
+                        await _viewModel.UpdateUserAsync(editedUser.id, editedUser);
                 }
             }
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

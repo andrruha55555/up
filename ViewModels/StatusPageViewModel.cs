@@ -120,7 +120,7 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = StatusList.Where(s =>
-                    (s.Name?.ToLower().Contains(searchLower) ?? false));
+                    (s.name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {

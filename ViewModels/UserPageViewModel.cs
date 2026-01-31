@@ -120,10 +120,10 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = UserList.Where(u =>
-                    (u.Login?.ToLower().Contains(searchLower) ?? false) ||
-                    (u.LastName?.ToLower().Contains(searchLower) ?? false) ||
-                    (u.FirstName?.ToLower().Contains(searchLower) ?? false) ||
-                    (u.Email?.ToLower().Contains(searchLower) ?? false));
+                    (u.login?.ToLower().Contains(searchLower) ?? false) ||
+                    (u.last_name?.ToLower().Contains(searchLower) ?? false) ||
+                    (u.first_name?.ToLower().Contains(searchLower) ?? false) ||
+                    (u.email?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var user in filtered)
                 {

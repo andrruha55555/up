@@ -1,15 +1,13 @@
-﻿namespace AdminUP.Models
-{
-    public class NetworkSetting
-    {
-        public int Id { get; set; }
-        public int EquipmentId { get; set; }
-        public string? IpAddress { get; set; }
-        public string? SubnetMask { get; set; }
-        public string? Gateway { get; set; }
-        public string? Dns1 { get; set; }
-        public string? Dns2 { get; set; }
+﻿namespace AdminUP.Models;
 
-        public string? EquipmentName { get; set; } // для DataGrid
-    }
+public class NetworkSetting
+{
+    public int id { get; set; }
+    public int equipment_id { get; set; }
+    public string ip_address { get; set; }
+    public string subnet_mask { get; set; }
+    public string gateway { get; set; }
+    public string dns1 { get; set; }
+    public string dns2 { get; set; }
+    public DateTime? created_at { get; set; }
 }

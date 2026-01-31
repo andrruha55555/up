@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedConsumableType != null)
             {
-                await _viewModel.DeleteConsumableTypeAsync(_viewModel.SelectedConsumableType.Id);
+                await _viewModel.DeleteConsumableTypeAsync(_viewModel.SelectedConsumableType.id);
             }
             else
             {
@@ -84,10 +84,10 @@ namespace AdminUP.Views
 
                 if (editedType != null)
                 {
-                    if (editedType.Id == 0)
+                    if (editedType.id == 0)
                         await _viewModel.AddConsumableTypeAsync(editedType);
                     else
-                        await _viewModel.UpdateConsumableTypeAsync(editedType.Id, editedType);
+                        await _viewModel.UpdateConsumableTypeAsync(editedType.id, editedType);
                 }
             }
         }

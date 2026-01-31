@@ -40,10 +40,10 @@ namespace AdminUP.Views
                 var editedStatus = control.GetStatus();
                 if (editedStatus != null)
                 {
-                    if (editedStatus.Id == 0)
+                    if (editedStatus.id == 0)
                         await _viewModel.AddStatusAsync(editedStatus);
                     else
-                        await _viewModel.UpdateStatusAsync(editedStatus.Id, editedStatus);
+                        await _viewModel.UpdateStatusAsync(editedStatus.id, editedStatus);
                 }
             }
         }

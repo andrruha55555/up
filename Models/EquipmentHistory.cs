@@ -1,13 +1,12 @@
-﻿namespace AdminUP.Models
+﻿namespace AdminUP.Models;
+
+public class EquipmentHistory
 {
-    public class EquipmentHistory
-    {
-        public int Id { get; set; }
-        public int EquipmentId { get; set; }
-        public int? ClassroomId { get; set; }
-        public int? ResponsibleUserId { get; set; }
-        public string Comment { get; set; }
-        public DateTime ChangedAt { get; set; }
-        public int? ChangedByUserId { get; set; }
-    }
+    public int id { get; set; }
+    public int equipment_id { get; set; }
+    public int? classroom_id { get; set; }
+    public int? responsible_user_id { get; set; }
+    public string comment { get; set; }
+    public DateTime? changed_at { get; set; }
+    public int? changed_by_user_id { get; set; }
 }

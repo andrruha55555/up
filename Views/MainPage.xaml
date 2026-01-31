@@ -12,8 +12,21 @@
     </Window.Resources>
 
     <Grid>
-        <!-- Верхняя панель -->
-        <Border Height="60" Background="#0060AC" VerticalAlignment="Top">
+        <!-- 🔹 Строки: верх / контент / низ -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- 🔹 Колонки: меню / контент -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Верхняя панель ===== -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="#0060AC">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -21,84 +34,97 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20 0">
-                    <TextBlock Text="🏢 AdminUP" Foreground="White" FontSize="22" 
-                               FontWeight="Bold" VerticalAlignment="Center"/>
-                </StackPanel>
+                <TextBlock Grid.Column="0" Text="🏢 AdminUP"
+                       Margin="20 0"
+                       Foreground="White"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
 
-                <TextBlock Grid.Column="1" Text="{Binding CurrentPageTitle}" 
-                           Foreground="White" FontSize="16" 
-                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                       Text="{Binding CurrentPageTitle}"
+                       Foreground="White"
+                       FontSize="16"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0 0 20 0">
-                    <Button Content="🔄 Обновить" Width="100" Margin="5 0" 
-                            Click="RefreshButton_Click"/>
-                    <Button Content="🚪 Выход" Width="80" Margin="5 0" 
-                            Click="LogoutButton_Click"/>
+                    <Button Content="🔄 Обновить" Width="100" Margin="5 0"
+                        Click="RefreshButton_Click"/>
+                    <Button Content="🚪 Выход" Width="80" Margin="5 0"
+                        Click="LogoutButton_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Левое меню -->
-        <Border Width="200" Background="#F8F9FA" VerticalAlignment="Stretch" 
-                Margin="0,60,0,50" BorderBrush="#DDDDDD" BorderThickness="0,0,1,0">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <!-- ===== Левое меню ===== -->
+        <Border Grid.Row="1" Grid.Column="0"
+            Background="#F8F9FA"
+            BorderBrush="#DDDDDD"
+            BorderThickness="0,0,1,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Disabled"
+              CanContentScroll="True">
                 <StackPanel>
-                    <Button Content="📝 История оборудования" Style="{StaticResource MenuButton}" 
-                            Tag="EquipmentHistoryPage" Click="MenuButton_Click"/>
-                    <Button Content="🔗 Оборудование-ПО" Style="{StaticResource MenuButton}" 
-                            Tag="EquipmentSoftwarePage" Click="MenuButton_Click"/>
-                    <Button Content="📦 Оборудование" Style="{StaticResource MenuButton}" 
-                            Tag="EquipmentPage" Click="MenuButton_Click"/>
-                    <Button Content="👥 Пользователи" Style="{StaticResource MenuButton}" 
-                            Tag="UserPage" Click="MenuButton_Click"/>
-                    <Button Content="🏫 Аудитории" Style="{StaticResource MenuButton}" 
-                            Tag="ClassroomPage" Click="MenuButton_Click"/>
-                    <Button Content="🖨️ Расходники" Style="{StaticResource MenuButton}" 
-                            Tag="ConsumablePage" Click="MenuButton_Click"/>
-                    <Button Content="📈 Статусы" Style="{StaticResource MenuButton}" 
-                            Tag="StatusPage" Click="MenuButton_Click"/>
-                    <Button Content="💻 Типы оборудования" Style="{StaticResource MenuButton}" 
-                            Tag="EquipmentTypePage" Click="MenuButton_Click"/>
-                    <Button Content="🖥️ Модели" Style="{StaticResource MenuButton}" 
-                            Tag="ModelPage" Click="MenuButton_Click"/>
-                    <Button Content="📊 Типы расходников" Style="{StaticResource MenuButton}" 
-                            Tag="ConsumableTypePage" Click="MenuButton_Click"/>
-                    <Button Content="📝 Характеристики" Style="{StaticResource MenuButton}" 
-                            Tag="ConsumableCharacteristicPage" Click="MenuButton_Click"/>
-                    <Button Content="👨‍💻 Разработчики" Style="{StaticResource MenuButton}" 
-                            Tag="DeveloperPage" Click="MenuButton_Click"/>
-                    <Button Content="🎯 Направления" Style="{StaticResource MenuButton}" 
-                            Tag="DirectionPage" Click="MenuButton_Click"/>
-                    <Button Content="🛠️ ПО" Style="{StaticResource MenuButton}" 
-                            Tag="SoftwarePage" Click="MenuButton_Click"/>
-                    <Button Content="📋 Инвентаризации" Style="{StaticResource MenuButton}" 
-                            Tag="InventoryPage" Click="MenuButton_Click"/>
-                    <Button Content="✓ Элементы инвентаризации" Style="{StaticResource MenuButton}" 
-                            Tag="InventoryItemPage" Click="MenuButton_Click"/>
-                    <Button Content="🌐 Сетевые настройки" Style="{StaticResource MenuButton}" 
-                            Tag="NetworkSettingPage" Click="MenuButton_Click"/>
+                    <Button Content="📝 История оборудования" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentHistoryPage" Click="MenuButton_Click"/>
+                    <Button Content="🔗 Оборудование-ПО" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentSoftwarePage" Click="MenuButton_Click"/>
+                    <Button Content="📦 Оборудование" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentPage" Click="MenuButton_Click"/>
+                    <Button Content="👥 Пользователи" Style="{StaticResource MenuButtonFixed}"
+                        Tag="UserPage" Click="MenuButton_Click"/>
+                    <Button Content="🏫 Аудитории" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ClassroomPage" Click="MenuButton_Click"/>
+                    <Button Content="🖨️ Расходники" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ConsumablePage" Click="MenuButton_Click"/>
+                    <Button Content="📈 Статусы" Style="{StaticResource MenuButtonFixed}"
+                        Tag="StatusPage" Click="MenuButton_Click"/>
+                    <Button Content="💻 Типы оборудования" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentTypePage" Click="MenuButton_Click"/>
+                    <Button Content="🖥️ Модели" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ModelPage" Click="MenuButton_Click"/>
+                    <Button Content="📊 Типы расходников" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ConsumableTypePage" Click="MenuButton_Click"/>
+                    <Button Content="📝 Характеристики" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ConsumableCharacteristicPage" Click="MenuButton_Click"/>
+                    <Button Content="👨‍💻 Разработчики" Style="{StaticResource MenuButtonFixed}"
+                        Tag="DeveloperPage" Click="MenuButton_Click"/>
+                    <Button Content="🎯 Направления" Style="{StaticResource MenuButtonFixed}"
+                        Tag="DirectionPage" Click="MenuButton_Click"/>
+                    <Button Content="🛠️ ПО" Style="{StaticResource MenuButtonFixed}"
+                        Tag="SoftwarePage" Click="MenuButton_Click"/>
+                    <Button Content="📋 Инвентаризации" Style="{StaticResource MenuButtonFixed}"
+                        Tag="InventoryPage" Click="MenuButton_Click"/>
+                    <Button Content="✓ Элементы инвентаризации" Style="{StaticResource MenuButtonFixed}"
+                        Tag="InventoryItemPage" Click="MenuButton_Click"/>
+                    <Button Content="🌐 Сетевые настройки" Style="{StaticResource MenuButtonFixed}"
+                        Tag="NetworkSettingPage" Click="MenuButton_Click"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>
 
-        <!-- Основной контент -->
-        <Frame x:Name="MainFrame" Margin="200,60,0,50" NavigationUIVisibility="Hidden"/>
+        <!-- ===== Основной контент ===== -->
+        <Frame Grid.Row="1" Grid.Column="1"
+           x:Name="MainFrame"
+           NavigationUIVisibility="Hidden"/>
 
-        <!-- Панель инструментов -->
-        <Border Height="50" Background="#E0E0E0" VerticalAlignment="Bottom">
+        <!-- ===== Нижняя панель ===== -->
+        <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#E0E0E0">
             <StackPanel Orientation="Horizontal" Margin="10">
-                <Button x:Name="AddButton" Content="➕ Добавить" Width="100" Margin="0,0,5,0" 
-                        Click="AddButton_Click"/>
-                <Button x:Name="EditButton" Content="✏️ Редактировать" Width="120" Margin="0,0,5,0" 
-                        Click="EditButton_Click"/>
-                <Button x:Name="DeleteButton" Content="🗑️ Удалить" Width="100" Margin="0,0,5,0" 
-                        Click="DeleteButton_Click"/>
-                <TextBox x:Name="SearchTextBox" Width="300" Margin="0,0,5,0" 
-                         KeyDown="SearchTextBox_KeyDown"/>
+                <Button Content="➕ Добавить" Width="100" Margin="0,0,5,0"
+                    Click="AddButton_Click"/>
+                <Button Content="✏️ Редактировать" Width="120" Margin="0,0,5,0"
+                    Click="EditButton_Click"/>
+                <Button Content="🗑️ Удалить" Width="100" Margin="0,0,5,0"
+                    Click="DeleteButton_Click"/>
+                <TextBox x:Name="SearchTextBox" Width="300" Margin="0,0,5,0"
+                     KeyDown="SearchTextBox_KeyDown"/>
                 <Button Content="🔍 Поиск" Width="80" Click="SearchButton_Click"/>
-                <Button Content="Очистить" Width="80" Margin="5,0,0,0" Click="ClearSearchButton_Click"/>
+                <Button Content="Очистить" Width="80" Margin="5,0,0,0"
+                    Click="ClearSearchButton_Click"/>
             </StackPanel>
         </Border>
     </Grid>
+
 </Window>

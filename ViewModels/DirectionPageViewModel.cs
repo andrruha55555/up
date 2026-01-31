@@ -120,7 +120,7 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = DirectionList.Where(d =>
-                    (d.Name?.ToLower().Contains(searchLower) ?? false));
+                    (d.name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {

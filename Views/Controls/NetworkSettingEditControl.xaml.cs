@@ -77,12 +77,12 @@ namespace AdminUP.Views.Controls
 
         public int EquipmentId
         {
-            get => _networkSetting?.EquipmentId ?? 0;
+            get => _networkSetting?.equipment_id ?? 0;
             set
             {
                 if (_networkSetting != null)
                 {
-                    _networkSetting.EquipmentId = value;
+                    _networkSetting.equipment_id = value;
                     RaisePropertyChanged(nameof(EquipmentId));
                 }
             }
@@ -90,12 +90,12 @@ namespace AdminUP.Views.Controls
 
         public string IpAddress
         {
-            get => _networkSetting?.IpAddress;
+            get => _networkSetting?.ip_address;
             set
             {
                 if (_networkSetting != null)
                 {
-                    _networkSetting.IpAddress = value;
+                    _networkSetting.ip_address = value;
                     RaisePropertyChanged(nameof(IpAddress));
                 }
             }
@@ -103,12 +103,12 @@ namespace AdminUP.Views.Controls
 
         public string SubnetMask
         {
-            get => _networkSetting?.SubnetMask;
+            get => _networkSetting?.subnet_mask;
             set
             {
                 if (_networkSetting != null)
                 {
-                    _networkSetting.SubnetMask = value;
+                    _networkSetting.subnet_mask = value;
                     RaisePropertyChanged(nameof(SubnetMask));
                 }
             }
@@ -116,12 +116,12 @@ namespace AdminUP.Views.Controls
 
         public string Gateway
         {
-            get => _networkSetting?.Gateway;
+            get => _networkSetting?.gateway;
             set
             {
                 if (_networkSetting != null)
                 {
-                    _networkSetting.Gateway = value;
+                    _networkSetting.gateway = value;
                     RaisePropertyChanged(nameof(Gateway));
                 }
             }
@@ -129,12 +129,12 @@ namespace AdminUP.Views.Controls
 
         public string Dns1
         {
-            get => _networkSetting?.Dns1;
+            get => _networkSetting?.dns1;
             set
             {
                 if (_networkSetting != null)
                 {
-                    _networkSetting.Dns1 = value;
+                    _networkSetting.dns1 = value;
                     RaisePropertyChanged(nameof(Dns1));
                 }
             }
@@ -142,12 +142,12 @@ namespace AdminUP.Views.Controls
 
         public string Dns2
         {
-            get => _networkSetting?.Dns2;
+            get => _networkSetting?.dns2;
             set
             {
                 if (_networkSetting != null)
                 {
-                    _networkSetting.Dns2 = value;
+                    _networkSetting.dns2 = value;
                     RaisePropertyChanged(nameof(Dns2));
                 }
             }
@@ -159,33 +159,33 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if ((_networkSetting?.EquipmentId ?? 0) <= 0)
+            if ((_networkSetting?.equipment_id ?? 0) <= 0)
                 AddValidationError("Выберите оборудование");
 
-            if (!ValidateRequiredField(_networkSetting?.IpAddress, "IP адрес"))
+            if (!ValidateRequiredField(_networkSetting?.ip_address, "IP адрес"))
                 return false;
 
-            if (!ValidationHelper.ValidateIpAddress(_networkSetting.IpAddress))
+            if (!ValidationHelper.ValidateIpAddress(_networkSetting.ip_address))
                 AddValidationError("Некорректный IP адрес");
 
-            if (!ValidateRequiredField(_networkSetting?.SubnetMask, "Маска подсети"))
+            if (!ValidateRequiredField(_networkSetting?.subnet_mask, "Маска подсети"))
                 return false;
 
-            if (!ValidationHelper.ValidateIpAddress(_networkSetting.SubnetMask))
+            if (!ValidationHelper.ValidateIpAddress(_networkSetting.subnet_mask))
                 AddValidationError("Некорректная маска подсети");
 
-            if (!ValidateRequiredField(_networkSetting?.Gateway, "Шлюз"))
+            if (!ValidateRequiredField(_networkSetting?.gateway, "Шлюз"))
                 return false;
 
-            if (!ValidationHelper.ValidateIpAddress(_networkSetting.Gateway))
+            if (!ValidationHelper.ValidateIpAddress(_networkSetting.gateway))
                 AddValidationError("Некорректный адрес шлюза");
 
-            if (!string.IsNullOrWhiteSpace(_networkSetting?.Dns1) &&
-                !ValidationHelper.ValidateIpAddress(_networkSetting.Dns1))
+            if (!string.IsNullOrWhiteSpace(_networkSetting?.dns1) &&
+                !ValidationHelper.ValidateIpAddress(_networkSetting.dns1))
                 AddValidationError("Некорректный DNS1");
 
-            if (!string.IsNullOrWhiteSpace(_networkSetting?.Dns2) &&
-                !ValidationHelper.ValidateIpAddress(_networkSetting.Dns2))
+            if (!string.IsNullOrWhiteSpace(_networkSetting?.dns2) &&
+                !ValidationHelper.ValidateIpAddress(_networkSetting.dns2))
                 AddValidationError("Некорректный DNS2");
 
             return !HasErrors;

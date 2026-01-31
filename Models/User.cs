@@ -1,27 +1,15 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace AdminUP.Models;
 
-namespace AdminUP.Models
+public partial class User
 {
-    public partial class User
-    {
-        public int Id { get; set; }
-
-        public string Login { get; set; } = string.Empty;
-
-        public string LastName { get; set; } = string.Empty;
-
-        public string FirstName { get; set; } = string.Empty;
-
-        public string? MiddleName { get; set; }
-        
-        public string Email { get; set; } = string.Empty;
-
-        public string? Phone { get; set; }
-
-        public string Role { get; set; } = "User";
-
-
-        [JsonPropertyName("password_hash")]
-        public string PasswordHash { get; set; }
-    }
+    public int id { get; set; }
+    public string login { get; set; }
+    public string password_hash { get; set; }
+    public string role { get; set; } 
+    public string email { get; set; }
+    public string last_name { get; set; }
+    public string first_name { get; set; }
+    public string middle_name { get; set; }
+    public string phone { get; set; }
+    public string address { get; set; }
 }

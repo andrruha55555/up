@@ -42,7 +42,7 @@ namespace AdminUP.Views
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            await _viewModel.DeleteInventoryAsync(_viewModel.SelectedInventory.Id);
+            await _viewModel.DeleteInventoryAsync(_viewModel.SelectedInventory.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e) => _viewModel.FilterInventories();
@@ -74,10 +74,10 @@ namespace AdminUP.Views
 
                 if (edited != null)
                 {
-                    if (edited.Id == 0)
+                    if (edited.id == 0)
                         await _viewModel.AddInventoryAsync(edited);
                     else
-                        await _viewModel.UpdateInventoryAsync(edited.Id, edited);
+                        await _viewModel.UpdateInventoryAsync(edited.id, edited);
                 }
             }
         }

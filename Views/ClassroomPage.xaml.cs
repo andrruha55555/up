@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedClassroom != null)
             {
-                await _viewModel.DeleteClassroomAsync(_viewModel.SelectedClassroom.Id);
+                await _viewModel.DeleteClassroomAsync(_viewModel.SelectedClassroom.id);
             }
             else
             {
@@ -82,10 +82,10 @@ namespace AdminUP.Views
             {
                 var editedClassroom = control.GetClassroom();
 
-                if (editedClassroom.Id == 0)
+                if (editedClassroom.id == 0)
                     await _viewModel.AddClassroomAsync(editedClassroom);
                 else
-                    await _viewModel.UpdateClassroomAsync(editedClassroom.Id, editedClassroom);
+                    await _viewModel.UpdateClassroomAsync(editedClassroom.id, editedClassroom);
             }
         }
     }

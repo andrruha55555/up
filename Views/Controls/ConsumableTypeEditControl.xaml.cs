@@ -53,12 +53,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _consumableType?.Name;
+            get => _consumableType?.name;
             set
             {
                 if (_consumableType != null)
                 {
-                    _consumableType.Name = value;
+                    _consumableType.name = value;
                     RaisePropertyChanged(nameof(Name));
                 }
             }
@@ -70,10 +70,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_consumableType.Name, "Тип расходника"))
+            if (!ValidateRequiredField(_consumableType.name, "Тип расходника"))
                 return false;
 
-            if (_consumableType.Name?.Length > 100)
+            if (_consumableType.name?.Length > 100)
                 AddValidationError("Тип расходника не должен превышать 100 символов");
 
             return !HasErrors;

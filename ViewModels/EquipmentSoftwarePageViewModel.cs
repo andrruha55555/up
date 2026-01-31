@@ -33,7 +33,7 @@ namespace AdminUP.ViewModels
         }
 
         public ObservableCollection<Equipment> EquipmentList { get; set; }
-        public ObservableCollection<Software> SoftwareList { get; set; }
+        public ObservableCollection<SoftwareEntity> SoftwareList { get; set; }
 
         public EquipmentSoftware SelectedEquipmentSoftware
         {
@@ -99,7 +99,7 @@ namespace AdminUP.ViewModels
 
             EquipmentSoftwareList = new ObservableCollection<EquipmentSoftware>();
             EquipmentList = new ObservableCollection<Equipment>();
-            SoftwareList = new ObservableCollection<Software>();
+            SoftwareList = new ObservableCollection<SoftwareEntity>();
             FilteredEquipmentSoftwareList = new ObservableCollection<EquipmentSoftware>();
         }
 
@@ -155,7 +155,7 @@ namespace AdminUP.ViewModels
         private async Task LoadSoftwareAsync()
         {
             var software = await _cacheService.GetOrSetAsync("software_for_equipment",
-                async () => await _apiService.GetListAsync<Software>("SoftwareController"));
+                async () => await _apiService.GetListAsync<SoftwareEntity>("SoftwareController"));
 
             SoftwareList.Clear();
             if (software != null)
@@ -175,12 +175,12 @@ namespace AdminUP.ViewModels
 
             if (SelectedEquipmentId.HasValue && SelectedEquipmentId > 0)
             {
-                filtered = filtered.Where(es => es.EquipmentId == SelectedEquipmentId.Value);
+                filtered = filtered.Where(es => es.equipment_id == SelectedEquipmentId.Value);
             }
 
             if (SelectedSoftwareId.HasValue && SelectedSoftwareId > 0)
             {
-                filtered = filtered.Where(es => es.SoftwareId == SelectedSoftwareId.Value);
+                filtered = filtered.Where(es => es.software_id == SelectedSoftwareId.Value);
             }
 
             foreach (var item in filtered)
@@ -216,7 +216,7 @@ namespace AdminUP.ViewModels
             {
                 // Для EquipmentSoftware нет метода Update в API, только Add и Delete
                 // Поэтому сначала удаляем старую связь, потом добавляем новую
-                var deleteSuccess = await _apiService.DeleteItemAsync("EquipmentSoftwareController", equipmentSoftware.EquipmentId);
+                var deleteSuccess = await _apiService.DeleteItemAsync("EquipmentSoftwareController", equipmentSoftware.equipment_id);
                 if (deleteSuccess)
                 {
                     var addSuccess = await _apiService.AddItemAsync("EquipmentSoftwareController", equipmentSoftware);

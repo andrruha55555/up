@@ -90,12 +90,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _consumable?.Name;
+            get => _consumable?.name;
             set
             {
                 if (_consumable != null)
                 {
-                    _consumable.Name = value;
+                    _consumable.name = value;
                     RaisePropertyChanged();
                 }
             }
@@ -103,12 +103,12 @@ namespace AdminUP.Views.Controls
 
         public int ConsumableTypeId
         {
-            get => _consumable?.ConsumableTypeId ?? 0;
+            get => _consumable?.consumable_type_id ?? 0;
             set
             {
                 if (_consumable != null)
                 {
-                    _consumable.ConsumableTypeId = value;
+                    _consumable.consumable_type_id = value;
                     RaisePropertyChanged();
                 }
             }
@@ -120,13 +120,13 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_consumable.Name, "Название расходника"))
+            if (!ValidateRequiredField(_consumable.name, "Название расходника"))
                 return false;
 
-            if (_consumable.Name?.Length > 100)
+            if (_consumable.name?.Length > 100)
                 AddValidationError("Название расходника не должно превышать 100 символов");
 
-            if (_consumable.ConsumableTypeId <= 0)
+            if (_consumable.consumable_type_id <= 0)
                 AddValidationError("Выберите тип расходника");
 
             return !HasErrors;

@@ -51,8 +51,8 @@ namespace AdminUP.Views
             if (_viewModel.SelectedEquipmentSoftware != null)
             {
                 await _viewModel.DeleteEquipmentSoftwareAsync(
-                    _viewModel.SelectedEquipmentSoftware.EquipmentId,
-                    _viewModel.SelectedEquipmentSoftware.SoftwareId);
+                    _viewModel.SelectedEquipmentSoftware.equipment_id,
+                    _viewModel.SelectedEquipmentSoftware.software_id);
             }
             else
             {
@@ -92,7 +92,7 @@ namespace AdminUP.Views
         private async void ShowEditDialog(EquipmentSoftware item, string title)
         {
             // ВАЖНО: у связи нет Id, ключ составной (EquipmentId + SoftwareId)
-            bool isNew = item.EquipmentId == 0 && item.SoftwareId == 0;
+            bool isNew = item.equipment_id == 0 && item.software_id == 0;
 
             var control = new EquipmentSoftwareEditControl(item);   // ✅ UserControl
             var editDialog = new EditDialog(control, title);

@@ -8,6 +8,6 @@ namespace AdminUP.Models
 {
     public partial class User
     {
-        public string FullName => $"{LastName} {FirstName} {MiddleName}".Trim();
+        public string FullName => $"{last_name} {first_name} {middle_name}".Trim();
     }
 }

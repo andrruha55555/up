@@ -42,7 +42,7 @@ namespace AdminUP.Views
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            await _viewModel.DeleteNetworkSettingAsync(_viewModel.SelectedNetworkSetting.Id);
+            await _viewModel.DeleteNetworkSettingAsync(_viewModel.SelectedNetworkSetting.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -73,10 +73,10 @@ namespace AdminUP.Views
             {
                 var edited = control.GetNetworkSetting();
 
-                if (edited.Id == 0)
+                if (edited.id == 0)
                     await _viewModel.AddNetworkSettingAsync(edited);
                 else
-                    await _viewModel.UpdateNetworkSettingAsync(edited.Id, edited);
+                    await _viewModel.UpdateNetworkSettingAsync(edited.id, edited);
             }
         }
     }

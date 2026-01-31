@@ -14,12 +14,12 @@ namespace AdminUP.ViewModels
         private readonly ApiService _api;
         private readonly CacheService _cache;
 
-        public ObservableCollection<Software> SoftwareList { get; } = new();
-        public ObservableCollection<Software> FilteredSoftwareList { get; } = new();
+        public ObservableCollection<SoftwareEntity> SoftwareList { get; } = new();
+        public ObservableCollection<SoftwareEntity> FilteredSoftwareList { get; } = new();
         public ObservableCollection<Developer> DeveloperList { get; } = new();
 
-        private Software? _selectedSoftware;
-        public Software? SelectedSoftware
+        private SoftwareEntity? _selectedSoftware;
+        public SoftwareEntity? SelectedSoftware
         {
             get => _selectedSoftware;
             set { _selectedSoftware = value; OnPropertyChanged(); }
@@ -58,14 +58,12 @@ namespace AdminUP.ViewModels
                 foreach (var d in developers) DeveloperList.Add(d);
 
                 var software = await _cache.GetOrAddAsync("software", async () =>
-                    await _api.GetListAsync<Software>("SoftwareController"));
+                    await _api.GetListAsync<SoftwareEntity>("SoftwareController"));
 
                 SoftwareList.Clear();
                 foreach (var s in software)
                 {
-                    // Подмешаем имя разработчика для отображения
-                    s.DeveloperName = DeveloperList.FirstOrDefault(x => x.Id == s.DeveloperId)?.Name ?? "";
-                    SoftwareList.Add(s);
+                    
                 }
 
                 FilterSoftware();
@@ -84,14 +82,13 @@ namespace AdminUP.ViewModels
             var items = SoftwareList.AsEnumerable();
             if (!string.IsNullOrWhiteSpace(q))
                 items = items.Where(x =>
-                    (x.Name ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.Version ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.DeveloperName ?? "").ToLowerInvariant().Contains(q));
+                    (x.name ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.version ?? "").ToLowerInvariant().Contains(q));
 
             foreach (var i in items) FilteredSoftwareList.Add(i);
         }
 
-        public async Task<bool> AddSoftwareAsync(Software item)
+        public async Task<bool> AddSoftwareAsync(SoftwareEntity item)
         {
             var ok = await _api.AddItemAsync("SoftwareController", item);
             _cache.Remove("software");
@@ -99,7 +96,7 @@ namespace AdminUP.ViewModels
             return ok;
         }
 
-        public async Task<bool> UpdateSoftwareAsync(int id, Software item)
+        public async Task<bool> UpdateSoftwareAsync(int id, SoftwareEntity item)
         {
             var ok = await _api.UpdateItemAsync("SoftwareController", id, item);
             _cache.Remove("software");

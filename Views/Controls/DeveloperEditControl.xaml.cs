@@ -53,12 +53,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _developer?.Name;
+            get => _developer?.name;
             set
             {
                 if (_developer != null)
                 {
-                    _developer.Name = value;
+                    _developer.name = value;
                     RaisePropertyChanged(); 
                 }
             }
@@ -70,10 +70,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_developer.Name, "Название разработчика"))
+            if (!ValidateRequiredField(_developer.name, "Название разработчика"))
                 return false;
 
-            if (_developer.Name?.Length > 100)
+            if (_developer.name?.Length > 100)
                 AddValidationError("Название разработчика не должно превышать 100 символов");
 
             return !HasErrors;

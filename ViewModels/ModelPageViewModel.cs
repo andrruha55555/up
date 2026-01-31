@@ -13,12 +13,12 @@ namespace AdminUP.ViewModels
         private readonly ApiService _api;
         private readonly CacheService _cache;
 
-        public ObservableCollection<Model> ModelList { get; } = new();
-        public ObservableCollection<Model> FilteredModelList { get; } = new();
+        public ObservableCollection<ModelEntity> ModelList { get; } = new();
+        public ObservableCollection<ModelEntity> FilteredModelList { get; } = new();
         public ObservableCollection<EquipmentType> EquipmentTypeList { get; } = new();
 
-        private Model? _selectedModel;
-        public Model? SelectedModel
+        private ModelEntity? _selectedModel;
+        public ModelEntity? SelectedModel
         {
             get => _selectedModel;
             set { _selectedModel = value; OnPropertyChanged(); }
@@ -47,7 +47,7 @@ namespace AdminUP.ViewModels
                 foreach (var t in types) EquipmentTypeList.Add(t);
 
             var models = await _cache.GetOrSetAsync("models",
-                async () => await _api.GetListAsync<Model>("ModelsController"));
+                async () => await _api.GetListAsync<ModelEntity>("ModelsController"));
 
             ModelList.Clear();
             if (models != null)
@@ -63,12 +63,12 @@ namespace AdminUP.ViewModels
 
             var items = ModelList.AsEnumerable();
             if (!string.IsNullOrWhiteSpace(q))
-                items = items.Where(x => (x.Name ?? "").ToLowerInvariant().Contains(q));
+                items = items.Where(x => (x.name ?? "").ToLowerInvariant().Contains(q));
 
             foreach (var i in items) FilteredModelList.Add(i);
         }
 
-        public async Task<bool> AddModelAsync(Model item)
+        public async Task<bool> AddModelAsync(ModelEntity item)
         {
             var ok = await _api.AddItemAsync("ModelsController", item);
             _cache.Remove("models");
@@ -76,7 +76,7 @@ namespace AdminUP.ViewModels
             return ok;
         }
 
-        public async Task<bool> UpdateModelAsync(int id, Model item)
+        public async Task<bool> UpdateModelAsync(int id, ModelEntity item)
         {
             var ok = await _api.UpdateItemAsync("ModelsController", id, item);
             _cache.Remove("models");

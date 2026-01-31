@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedDeveloper != null)
             {
-                await _viewModel.DeleteDeveloperAsync(_viewModel.SelectedDeveloper.Id);
+                await _viewModel.DeleteDeveloperAsync(_viewModel.SelectedDeveloper.id);
             }
             else
             {
@@ -83,10 +83,10 @@ namespace AdminUP.Views
                 var editedDeveloper = control.GetDeveloper();
                 if (editedDeveloper != null)
                 {
-                    if (editedDeveloper.Id == 0)
+                    if (editedDeveloper.id == 0)
                         await _viewModel.AddDeveloperAsync(editedDeveloper);
                     else
-                        await _viewModel.UpdateDeveloperAsync(editedDeveloper.Id, editedDeveloper);
+                        await _viewModel.UpdateDeveloperAsync(editedDeveloper.id, editedDeveloper);
                 }
             }
         }

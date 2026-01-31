@@ -23,10 +23,10 @@ namespace AdminUP.Views.Controls
 
         public string? Name
         {
-            get => _status.Name;
+            get => _status.name;
             set
             {
-                _status.Name = value;
+                _status.name = value;
                 RaisePropertyChanged();
             }
         }
@@ -36,10 +36,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_status.Name, "Название статуса"))
+            if (!ValidateRequiredField(_status.name, "Название статуса"))
                 return false;
 
-            if (_status.Name?.Length > 50)
+            if (_status.name?.Length > 50)
                 AddValidationError("Название статуса не должно превышать 50 символов");
 
             return !HasErrors;

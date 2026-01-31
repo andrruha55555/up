@@ -57,12 +57,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _direction?.Name;
+            get => _direction?.name;
             set
             {
                 if (_direction != null)
                 {
-                    _direction.Name = value;
+                    _direction.name = value;
                     RaisePropertyChanged();
                 }
             }
@@ -74,10 +74,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_direction.Name, "Название направления"))
+            if (!ValidateRequiredField(_direction.name, "Название направления"))
                 return false;
 
-            if (_direction.Name?.Length > 100)
+            if (_direction.name?.Length > 100)
                 AddValidationError("Название направления не должно превышать 100 символов");
 
             return !HasErrors;

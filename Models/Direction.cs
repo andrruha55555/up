@@ -1,8 +1,7 @@
-﻿namespace AdminUP.Models
+﻿namespace AdminUP.Models;
+
+public class Direction
 {
-    public class Direction
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+    public int id { get; set; }
+    public string name { get; set; }
 }

@@ -20,16 +20,16 @@ namespace AdminUP.Views.Controls
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(_user.Login) ||
-                string.IsNullOrWhiteSpace(_user.LastName) ||
-                string.IsNullOrWhiteSpace(_user.FirstName) ||
-                string.IsNullOrWhiteSpace(_user.Email))
+            if (string.IsNullOrWhiteSpace(_user.login) ||
+                string.IsNullOrWhiteSpace(_user.last_name) ||
+                string.IsNullOrWhiteSpace(_user.first_name) ||
+                string.IsNullOrWhiteSpace(_user.email))
             {
                 MessageBox.Show("Заполните все обязательные поля!", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            if (_user.Id == 0)
+            if (_user.id == 0)
             {
                 if (string.IsNullOrWhiteSpace(PasswordBox.Password))
                 {
@@ -38,12 +38,12 @@ namespace AdminUP.Views.Controls
                     return;
                 }
 
-                _user.PasswordHash = PasswordHasher.Hash(PasswordBox.Password);
+                _user.password_hash = PasswordHasher.Hash(PasswordBox.Password);
             }
             else
             {
                 if (!string.IsNullOrWhiteSpace(PasswordBox.Password))
-                    _user.PasswordHash = PasswordHasher.Hash(PasswordBox.Password);
+                    _user.password_hash = PasswordHasher.Hash(PasswordBox.Password);
             }
 
             var wnd = Window.GetWindow(this);

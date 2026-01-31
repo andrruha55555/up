@@ -21,7 +21,7 @@ namespace AdminUP.Views
             => await _viewModel.LoadDataAsync();
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
-            => ShowEditDialog(new Software(), "Добавление ПО");
+            => ShowEditDialog(new SoftwareEntity(), "Добавление ПО");
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
@@ -42,7 +42,7 @@ namespace AdminUP.Views
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            await _viewModel.DeleteSoftwareAsync(_viewModel.SelectedSoftware.Id);
+            await _viewModel.DeleteSoftwareAsync(_viewModel.SelectedSoftware.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -57,7 +57,7 @@ namespace AdminUP.Views
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
             => EditButton_Click(sender, e);
 
-        private async void ShowEditDialog(Software software, string title)
+        private async void ShowEditDialog(SoftwareEntity software, string title)
         {
             var control = new SoftwareEditControl(software);
 
@@ -70,10 +70,10 @@ namespace AdminUP.Views
             {
                 var edited = control.GetSoftware();
 
-                if (edited.Id == 0)
+                if (edited.id == 0)
                     await _viewModel.AddSoftwareAsync(edited);
                 else
-                    await _viewModel.UpdateSoftwareAsync(edited.Id, edited);
+                    await _viewModel.UpdateSoftwareAsync(edited.id, edited);
             }
         }
     }

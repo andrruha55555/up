@@ -120,8 +120,8 @@ namespace AdminUP.ViewModels
             {
                 var searchLower = SearchText.ToLower();
                 var filtered = ClassroomList.Where(c =>
-                    (c.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.ShortName?.ToLower().Contains(searchLower) ?? false));
+                    (c.name?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.short_name?.ToLower().Contains(searchLower) ?? false));
 
                 foreach (var item in filtered)
                 {

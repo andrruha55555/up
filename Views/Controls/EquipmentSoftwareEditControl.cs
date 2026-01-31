@@ -19,7 +19,7 @@ namespace AdminUP.Views.Controls
         public bool HasErrors => ValidationErrors.Count > 0;
 
         public ObservableCollection<Equipment> AvailableEquipment { get; set; }
-        public ObservableCollection<Software> AvailableSoftware { get; set; }
+        public ObservableCollection<SoftwareEntity> AvailableSoftware { get; set; }
 
         public EquipmentSoftwareEditControl(EquipmentSoftware equipmentSoftware = null)
         {
@@ -32,7 +32,7 @@ namespace AdminUP.Views.Controls
             _equipmentSoftware = equipmentSoftware ?? new EquipmentSoftware();
             _apiService = new ApiService();
             AvailableEquipment = new ObservableCollection<Equipment>();
-            AvailableSoftware = new ObservableCollection<Software>();
+            AvailableSoftware = new ObservableCollection<SoftwareEntity>();
 
             DataContext = this;
             _ = LoadDataAsync();
@@ -80,7 +80,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadSoftwareAsync()
         {
-            var software = await _apiService.GetListAsync<Software>("SoftwareController");
+            var software = await _apiService.GetListAsync<SoftwareEntity>("SoftwareController");
             if (software != null)
             {
                 AvailableSoftware.Clear();
@@ -93,12 +93,12 @@ namespace AdminUP.Views.Controls
 
         public int EquipmentId
         {
-            get => _equipmentSoftware?.EquipmentId ?? 0;
+            get => _equipmentSoftware?.equipment_id ?? 0;
             set
             {
                 if (_equipmentSoftware != null)
                 {
-                    _equipmentSoftware.EquipmentId = value;
+                    _equipmentSoftware.equipment_id = value;
                     RaisePropertyChanged(nameof(EquipmentId));
                 }
             }
@@ -106,12 +106,12 @@ namespace AdminUP.Views.Controls
 
         public int SoftwareId
         {
-            get => _equipmentSoftware?.SoftwareId ?? 0;
+            get => _equipmentSoftware?.software_id ?? 0;
             set
             {
                 if (_equipmentSoftware != null)
                 {
-                    _equipmentSoftware.SoftwareId = value;
+                    _equipmentSoftware.software_id = value;
                     RaisePropertyChanged(nameof(SoftwareId));
                 }
             }
@@ -123,10 +123,10 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (_equipmentSoftware.EquipmentId <= 0)
+            if (_equipmentSoftware.equipment_id <= 0)
                 AddValidationError("Выберите оборудование");
 
-            if (_equipmentSoftware.SoftwareId <= 0)
+            if (_equipmentSoftware.software_id <= 0)
                 AddValidationError("Выберите программное обеспечение");
 
             return !HasErrors;

@@ -52,7 +52,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedInventoryItem != null)
             {
-                await _viewModel.DeleteInventoryItemAsync(_viewModel.SelectedInventoryItem.Id);
+                await _viewModel.DeleteInventoryItemAsync(_viewModel.SelectedInventoryItem.id);
             }
             else
             {
@@ -96,10 +96,10 @@ namespace AdminUP.Views
             {
                 var editedItem = control.GetInventoryItem();
 
-                if (editedItem.Id == 0)
+                if (editedItem.id == 0)
                     await _viewModel.AddInventoryItemAsync(editedItem);
                 else
-                    await _viewModel.UpdateInventoryItemAsync(editedItem.Id, editedItem);
+                    await _viewModel.UpdateInventoryItemAsync(editedItem.id, editedItem);
             }
         }
     }

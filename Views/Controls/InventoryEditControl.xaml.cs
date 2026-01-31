@@ -22,8 +22,8 @@ namespace AdminUP.Views.Controls
 
             _inventory = inventory ?? new Inventory
             {
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(7)
+                start_date = DateTime.Now,
+                end_date = DateTime.Now.AddDays(7)
             };
 
             DataContext = this;
@@ -59,36 +59,36 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _inventory?.Name;
+            get => _inventory?.name;
             set
             {
                 if (_inventory != null)
                 {
-                    _inventory.Name = value;
+                    _inventory.name = value;
                     RaisePropertyChanged();
                 }
             }
         }
         public DateTime StartDate
         {
-            get => _inventory?.StartDate ?? DateTime.Now;
+            get => _inventory?.start_date ?? DateTime.Now;
             set
             {
                 if (_inventory != null)
                 {
-                    _inventory.StartDate = value;
+                    _inventory.start_date = value;
                     RaisePropertyChanged();
                 }
             }
         }
         public DateTime EndDate
         {
-            get => _inventory?.EndDate ?? DateTime.Now;
+            get => _inventory?.end_date ?? DateTime.Now;
             set
             {
                 if (_inventory != null)
                 {
-                    _inventory.EndDate = value;
+                    _inventory.end_date = value;
                     RaisePropertyChanged();
                 }
             }
@@ -99,12 +99,12 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_inventory.Name, "Название инвентаризации"))
+            if (!ValidateRequiredField(_inventory.name, "Название инвентаризации"))
                 return false;
 
-            if (_inventory.Name?.Length > 100)
+            if (_inventory.name?.Length > 100)
                 AddValidationError("Название инвентаризации не должно превышать 100 символов");
-            if (_inventory.StartDate > _inventory.EndDate)
+            if (_inventory.start_date > _inventory.end_date)
                 AddValidationError("Дата начала не может быть позже даты окончания");
 
             return !HasErrors;

@@ -46,7 +46,7 @@ namespace AdminUP.Views
         {
             if (_viewModel.SelectedDirection != null)
             {
-                await _viewModel.DeleteDirectionAsync(_viewModel.SelectedDirection.Id);
+                await _viewModel.DeleteDirectionAsync(_viewModel.SelectedDirection.id);
             }
             else
             {
@@ -84,10 +84,10 @@ namespace AdminUP.Views
 
                 if (editedDirection != null)
                 {
-                    if (editedDirection.Id == 0)
+                    if (editedDirection.id == 0)
                         await _viewModel.AddDirectionAsync(editedDirection);
                     else
-                        await _viewModel.UpdateDirectionAsync(editedDirection.Id, editedDirection);
+                        await _viewModel.UpdateDirectionAsync(editedDirection.id, editedDirection);
                 }
             }
         }

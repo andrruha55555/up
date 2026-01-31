@@ -21,7 +21,7 @@ namespace AdminUP.Views
             => await _viewModel.LoadDataAsync();
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
-            => ShowEditDialog(new Model(), "Добавление модели");
+            => ShowEditDialog(new ModelEntity(), "Добавление модели");
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
@@ -44,7 +44,7 @@ namespace AdminUP.Views
                 return;
             }
 
-            await _viewModel.DeleteModelAsync(_viewModel.SelectedModel.Id);
+            await _viewModel.DeleteModelAsync(_viewModel.SelectedModel.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -59,7 +59,7 @@ namespace AdminUP.Views
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
             => EditButton_Click(sender, e);
 
-        private async void ShowEditDialog(Model model, string title)
+        private async void ShowEditDialog(ModelEntity model, string title)
         {
             var control = new ModelEditControl(model);
 
@@ -73,10 +73,10 @@ namespace AdminUP.Views
                 var edited = control.GetModel();
                 if (edited == null) return;
 
-                if (edited.Id == 0)
+                if (edited.id == 0)
                     await _viewModel.AddModelAsync(edited);
                 else
-                    await _viewModel.UpdateModelAsync(edited.Id, edited);
+                    await _viewModel.UpdateModelAsync(edited.id, edited);
             }
         }
     }

@@ -63,8 +63,7 @@ namespace AdminUP.ViewModels
                 NetworkList.Clear();
                 foreach (var n in list)
                 {
-                    n.EquipmentName = EquipmentList.FirstOrDefault(x => x.Id == n.EquipmentId)?.Name ?? "";
-                    NetworkList.Add(n);
+                    
                 }
 
                 FilterNetwork();
@@ -83,9 +82,8 @@ namespace AdminUP.ViewModels
             var items = NetworkList.AsEnumerable();
             if (!string.IsNullOrWhiteSpace(q))
                 items = items.Where(x =>
-                    (x.EquipmentName ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.IpAddress ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.Gateway ?? "").ToLowerInvariant().Contains(q));
+                    (x.ip_address ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.gateway ?? "").ToLowerInvariant().Contains(q));
 
             foreach (var i in items) FilteredNetworkList.Add(i);
         }

@@ -91,12 +91,12 @@ namespace AdminUP.Views.Controls
 
         public string Name
         {
-            get => _classroom?.Name;
+            get => _classroom?.name;
             set
             {
                 if (_classroom != null)
                 {
-                    _classroom.Name = value;
+                    _classroom.name = value;
                     RaisePropertyChanged();
                 }
             }
@@ -104,24 +104,24 @@ namespace AdminUP.Views.Controls
 
         public string ShortName
         {
-            get => _classroom?.ShortName;
+            get => _classroom?.short_name;
             set
             {
                 if (_classroom != null)
                 {
-                    _classroom.ShortName = value;
+                    _classroom.short_name = value;
                     RaisePropertyChanged();
                 }
             }
         }
         public int? ResponsibleUserId
         {
-            get => _classroom?.ResponsibleUserId;
+            get => _classroom?.responsible_user_id;
             set
             {
                 if (_classroom != null)
                 {
-                    _classroom.ResponsibleUserId = value;
+                    _classroom.responsible_user_id = value;
                     RaisePropertyChanged();
                 }
             }
@@ -129,12 +129,12 @@ namespace AdminUP.Views.Controls
 
         public int? TempResponsibleUserId
         {
-            get => _classroom?.TempResponsibleUserId;
+            get => _classroom?.temp_responsible_user_id;
             set
             {
                 if (_classroom != null)
                 {
-                    _classroom.TempResponsibleUserId = value;
+                    _classroom.temp_responsible_user_id = value;
                     RaisePropertyChanged();
                 }
             }
@@ -145,15 +145,15 @@ namespace AdminUP.Views.Controls
         {
             ClearValidationErrors();
 
-            if (!ValidateRequiredField(_classroom.Name, "Название аудитории"))
+            if (!ValidateRequiredField(_classroom.name, "Название аудитории"))
                 return false;
 
-            if (!ValidateRequiredField(_classroom.ShortName, "Сокращение"))
+            if (!ValidateRequiredField(_classroom.short_name, "Сокращение"))
                 return false;
 
-            if (_classroom.ShortName?.Length > 20)
+            if (_classroom.short_name?.Length > 20)
                 AddValidationError("Сокращение не должно превышать 20 символов");
-            if (_classroom.ShortName?.All(char.IsDigit) == false)
+            if (_classroom.short_name?.All(char.IsDigit) == false)
                 AddValidationError("Сокращение должно содержать только цифры");
 
             return !HasErrors;

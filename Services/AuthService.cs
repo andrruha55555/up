@@ -28,7 +28,7 @@ namespace AdminUP.Services
             try
             {
                 var users = await GetUsersAsync();
-                var user = users?.Find(u => u.Login == login);
+                var user = users?.Find(u => u.login == login);
 
                 if (user == null)
                 {
@@ -40,19 +40,19 @@ namespace AdminUP.Services
                 bool passwordValid = false;
 
                 // 1) bcrypt ($2y$...)
-                if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash.StartsWith("$2"))
+                if (!string.IsNullOrWhiteSpace(user.password_hash) && user.password_hash.StartsWith("$2"))
                 {
-                    passwordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+                    passwordValid = BCrypt.Net.BCrypt.Verify(password, user.password_hash);
                 }
                 // 2) fallback: если вдруг хранится в твоём формате v1$...
-                else if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash.StartsWith("v1$"))
+                else if (!string.IsNullOrWhiteSpace(user.password_hash) && user.password_hash.StartsWith("v1$"))
                 {
-                    passwordValid = AdminUP.Security.BCrypt.Verify(password, user.PasswordHash);
+                    passwordValid = AdminUP.Security.BCrypt.Verify(password, user.password_hash);
                 }
                 else
                 {
                     // временно (если где-то лежит plain text)
-                    passwordValid = password == user.PasswordHash;
+                    passwordValid = password == user.password_hash;
                 }
 
                 if (!passwordValid)
@@ -62,8 +62,8 @@ namespace AdminUP.Services
                     return false;
                 }
 
-                CurrentUser = user.Login;
-                CurrentRole = user.Role;
+                CurrentUser = user.login;
+                CurrentRole = user.role;
                 IsAuthenticated = true;
                 return true;
             }
