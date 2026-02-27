@@ -1,5 +1,4 @@
 ﻿using AdminUP.Models;
-using AdminUP.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -14,11 +13,8 @@ namespace AdminUP.Views.Controls
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private Classroom _classroom;
-        private readonly ApiService _apiService;
 
-        public ObservableCollection<User> AvailableUsers { get; private set; } = new();
-
-        // Валидация (как у тебя в других контролах)
+        public ObservableCollection<User> AvailableUsers { get; } = new();
         public ObservableCollection<string> ValidationErrors { get; } = new();
         public bool HasErrors => ValidationErrors.Count > 0;
 
@@ -27,14 +23,11 @@ namespace AdminUP.Views.Controls
             InitializeComponent();
 
             _classroom = classroom ?? new Classroom();
-            _apiService = new ApiService();
-
             DataContext = this;
 
             _ = LoadDataAsync();
         }
 
-        // ====== Helpers ======
         private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
@@ -64,32 +57,32 @@ namespace AdminUP.Views.Controls
 
         public bool Validate() => ValidateData();
 
-        // ====== Data load ======
         private async Task LoadDataAsync()
         {
-            var users = await _apiService.GetListAsync<User>("UsersController");
+            var users = await App.ApiService.GetListAsync<User>("UsersController");
+
+            AvailableUsers.Clear();
+
+            // "Не назначен" (id=0)
+            AvailableUsers.Add(new User
+            {
+                id = 0,
+                last_name = "Не",
+                first_name = "назначен",
+                middle_name = ""
+            });
+
             if (users != null)
             {
-                AvailableUsers.Clear();
-                foreach (var user in users)
-                    AvailableUsers.Add(user);
-
-                RaisePropertyChanged(nameof(AvailableUsers));
+                foreach (var u in users)
+                    AvailableUsers.Add(u);
             }
+
+            RaisePropertyChanged(nameof(AvailableUsers));
         }
 
-        // ====== Bindings ======
-        public Classroom Classroom
-        {
-            get => _classroom;
-            set
-            {
-                _classroom = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public string Name
+        // ВАЖНО: НЕ использовать имя Name
+        public string ClassroomName
         {
             get => _classroom?.name;
             set
@@ -102,7 +95,7 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public string ShortName
+        public string ClassroomShortName
         {
             get => _classroom?.short_name;
             set
@@ -114,6 +107,7 @@ namespace AdminUP.Views.Controls
                 }
             }
         }
+
         public int? ResponsibleUserId
         {
             get => _classroom?.responsible_user_id;
@@ -121,7 +115,7 @@ namespace AdminUP.Views.Controls
             {
                 if (_classroom != null)
                 {
-                    _classroom.responsible_user_id = value;
+                    _classroom.responsible_user_id = (value == 0) ? null : value;
                     RaisePropertyChanged();
                 }
             }
@@ -134,13 +128,17 @@ namespace AdminUP.Views.Controls
             {
                 if (_classroom != null)
                 {
-                    _classroom.temp_responsible_user_id = value;
+                    _classroom.temp_responsible_user_id = (value == 0) ? null : value;
                     RaisePropertyChanged();
                 }
             }
         }
 
+        // Чтобы EditDialog.GetEditedItem() работал как в Users
+        public object GetEditedItem() => _classroom;
+
         public Classroom GetClassroom() => _classroom;
+
         private bool ValidateData()
         {
             ClearValidationErrors();
@@ -153,6 +151,7 @@ namespace AdminUP.Views.Controls
 
             if (_classroom.short_name?.Length > 20)
                 AddValidationError("Сокращение не должно превышать 20 символов");
+
             if (_classroom.short_name?.All(char.IsDigit) == false)
                 AddValidationError("Сокращение должно содержать только цифры");
 

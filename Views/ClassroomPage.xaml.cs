@@ -8,12 +8,11 @@ namespace AdminUP.Views
 {
     public partial class ClassroomPage : Page
     {
-        private ClassroomPageViewModel _viewModel;
+        private readonly ClassroomPageViewModel _viewModel;
 
         public ClassroomPage()
         {
             InitializeComponent();
-
             _viewModel = new ClassroomPageViewModel(App.ApiService, App.CacheService);
             DataContext = _viewModel;
         }
@@ -25,34 +24,31 @@ namespace AdminUP.Views
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var newClassroom = new Classroom();
-            ShowEditDialog(newClassroom, "Добавление аудитории");
+            ShowEditDialog(new Classroom(), "Добавление аудитории");
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedClassroom != null)
-            {
-                ShowEditDialog(_viewModel.SelectedClassroom, "Редактирование аудитории");
-            }
-            else
+            if (_viewModel.SelectedClassroom == null)
             {
                 MessageBox.Show("Выберите аудиторию для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+
+            ShowEditDialog(_viewModel.SelectedClassroom, "Редактирование аудитории");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedClassroom != null)
-            {
-                await _viewModel.DeleteClassroomAsync(_viewModel.SelectedClassroom.id);
-            }
-            else
+            if (_viewModel.SelectedClassroom == null)
             {
                 MessageBox.Show("Выберите аудиторию для удаления", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+
+            await _viewModel.DeleteClassroomAsync(_viewModel.SelectedClassroom.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -64,6 +60,7 @@ namespace AdminUP.Views
         {
             SearchTextBox.Text = string.Empty;
             _viewModel.SearchText = string.Empty;
+            _viewModel.FilterClassrooms();
         }
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -75,17 +72,18 @@ namespace AdminUP.Views
         {
             var control = new ClassroomEditControl(classroom);
 
-            var editDialog = new EditDialog(control, title);
-            editDialog.Owner = Window.GetWindow(this);
+            var dialog = new EditDialog(control, title);
+            dialog.Owner = Window.GetWindow(this);
 
-            if (editDialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true)
             {
-                var editedClassroom = control.GetClassroom();
-
-                if (editedClassroom.id == 0)
-                    await _viewModel.AddClassroomAsync(editedClassroom);
-                else
-                    await _viewModel.UpdateClassroomAsync(editedClassroom.id, editedClassroom);
+                if (dialog.GetEditedItem() is Classroom editedClassroom)
+                {
+                    if (editedClassroom.id == 0)
+                        await _viewModel.AddClassroomAsync(editedClassroom);
+                    else
+                        await _viewModel.UpdateClassroomAsync(editedClassroom.id, editedClassroom);
+                }
             }
         }
     }

@@ -1,10 +1,51 @@
 ﻿<Window x:Class="AdminUP.Views.EditDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
         Title="Редактирование"
-        Height="450" Width="700"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Width="720"
+        Height="480"
+        MinWidth="600"
+        MinHeight="420"
+        ResizeMode="CanResize">
+
     <Grid Margin="10">
-        <ContentControl x:Name="EditContentControl"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Контент -->
+        <Border Grid.Row="0"
+                BorderBrush="#DDDDDD"
+                BorderThickness="1"
+                Padding="10"
+                CornerRadius="6">
+            <ContentControl x:Name="EditContentControl"/>
+        </Border>
+
+        <!-- Кнопки -->
+        <DockPanel Grid.Row="1" Margin="0,10,0,0" LastChildFill="False">
+            <TextBlock x:Name="HintText"
+                       VerticalAlignment="Center"
+                       Foreground="Gray"
+                       Text=""
+                       DockPanel.Dock="Left"/>
+
+            <StackPanel DockPanel.Dock="Right"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Content="Сохранить"
+                        Width="120"
+                        Margin="0,0,10,0"
+                        Click="Save_Click"/>
+                <Button Content="Отмена"
+                        Width="120"
+                        Click="Cancel_Click"/>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

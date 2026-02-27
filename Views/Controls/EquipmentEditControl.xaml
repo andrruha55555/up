@@ -37,10 +37,10 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:" Margin="5"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Margin="5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1"  Margin="5"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Инвентарный номер:" Margin="5"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InventoryNumber}" Margin="5"/>
+                    <TextBox Grid.Row="1" Grid.Column="1"  Margin="5"/>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Аудитория:" Margin="5"/>
                     <ComboBox Grid.Row="2" Grid.Column="1" 
