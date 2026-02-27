@@ -1,44 +1,48 @@
 ﻿<Page x:Class="AdminUP.Views.NetworkSettingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:converters="clr-namespace:AdminUP.Converters"
-      Title="Сетевые настройки"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
       Loaded="Page_Loaded">
 
-
-    <Grid>
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-            <Button Content="Добавить" Width="100" Click="AddButton_Click"/>
-            <Button Content="Редактировать" Width="120" Click="EditButton_Click"/>
-            <Button Content="Удалить" Width="100" Click="DeleteButton_Click"/>
-            <Button Content="Проверить сеть" Width="140" Click="CheckNetworkButton_Click"/>
-            <TextBox x:Name="SearchTextBox" Width="200" Margin="10 0"
-                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Content="Найти" Width="80" Click="SearchButton_Click"/>
-            <Button Content="Очистить" Width="80" Margin="5,0,0,0" Click="ClearButton_Click"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Добавить" Width="110" Margin="0,0,8,0" Click="AddButton_Click"/>
+            <Button Content="Редактировать" Width="130" Margin="0,0,8,0" Click="EditButton_Click"/>
+            <Button Content="Удалить" Width="110" Margin="0,0,16,0" Click="DeleteButton_Click"/>
+
+            <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox x:Name="SearchTextBox"
+                     Width="260"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,8,0"/>
+
+            <Button Content="Найти" Width="90" Margin="0,0,8,0" Click="SearchButton_Click"/>
+            <Button Content="Очистить" Width="100" Click="ClearButton_Click"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" Margin="10"
+        <DataGrid Grid.Row="1"
                   ItemsSource="{Binding FilteredNetworkList}"
                   SelectedItem="{Binding SelectedNetworkSetting}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="160"/>
-                <DataGridTextColumn Header="IP адрес" Binding="{Binding IpAddress}" Width="120"/>
-                <DataGridTextColumn Header="Маска" Binding="{Binding SubnetMask}" Width="120"/>
-                <DataGridTextColumn Header="Шлюз" Binding="{Binding Gateway}" Width="120"/>
-                <DataGridTextColumn Header="DNS1" Binding="{Binding Dns1}" Width="120"/>
-                <DataGridTextColumn Header="DNS2" Binding="{Binding Dns2}" Width="120"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="70"/>
+                <DataGridTextColumn Header="Оборудование ID" Binding="{Binding equipment_id}" Width="140"/>
+                <DataGridTextColumn Header="IP" Binding="{Binding ip_address}" Width="140"/>
+                <DataGridTextColumn Header="Маска" Binding="{Binding subnet_mask}" Width="140"/>
+                <DataGridTextColumn Header="Шлюз" Binding="{Binding gateway}" Width="140"/>
+                <DataGridTextColumn Header="DNS1" Binding="{Binding dns1}" Width="140"/>
+                <DataGridTextColumn Header="DNS2" Binding="{Binding dns2}" Width="140"/>
+                <DataGridTextColumn Header="Создано" Binding="{Binding created_at, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="170"/>
             </DataGrid.Columns>
         </DataGrid>
-
     </Grid>
 </Page>

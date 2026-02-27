@@ -1,6 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -11,105 +11,89 @@ namespace AdminUP.ViewModels
 {
     public class NetworkSettingPageViewModel : INotifyPropertyChanged
     {
-        private readonly ApiService _api;
-        private readonly CacheService _cache;
+        private readonly ApiService _apiService;
+        private readonly CacheService _cacheService;
 
-        public ObservableCollection<NetworkSetting> NetworkList { get; } = new();
-        public ObservableCollection<NetworkSetting> FilteredNetworkList { get; } = new();
-        public ObservableCollection<Equipment> EquipmentList { get; } = new();
+        public ObservableCollection<NetworkSetting> NetworkSettings { get; } = new();
+        public ObservableCollection<NetworkSetting> FilteredNetworkSettings { get; } = new();
 
-        private NetworkSetting? _selected;
+        private NetworkSetting? _selectedNetworkSetting;
         public NetworkSetting? SelectedNetworkSetting
         {
-            get => _selected;
-            set { _selected = value; OnPropertyChanged(); }
+            get => _selectedNetworkSetting;
+            set { _selectedNetworkSetting = value; OnPropertyChanged(); }
         }
 
         private string _searchText = "";
         public string SearchText
         {
             get => _searchText;
-            set { _searchText = value; OnPropertyChanged(); FilterNetwork(); }
+            set { _searchText = value ?? ""; OnPropertyChanged(); }
         }
 
-        private bool _isLoading;
-        public bool IsLoading
+        public NetworkSettingPageViewModel(ApiService apiService, CacheService cacheService)
         {
-            get => _isLoading;
-            set { _isLoading = value; OnPropertyChanged(); }
+            _apiService = apiService;
+            _cacheService = cacheService;
         }
 
-        public NetworkSettingPageViewModel(ApiService api, CacheService cache)
-        {
-            _api = api;
-            _cache = cache;
-        }
-
+        // ТВОЙ code-behind ждёт LoadDataAsync()
         public async Task LoadDataAsync()
         {
-            try
-            {
-                IsLoading = true;
+            var list = await _cacheService.GetOrAddAsync("network_settings", async () =>
+                await _apiService.GetListAsync<NetworkSetting>("NetworkSettingsController"));
 
-                var equipment = await _cache.GetOrAddAsync("equipment", async () =>
-                    await _api.GetListAsync<Equipment>("EquipmentController"));
+            NetworkSettings.Clear();
+            if (list != null)
+                foreach (var x in list) NetworkSettings.Add(x);
 
-                EquipmentList.Clear();
-                foreach (var e in equipment) EquipmentList.Add(e);
-
-                var list = await _cache.GetOrAddAsync("network_settings", async () =>
-                    await _api.GetListAsync<NetworkSetting>("NetworkSettingsController"));
-
-                NetworkList.Clear();
-                foreach (var n in list)
-                {
-                    
-                }
-
-                FilterNetwork();
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            FilterNetwork();
         }
 
+        // ТВОЙ code-behind вызывает FilterNetwork() без аргументов
         public void FilterNetwork()
         {
-            FilteredNetworkList.Clear();
-            var q = (SearchText ?? "").Trim().ToLowerInvariant();
+            FilterNetwork(SearchText);
+        }
 
-            var items = NetworkList.AsEnumerable();
+        public void FilterNetwork(string search)
+        {
+            var q = (search ?? "").Trim().ToLowerInvariant();
+
+            IEnumerable<NetworkSetting> items = NetworkSettings;
+
             if (!string.IsNullOrWhiteSpace(q))
+            {
                 items = items.Where(x =>
                     (x.ip_address ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.gateway ?? "").ToLowerInvariant().Contains(q));
+                    (x.gateway ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.dns1 ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.dns2 ?? "").ToLowerInvariant().Contains(q));
+            }
 
-            foreach (var i in items) FilteredNetworkList.Add(i);
+            FilteredNetworkSettings.Clear();
+            foreach (var x in items) FilteredNetworkSettings.Add(x);
         }
 
-        public async Task<bool> AddNetworkSettingAsync(NetworkSetting item)
+        public async Task AddNetworkSettingAsync(NetworkSetting item)
         {
-            var ok = await _api.AddItemAsync("NetworkSettingsController", item);
-            _cache.Remove("network_settings");
+            await _apiService.AddItemAsync("NetworkSettingsController", item);
+            _cacheService.Remove("network_settings");
             await LoadDataAsync();
-            return ok;
         }
 
-        public async Task<bool> UpdateNetworkSettingAsync(int id, NetworkSetting item)
+        public async Task UpdateNetworkSettingAsync(int id, NetworkSetting item)
         {
-            var ok = await _api.UpdateItemAsync("NetworkSettingsController", id, item);
-            _cache.Remove("network_settings");
+            await _apiService.UpdateItemAsync("NetworkSettingsController", id, item);
+            _cacheService.Remove("network_settings");
             await LoadDataAsync();
-            return ok;
         }
 
-        public async Task<bool> DeleteNetworkSettingAsync(int id)
+        public async Task DeleteNetworkSettingAsync(int id)
         {
-            var ok = await _api.DeleteItemAsync("NetworkSettingsController", id);
-            _cache.Remove("network_settings");
+            await _apiService.DeleteItemAsync("NetworkSettingsController", id);
+            _cacheService.Remove("network_settings");
             await LoadDataAsync();
-            return ok;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

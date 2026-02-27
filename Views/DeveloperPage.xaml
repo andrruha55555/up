@@ -1,26 +1,41 @@
 ﻿<Page x:Class="AdminUP.Views.DeveloperPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Разработчики ПО">
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      Loaded="Page_Loaded">
 
-    <Grid>
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-            <Button Content="Добавить" Width="100"/>
-            <Button Content="Редактировать" Width="120"/>
-            <Button Content="Удалить" Width="100"/>
-            <TextBox x:Name="SearchTextBox" Width="220" Margin="0,0,10,0"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Добавить" Width="110" Margin="0,0,8,0" Click="AddButton_Click"/>
+            <Button Content="Редактировать" Width="130" Margin="0,0,8,0" Click="EditButton_Click"/>
+            <Button Content="Удалить" Width="110" Margin="0,0,16,0" Click="DeleteButton_Click"/>
 
+            <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox x:Name="SearchTextBox"
+                     Width="260"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,8,0"/>
+
+            <Button Content="Найти" Width="90" Margin="0,0,8,0" Click="SearchButton_Click"/>
+            <Button Content="Очистить" Width="100" Click="ClearButton_Click"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" Margin="10">
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding FilteredDeveloperList}"
+                  SelectedItem="{Binding SelectedDeveloper}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Width="50"/>
-                <DataGridTextColumn Header="Название" Width="300"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="70"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding name}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -1,12 +1,11 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace AdminUP.ViewModels
 {
@@ -15,192 +14,84 @@ namespace AdminUP.ViewModels
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Developer> _developerList;
-        private Developer _selectedDeveloper;
-        private bool _isLoading;
-        private string _searchText;
+        public ObservableCollection<Developer> Developers { get; } = new();
+        public ObservableCollection<Developer> FilteredDevelopers { get; } = new();
 
-        public ObservableCollection<Developer> DeveloperList
-        {
-            get => _developerList;
-            set
-            {
-                _developerList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Developer SelectedDeveloper
+        private Developer? _selectedDeveloper;
+        public Developer? SelectedDeveloper
         {
             get => _selectedDeveloper;
-            set
-            {
-                _selectedDeveloper = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsDeveloperSelected));
-            }
+            set { _selectedDeveloper = value; OnPropertyChanged(); }
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
-        }
-
+        private string _searchText = "";
         public string SearchText
         {
             get => _searchText;
-            set
-            {
-                _searchText = value;
-                OnPropertyChanged();
-                FilterDevelopers();
-            }
+            set { _searchText = value ?? ""; OnPropertyChanged(); }
         }
-
-        public bool IsDeveloperSelected => SelectedDeveloper != null;
-
-        public ObservableCollection<Developer> FilteredDeveloperList { get; set; }
 
         public DeveloperPageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
-
-            DeveloperList = new ObservableCollection<Developer>();
-            FilteredDeveloperList = new ObservableCollection<Developer>();
         }
 
+        // ТВОЙ code-behind ждёт такой метод
         public async Task LoadDevelopersAsync()
         {
-            IsLoading = true;
-            try
-            {
-                var developers = await _cacheService.GetOrSetAsync("developers_page_list",
-                    async () => await _apiService.GetListAsync<Developer>("DevelopersController"));
+            var list = await _cacheService.GetOrAddAsync("developers", async () =>
+                await _apiService.GetListAsync<Developer>("DevelopersController"));
 
-                DeveloperList.Clear();
-                if (developers != null)
-                {
-                    foreach (var item in developers)
-                    {
-                        DeveloperList.Add(item);
-                    }
-                }
+            Developers.Clear();
+            if (list != null)
+                foreach (var x in list) Developers.Add(x);
 
-                FilterDevelopers();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки разработчиков: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            FilterDevelopers();
         }
 
+        // ТВОЙ code-behind вызывает FilterDevelopers() без аргументов
         public void FilterDevelopers()
         {
-            FilteredDeveloperList.Clear();
-
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                foreach (var item in DeveloperList)
-                {
-                    FilteredDeveloperList.Add(item);
-                }
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = DeveloperList.Where(d =>
-                    (d.name?.ToLower().Contains(searchLower) ?? false));
-
-                foreach (var item in filtered)
-                {
-                    FilteredDeveloperList.Add(item);
-                }
-            }
+            FilterDevelopers(SearchText);
         }
 
-        public async Task<bool> AddDeveloperAsync(Developer developer)
+        // Оставляем и вариант с параметром (удобно)
+        public void FilterDevelopers(string search)
         {
-            try
-            {
-                var success = await _apiService.AddItemAsync("DevelopersController", developer);
-                if (success)
-                {
-                    _cacheService.Remove("developers_page_list");
-                    await LoadDevelopersAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка добавления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            var q = (search ?? "").Trim().ToLowerInvariant();
+
+            IEnumerable<Developer> items = Developers;
+            if (!string.IsNullOrWhiteSpace(q))
+                items = items.Where(x => (x.name ?? "").ToLowerInvariant().Contains(q));
+
+            FilteredDevelopers.Clear();
+            foreach (var x in items) FilteredDevelopers.Add(x);
         }
 
-        public async Task<bool> UpdateDeveloperAsync(int id, Developer developer)
+        public async Task AddDeveloperAsync(Developer item)
         {
-            try
-            {
-                var success = await _apiService.UpdateItemAsync("DevelopersController", id, developer);
-                if (success)
-                {
-                    _cacheService.Remove("developers_page_list");
-                    await LoadDevelopersAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка обновления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            await _apiService.AddItemAsync("DevelopersController", item);
+            _cacheService.Remove("developers");
+            await LoadDevelopersAsync();
         }
 
-        public async Task<bool> DeleteDeveloperAsync(int id)
+        public async Task UpdateDeveloperAsync(int id, Developer item)
         {
-            try
-            {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить этого разработчика?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes) return false;
-
-                var success = await _apiService.DeleteItemAsync("DevelopersController", id);
-                if (success)
-                {
-                    _cacheService.Remove("developers_page_list");
-                    await LoadDevelopersAsync();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            await _apiService.UpdateItemAsync("DevelopersController", id, item);
+            _cacheService.Remove("developers");
+            await LoadDevelopersAsync();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public async Task DeleteDeveloperAsync(int id)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            await _apiService.DeleteItemAsync("DevelopersController", id);
+            _cacheService.Remove("developers");
+            await LoadDevelopersAsync();
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

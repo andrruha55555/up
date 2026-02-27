@@ -1,6 +1,5 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -55,15 +54,20 @@ namespace AdminUP.ViewModels
                     await _api.GetListAsync<Developer>("DevelopersController"));
 
                 DeveloperList.Clear();
-                foreach (var d in developers) DeveloperList.Add(d);
+                if (developers != null)
+                {
+                    foreach (var d in developers)
+                        DeveloperList.Add(d);
+                }
 
                 var software = await _cache.GetOrAddAsync("software", async () =>
                     await _api.GetListAsync<SoftwareEntity>("SoftwareController"));
 
                 SoftwareList.Clear();
-                foreach (var s in software)
+                if (software != null)
                 {
-                    
+                    foreach (var s in software)
+                        SoftwareList.Add(s);
                 }
 
                 FilterSoftware();
@@ -85,7 +89,8 @@ namespace AdminUP.ViewModels
                     (x.name ?? "").ToLowerInvariant().Contains(q) ||
                     (x.version ?? "").ToLowerInvariant().Contains(q));
 
-            foreach (var i in items) FilteredSoftwareList.Add(i);
+            foreach (var i in items)
+                FilteredSoftwareList.Add(i);
         }
 
         public async Task<bool> AddSoftwareAsync(SoftwareEntity item)

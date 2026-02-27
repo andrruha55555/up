@@ -8,7 +8,6 @@
       Title="Оборудование"
       Loaded="Page_Loaded">
 
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,24 +25,23 @@
         </StackPanel>
 
         <DataGrid Grid.Row="1" Margin="10"
-                 ItemsSource="{Binding FilteredEquipmentList}"
-                 SelectedItem="{Binding SelectedEquipment}"
-                 AutoGenerateColumns="False"
-                 IsReadOnly="True"
-                 SelectionMode="Single"
-                 SelectionUnit="FullRow"
-                 MouseDoubleClick="DataGrid_MouseDoubleClick">
+                  ItemsSource="{Binding FilteredEquipmentList}"
+                  SelectedItem="{Binding SelectedEquipment}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
-                <DataGridTextColumn Header="Инв.номер" Binding="{Binding InventoryNumber}" Width="100"/>
-                <DataGridTextColumn Header="Аудитория" Binding="{Binding ClassroomId}" Width="80"/>
-                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUserId}" Width="120"/>
-                <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, StringFormat={}{0:N2}}" Width="100"/>
-                <DataGridTextColumn Header="Статус" Binding="{Binding StatusId}" Width="100"/>
-                <DataGridTextColumn Header="Модель" Binding="{Binding ModelId}" Width="120"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="50"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding name}" Width="200"/>
+                <DataGridTextColumn Header="Инв.номер" Binding="{Binding inventory_number}" Width="120"/>
+                <DataGridTextColumn Header="Аудитория" Binding="{Binding classroom_id}" Width="90"/>
+                <DataGridTextColumn Header="Ответственный" Binding="{Binding responsible_user_id}" Width="120"/>
+                <DataGridTextColumn Header="Стоимость" Binding="{Binding cost, StringFormat={}{0:N2}}" Width="100"/>
+                <DataGridTextColumn Header="Статус" Binding="{Binding status_id}" Width="90"/>
+                <DataGridTextColumn Header="Модель" Binding="{Binding model_id}" Width="90"/>
             </DataGrid.Columns>
         </DataGrid>
-
     </Grid>
 </Page>

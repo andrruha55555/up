@@ -12,14 +12,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Фильтры -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <TextBlock Text="Расходник:" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <ComboBox x:Name="ConsumableComboBox"
                       Width="250"
                       SelectionChanged="ConsumableComboBox_SelectionChanged"
-                      DisplayMemberPath="Name"
-                      SelectedValuePath="Id"
+                      DisplayMemberPath="name"
+                      SelectedValuePath="id"
                       Margin="0,0,15,0"/>
 
             <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
@@ -32,7 +31,6 @@
             <Button Content="Очистить" Click="ClearButton_Click" Width="90"/>
         </StackPanel>
 
-        <!-- Таблица -->
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding FilteredCharacteristicList}"
                   SelectedItem="{Binding SelectedCharacteristic}"
@@ -40,10 +38,10 @@
                   IsReadOnly="True"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
-                <DataGridTextColumn Header="Расходник ID" Binding="{Binding ConsumableId}" Width="120"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Значение" Binding="{Binding Value}" Width="*"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="70"/>
+                <DataGridTextColumn Header="Расходник ID" Binding="{Binding consumable_id}" Width="120"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding characteristic_name}" Width="*"/>
+                <DataGridTextColumn Header="Значение" Binding="{Binding characteristic_value}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

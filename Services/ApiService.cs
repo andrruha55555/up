@@ -19,11 +19,9 @@ namespace AdminUP.Services
 
         public ApiService(string baseUrl = "http://localhost:5152")
         {
-            _baseUrl = baseUrl.TrimEnd('/');
+            _baseUrl = (baseUrl ?? "").TrimEnd('/');
             _http = new HttpClient();
         }
-
-        // ====== PUBLIC API ======
 
         public async Task<List<T>?> GetListAsync<T>(string controller)
         {
@@ -53,9 +51,10 @@ namespace AdminUP.Services
             return true;
         }
 
+        // ✅ ТВОЙ API: Update(int id, [FromBody] dto) -> Update?id=123
         public async Task<bool> UpdateItemAsync<T>(string controller, int id, T item)
         {
-            var url = BuildUrl(controller, $"Update/{id}");
+            var url = BuildUrl(controller, "Update") + $"?id={id}";
             var json = JsonSerializer.Serialize(item, JsonOptions);
             using var resp = await _http.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
 
@@ -66,9 +65,10 @@ namespace AdminUP.Services
             return true;
         }
 
+        // ✅ ТВОЙ API: Delete(int id) -> Delete?id=123
         public async Task<bool> DeleteItemAsync(string controller, int id)
         {
-            var url = BuildUrl(controller, $"Delete/{id}");
+            var url = BuildUrl(controller, "Delete") + $"?id={id}";
             using var resp = await _http.DeleteAsync(url);
 
             var content = await resp.Content.ReadAsStringAsync();
@@ -77,8 +77,6 @@ namespace AdminUP.Services
 
             return true;
         }
-
-        // ====== HELPERS ======
 
         private string BuildUrl(string controller, string actionPath)
         {
@@ -92,14 +90,12 @@ namespace AdminUP.Services
                 throw new ArgumentException("controller пустой");
 
             var c = controller.Trim();
-
-            // если передали "api/UsersController" или "/api/UsersController"
             c = c.Replace("\\", "/");
+
             if (c.StartsWith("/")) c = c[1..];
             if (c.StartsWith("api/", StringComparison.OrdinalIgnoreCase))
                 c = c["api/".Length..];
 
-            // если забыли суффикс Controller
             if (!c.EndsWith("Controller", StringComparison.OrdinalIgnoreCase))
                 c += "Controller";
 

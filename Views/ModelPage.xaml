@@ -5,7 +5,6 @@
       Title="Модели оборудования"
       Loaded="Page_Loaded">
 
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -29,12 +28,11 @@
                   IsReadOnly="True"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Название модели" Binding="{Binding Name}" Width="260"/>
-                <DataGridTextColumn Header="Тип оборудования" Binding="{Binding EquipmentTypeName}" Width="180"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="60"/>
+                <DataGridTextColumn Header="Название модели" Binding="{Binding name}" Width="260"/>
+                <!-- Это вычисляемое поле из VM (оставляем как есть) -->
+                <DataGridTextColumn Header="Тип оборудования" Binding="{Binding EquipmentTypeName}" Width="200"/>
             </DataGrid.Columns>
         </DataGrid>
-
-        
     </Grid>
 </Page>

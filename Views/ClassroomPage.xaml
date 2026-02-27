@@ -8,7 +8,6 @@
       Title="Аудитории"
       Loaded="Page_Loaded">
 
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,22 +25,20 @@
         </StackPanel>
 
         <DataGrid Grid.Row="1" Margin="10"
-                 ItemsSource="{Binding FilteredClassroomList}"
-                 SelectedItem="{Binding SelectedClassroom}"
-                 AutoGenerateColumns="False"
-                 IsReadOnly="True"
-                 SelectionMode="Single"
-                 SelectionUnit="FullRow"
-                 MouseDoubleClick="DataGrid_MouseDoubleClick">
+                  ItemsSource="{Binding FilteredClassroomList}"
+                  SelectedItem="{Binding SelectedClassroom}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="250"/>
-                <DataGridTextColumn Header="Сокращение" Binding="{Binding ShortName}" Width="100"/>
-                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUserId}" Width="120"/>
-                <DataGridTextColumn Header="Врем.ответственный" Binding="{Binding TempResponsibleUserId}" Width="150"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="50"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding name}" Width="250"/>
+                <DataGridTextColumn Header="Сокращение" Binding="{Binding short_name}" Width="100"/>
+                <DataGridTextColumn Header="Ответственный" Binding="{Binding responsible_user_id}" Width="120"/>
+                <DataGridTextColumn Header="Врем.ответственный" Binding="{Binding temp_responsible_user_id}" Width="150"/>
             </DataGrid.Columns>
         </DataGrid>
-
-       
     </Grid>
 </Page>

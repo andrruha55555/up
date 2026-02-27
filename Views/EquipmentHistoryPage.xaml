@@ -8,7 +8,6 @@
       Title="История оборудования"
       Loaded="Page_Loaded">
 
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -19,34 +18,35 @@
             <Button Content="Добавить" Width="100" Click="AddButton_Click"/>
             <Button Content="Редактировать" Width="120" Click="EditButton_Click"/>
             <Button Content="Удалить" Width="100" Click="DeleteButton_Click"/>
-            <ComboBox x:Name="EquipmentComboBox" Width="150" Margin="10 0" 
+
+            <ComboBox x:Name="EquipmentComboBox" Width="200" Margin="10 0"
                       SelectionChanged="EquipmentComboBox_SelectionChanged"
-                      DisplayMemberPath="Name" SelectedValuePath="Id"/>
-            <TextBox x:Name="SearchTextBox" Width="200" 
+                      DisplayMemberPath="name"
+                      SelectedValuePath="id"/>
+
+            <TextBox x:Name="SearchTextBox" Width="200"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Content="Найти" Width="80" Click="SearchButton_Click"/>
             <Button Content="Очистить" Width="80" Margin="5,0,0,0" Click="ClearButton_Click"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1" Margin="10"
-                 ItemsSource="{Binding FilteredHistoryList}"
-                 SelectedItem="{Binding SelectedHistory}"
-                 AutoGenerateColumns="False"
-                 IsReadOnly="True"
-                 SelectionMode="Single"
-                 SelectionUnit="FullRow"
-                 MouseDoubleClick="DataGrid_MouseDoubleClick">
+                  ItemsSource="{Binding FilteredHistoryList}"
+                  SelectedItem="{Binding SelectedHistory}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Оборудование ID" Binding="{Binding EquipmentId}" Width="80"/>
-                <DataGridTextColumn Header="Аудитория" Binding="{Binding ClassroomId}" Width="80"/>
-                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUserId}" Width="120"/>
-                <DataGridTextColumn Header="Комментарий" Binding="{Binding Comment}" Width="250"/>
-                <DataGridTextColumn Header="Дата изменения" Binding="{Binding ChangedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="150"/>
-                <DataGridTextColumn Header="Изменил" Binding="{Binding ChangedByUserId}" Width="120"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="50"/>
+                <DataGridTextColumn Header="Оборудование ID" Binding="{Binding equipment_id}" Width="120"/>
+                <DataGridTextColumn Header="Аудитория" Binding="{Binding classroom_id}" Width="90"/>
+                <DataGridTextColumn Header="Ответственный" Binding="{Binding responsible_user_id}" Width="120"/>
+                <DataGridTextColumn Header="Комментарий" Binding="{Binding comment}" Width="250"/>
+                <DataGridTextColumn Header="Дата изменения" Binding="{Binding changed_at, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="160"/>
+                <DataGridTextColumn Header="Изменил" Binding="{Binding changed_by_user_id}" Width="120"/>
             </DataGrid.Columns>
         </DataGrid>
-
-        
     </Grid>
 </Page>
