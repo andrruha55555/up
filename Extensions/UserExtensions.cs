@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace AdminUP.Models
 {
     public partial class User
     {
+        [JsonIgnore]
+        public int Id
+        {
+            get => id;
+            set => id = value;
+        }
+
+        [JsonIgnore]
         public string FullName => $"{last_name} {first_name} {middle_name}".Trim();
     }
 }

@@ -93,7 +93,7 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public string Name
+        public string SoftwareName
         {
             get => _software?.name;
             set

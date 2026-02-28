@@ -23,7 +23,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -38,25 +38,25 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="ID:" FontWeight="Bold" Margin="5"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Id}" Margin="5"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding id}" Margin="5"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Название:" FontWeight="Bold" Margin="5"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Name}" Margin="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding name}" Margin="5"/>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Инвентарный номер:" FontWeight="Bold" Margin="5"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding InventoryNumber}" Margin="5"/>
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Стоимость:" FontWeight="Bold" Margin="5"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Cost, StringFormat={}{0:N2} руб.}" Margin="5"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding cost, StringFormat={}{0:N2} руб.}" Margin="5"/>
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="Дата создания:" FontWeight="Bold" Margin="5"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Margin="5"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding createdAt, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Margin="5"/>
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="Статус:" FontWeight="Bold" Margin="5"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding StatusId}" Margin="5"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding statusId}" Margin="5"/>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="Модель:" FontWeight="Bold" Margin="5"/>
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding ModelId}" Margin="5"/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding modelId}" Margin="5"/>
 
                     <TextBlock Grid.Row="7" Grid.Column="0" Text="Комментарий:" FontWeight="Bold" Margin="5"/>
                     <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding Comment}" 

@@ -1,96 +1,207 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AdminUP.Models;
+using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using AdminUP.Models;
-using AdminUP.Services;
 
 namespace AdminUP.Views.Controls
 {
-    /// <summary>
-    /// Логика взаимодействия для EquipmentEditControl.xaml
-    /// </summary>
-    public partial class EquipmentEditControl : UserControl
+    public partial class EquipmentEditControl : UserControl, INotifyPropertyChanged
     {
-        private Equipment _equipment;
-        private ApiService _apiService;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        public ObservableCollection<Classroom> AvailableClassrooms { get; set; }
-        public ObservableCollection<User> AvailableUsers { get; set; }
-        public ObservableCollection<Direction> AvailableDirections { get; set; }
-        public ObservableCollection<Status> AvailableStatuses { get; set; }
-        public ObservableCollection<ModelEntity> AvailableModels { get; set; }
+        private Equipment _equipment;
+        private bool _loaded;
+
+        public ObservableCollection<Classroom> AvailableClassrooms { get; } = new();
+        public ObservableCollection<User> AvailableUsers { get; } = new();
+        public ObservableCollection<Direction> AvailableDirections { get; } = new();
+        public ObservableCollection<Status> AvailableStatuses { get; } = new();
+        public ObservableCollection<ModelEntity> AvailableModels { get; } = new();
+
         public EquipmentEditControl(Equipment equipment = null)
         {
             InitializeComponent();
 
             _equipment = equipment ?? new Equipment();
-            _apiService = new ApiService();
 
             DataContext = this;
-            LoadDataAsync();
+
+            _ = LoadDataAsync();
+        }
+
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        // под EditDialog
+        public bool Validate()
+        {
+            if (string.IsNullOrWhiteSpace(_equipment.name))
+            {
+                MessageBox.Show("Название обязательно для заполнения", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(_equipment.inventory_number))
+            {
+                MessageBox.Show("Инвентарный номер обязателен для заполнения", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (_equipment.status_id == 0)
+            {
+                MessageBox.Show("Статус обязателен для выбора", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        public object GetEditedItem() => _equipment;
+        public Equipment GetEquipment() => _equipment;
+
+        // если в XAML есть Loaded="UserControl_Loaded" — оставь
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (_loaded) return;
+            _loaded = true;
+
+            DataContext = this;
+
+            RaisePropertyChanged(nameof(EquipmentName));
+            RaisePropertyChanged(nameof(EquipmentInventoryNumber));
+            RaisePropertyChanged(nameof(ClassroomId));
+            RaisePropertyChanged(nameof(ResponsibleUserId));
+            RaisePropertyChanged(nameof(DirectionId));
+            RaisePropertyChanged(nameof(StatusId));
+            RaisePropertyChanged(nameof(ModelId));
+            RaisePropertyChanged(nameof(Comment));
+            RaisePropertyChanged(nameof(ImagePath));
+            RaisePropertyChanged(nameof(Cost));
         }
 
         private async Task LoadDataAsync()
         {
-            AvailableClassrooms = new ObservableCollection<Classroom>(
-                await _apiService.GetListAsync<Classroom>("ClassroomsController"));
-            AvailableUsers = new ObservableCollection<User>(
-                await _apiService.GetListAsync<User>("UsersController"));
-            AvailableDirections = new ObservableCollection<Direction>(
-                await _apiService.GetListAsync<Direction>("DirectionsController"));
-            AvailableStatuses = new ObservableCollection<Status>(
-                await _apiService.GetListAsync<Status>("StatusesController"));
-            AvailableModels = new ObservableCollection<ModelEntity>(
-                await _apiService.GetListAsync<ModelEntity>("ModelsController"));
-
-            OnPropertyChanged(nameof(AvailableClassrooms));
-            OnPropertyChanged(nameof(AvailableUsers));
-            OnPropertyChanged(nameof(AvailableDirections));
-            OnPropertyChanged(nameof(AvailableStatuses));
-            OnPropertyChanged(nameof(AvailableModels));
-        }
-
-        public Equipment GetEquipment()
-        {
-            return _equipment;
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(_equipment.name) ||
-                string.IsNullOrWhiteSpace(_equipment.inventory_number))
+            try
             {
-                MessageBox.Show("Заполните обязательные поля: Название и Инвентарный номер",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                var classrooms = await App.ApiService.GetListAsync<Classroom>("ClassroomsController");
+                AvailableClassrooms.Clear();
+                AvailableClassrooms.Add(new Classroom { id = 0, name = "Не выбрано", short_name = "" });
+                if (classrooms != null) foreach (var c in classrooms) AvailableClassrooms.Add(c);
+                RaisePropertyChanged(nameof(AvailableClassrooms));
+
+                var users = await App.ApiService.GetListAsync<User>("UsersController");
+                AvailableUsers.Clear();
+                AvailableUsers.Add(new User { id = 0, last_name = "Не", first_name = "назначен", middle_name = "" });
+                if (users != null) foreach (var u in users) AvailableUsers.Add(u);
+                RaisePropertyChanged(nameof(AvailableUsers));
+
+                var directions = await App.ApiService.GetListAsync<Direction>("DirectionsController");
+                AvailableDirections.Clear();
+                AvailableDirections.Add(new Direction { id = 0, name = "Не выбрано" });
+                if (directions != null) foreach (var d in directions) AvailableDirections.Add(d);
+                RaisePropertyChanged(nameof(AvailableDirections));
+
+                var statuses = await App.ApiService.GetListAsync<Status>("StatusesController");
+                AvailableStatuses.Clear();
+                AvailableStatuses.Add(new Status { id = 0, name = "Не выбрано" });
+                if (statuses != null) foreach (var s in statuses) AvailableStatuses.Add(s);
+                RaisePropertyChanged(nameof(AvailableStatuses));
+
+                var models = await App.ApiService.GetListAsync<ModelEntity>("ModelsController");
+                AvailableModels.Clear();
+                AvailableModels.Add(new ModelEntity { id = 0, name = "Не выбрано", equipment_type_id = 0 });
+                if (models != null) foreach (var m in models) AvailableModels.Add(m);
+                RaisePropertyChanged(nameof(AvailableModels));
             }
-
-            Window.GetWindow(this).DialogResult = true;
-            Window.GetWindow(this).Close();
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки списков:\n\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        // ===== свойства под XAML =====
+
+        public string EquipmentName
         {
-            Window.GetWindow(this).DialogResult = false;
-            Window.GetWindow(this).Close();
+            get => _equipment?.name ?? "";
+            set { _equipment.name = value; RaisePropertyChanged(); }
         }
 
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
+        public string EquipmentInventoryNumber
         {
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            get => _equipment?.inventory_number ?? "";
+            set { _equipment.inventory_number = value; RaisePropertyChanged(); }
+        }
+
+        public int? ClassroomId
+        {
+            get => _equipment?.classroom_id;
+            set { _equipment.classroom_id = (value == 0) ? null : value; RaisePropertyChanged(); }
+        }
+
+        public int? ResponsibleUserId
+        {
+            get => _equipment?.responsible_user_id;
+            set { _equipment.responsible_user_id = (value == 0) ? null : value; RaisePropertyChanged(); }
+        }
+
+        public int? DirectionId
+        {
+            get => _equipment?.direction_id;
+            set { _equipment.direction_id = (value == 0) ? null : value; RaisePropertyChanged(); }
+        }
+
+        public int StatusId
+        {
+            get => _equipment?.status_id ?? 0;
+            set { _equipment.status_id = value; RaisePropertyChanged(); }
+        }
+
+        public int? ModelId
+        {
+            get => _equipment?.model_id;
+            set { _equipment.model_id = (value == 0) ? null : value; RaisePropertyChanged(); }
+        }
+
+        public string Comment
+        {
+            get => _equipment?.comment ?? "";
+            set { _equipment.comment = value; RaisePropertyChanged(); }
+        }
+
+        public string ImagePath
+        {
+            get => _equipment?.image_path ?? "";
+            set { _equipment.image_path = value; RaisePropertyChanged(); }
+        }
+
+        public string Cost
+        {
+            get => _equipment?.cost?.ToString(CultureInfo.InvariantCulture) ?? "";
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _equipment.cost = null;
+                    RaisePropertyChanged();
+                    return;
+                }
+
+                if (decimal.TryParse(value.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
+                {
+                    _equipment.cost = d;
+                    RaisePropertyChanged();
+                }
+            }
         }
     }
 }

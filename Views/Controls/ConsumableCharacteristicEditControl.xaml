@@ -30,8 +30,8 @@
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Расходник:*" Style="{StaticResource LabelText}"/>
             <ComboBox Grid.Row="0" Grid.Column="1" 
                       ItemsSource="{Binding AvailableConsumables}"
-                      DisplayMemberPath="Name"
-                      SelectedValuePath="Id"
+                      DisplayMemberPath="name"
+                      SelectedValuePath="id"
                       SelectedValue="{Binding ConsumableId}"
                       Margin="5"/>
 

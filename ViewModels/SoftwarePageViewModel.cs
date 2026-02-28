@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace AdminUP.ViewModels
 
         public ObservableCollection<SoftwareEntity> SoftwareList { get; } = new();
         public ObservableCollection<SoftwareEntity> FilteredSoftwareList { get; } = new();
+
+        // ✅ разработчики
         public ObservableCollection<Developer> DeveloperList { get; } = new();
 
         private SoftwareEntity? _selectedSoftware;
@@ -28,7 +31,7 @@ namespace AdminUP.ViewModels
         public string SearchText
         {
             get => _searchText;
-            set { _searchText = value; OnPropertyChanged(); FilterSoftware(); }
+            set { _searchText = value ?? ""; OnPropertyChanged(); FilterSoftware(); }
         }
 
         private bool _isLoading;
@@ -46,31 +49,35 @@ namespace AdminUP.ViewModels
 
         public async Task LoadDataAsync()
         {
+            IsLoading = true;
             try
             {
-                IsLoading = true;
-
-                var developers = await _cache.GetOrAddAsync("developers", async () =>
-                    await _api.GetListAsync<Developer>("DevelopersController"));
+                // ✅ Developers
+                var developers = await _cache.GetOrSetAsync("developers_list",
+                    async () => await _api.GetListAsync<Developer>("DevelopersController"));
 
                 DeveloperList.Clear();
                 if (developers != null)
-                {
                     foreach (var d in developers)
                         DeveloperList.Add(d);
-                }
 
-                var software = await _cache.GetOrAddAsync("software", async () =>
-                    await _api.GetListAsync<SoftwareEntity>("SoftwareController"));
+                OnPropertyChanged(nameof(DeveloperList));
+
+                // ✅ Software
+                var software = await _cache.GetOrSetAsync("software_list",
+                    async () => await _api.GetListAsync<SoftwareEntity>("SoftwareController"));
 
                 SoftwareList.Clear();
                 if (software != null)
-                {
                     foreach (var s in software)
                         SoftwareList.Add(s);
-                }
 
                 FilterSoftware();
+            }
+            catch (Exception ex)
+            {
+                // важно чтобы ты видел ошибку API/DB
+                System.Windows.MessageBox.Show($"Ошибка загрузки ПО/разработчиков:\n{ex.Message}", "Ошибка");
             }
             finally
             {
@@ -81,22 +88,27 @@ namespace AdminUP.ViewModels
         public void FilterSoftware()
         {
             FilteredSoftwareList.Clear();
-            var q = (SearchText ?? "").Trim().ToLowerInvariant();
 
+            var q = (SearchText ?? "").Trim().ToLowerInvariant();
             var items = SoftwareList.AsEnumerable();
+
             if (!string.IsNullOrWhiteSpace(q))
+            {
                 items = items.Where(x =>
                     (x.name ?? "").ToLowerInvariant().Contains(q) ||
                     (x.version ?? "").ToLowerInvariant().Contains(q));
+            }
 
             foreach (var i in items)
                 FilteredSoftwareList.Add(i);
+
+            OnPropertyChanged(nameof(FilteredSoftwareList));
         }
 
         public async Task<bool> AddSoftwareAsync(SoftwareEntity item)
         {
             var ok = await _api.AddItemAsync("SoftwareController", item);
-            _cache.Remove("software");
+            _cache.Remove("software_list");
             await LoadDataAsync();
             return ok;
         }
@@ -104,7 +116,7 @@ namespace AdminUP.ViewModels
         public async Task<bool> UpdateSoftwareAsync(int id, SoftwareEntity item)
         {
             var ok = await _api.UpdateItemAsync("SoftwareController", id, item);
-            _cache.Remove("software");
+            _cache.Remove("software_list");
             await LoadDataAsync();
             return ok;
         }
@@ -112,13 +124,13 @@ namespace AdminUP.ViewModels
         public async Task<bool> DeleteSoftwareAsync(int id)
         {
             var ok = await _api.DeleteItemAsync("SoftwareController", id);
-            _cache.Remove("software");
+            _cache.Remove("software_list");
             await LoadDataAsync();
             return ok;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+      => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

@@ -28,14 +28,14 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Название ПО:*" Style="{StaticResource LabelText}"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SoftwareName, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="5" MaxLength="100" Tag="Например: Windows 11 Pro, Adobe Acrobat Reader"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Разработчик:" Style="{StaticResource LabelText}"/>
             <ComboBox Grid.Row="1" Grid.Column="1" 
                       ItemsSource="{Binding AvailableDevelopers}"
-                      DisplayMemberPath="Name"
-                      SelectedValuePath="Id"
+                      DisplayMemberPath="name"
+                      SelectedValuePath="id"
                       SelectedValue="{Binding DeveloperId}"
                       Margin="5"/>
 

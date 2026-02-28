@@ -26,7 +26,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Название статуса:*" Style="{StaticResource LabelText}"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding StatusName, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="5" MaxLength="50" Tag="Например: Используется, На ремонте"/>
         </Grid>
 

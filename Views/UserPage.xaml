@@ -13,22 +13,37 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox x:Name="SearchTextBox"
-                     Width="400"
-                     Margin="0,0,10,0"
-                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Content="Найти" Width="90" Margin="0,0,8,0" Click="SearchButton_Click"/>
-            <Button Content="Очистить" Width="90" Click="ClearButton_Click"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Button Content="Добавить" Width="100" Click="AddButton_Click"/>
+            <Button Content="Редактировать" Width="120" Click="EditButton_Click" Margin="5,0,0,0"/>
+            <Button Content="Удалить" Width="100" Click="DeleteButton_Click" Margin="5,0,0,0"/>
+
+            <TextBox x:Name="SearchTextBox" Width="220" Margin="15,0,0,0"
+             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <Button Content="Найти" Width="80" Margin="5,0,0,0" Click="SearchButton_Click"/>
+            <Button Content="Очистить" Width="90" Margin="5,0,0,0" Click="ClearButton_Click"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding FilteredUserList}"
                   SelectedItem="{Binding SelectedUser}"
-                  AutoGenerateColumns="True"
+                  AutoGenerateColumns="False"
                   CanUserAddRows="False"
                   IsReadOnly="True"
-                  MouseDoubleClick="DataGrid_MouseDoubleClick"/>
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="60"/>
+                <DataGridTextColumn Header="Логин" Binding="{Binding login}" Width="120"/>
+                <DataGridTextColumn Header="Роль" Binding="{Binding role}" Width="100"/>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding last_name}" Width="140"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding first_name}" Width="140"/>
+                <DataGridTextColumn Header="Отчество" Binding="{Binding middle_name}" Width="140"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding email}" Width="180"/>
+                <DataGridTextColumn Header="Телефон" Binding="{Binding phone}" Width="140"/>
+                <DataGridTextColumn Header="Адрес" Binding="{Binding address}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

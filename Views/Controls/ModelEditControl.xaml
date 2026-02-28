@@ -27,14 +27,14 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Название модели:*" Style="{StaticResource LabelText}"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ModelName, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="5" MaxLength="100" Tag="Например: Lenovo ThinkCentre M720q"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Тип оборудования:*" Style="{StaticResource LabelText}"/>
             <ComboBox Grid.Row="1" Grid.Column="1" 
                       ItemsSource="{Binding AvailableEquipmentTypes}"
-                      DisplayMemberPath="Name"
-                      SelectedValuePath="Id"
+                      DisplayMemberPath="name"
+                      SelectedValuePath="id"
                       SelectedValue="{Binding EquipmentTypeId}"
                       Margin="5"/>
         </Grid>

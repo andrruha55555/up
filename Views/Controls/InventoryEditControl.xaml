@@ -28,7 +28,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:*" Style="{StaticResource LabelText}"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding InventoryName, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="5" MaxLength="100" Tag="Например: Годовая инвентаризация 2026"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Дата начала:*" Style="{StaticResource LabelText}"/>

@@ -3,8 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      mc:Ignorable="d"
-      Loaded="Page_Loaded">
+      mc:Ignorable="d">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -12,23 +11,16 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="Расходник:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <ComboBox x:Name="ConsumableComboBox"
-                      Width="250"
-                      SelectionChanged="ConsumableComboBox_SelectionChanged"
-                      DisplayMemberPath="name"
-                      SelectedValuePath="id"
-                      Margin="0,0,15,0"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Button Content="Добавить" Width="100" Click="AddButton_Click"/>
+            <Button Content="Редактировать" Width="120" Click="EditButton_Click" Margin="5,0,0,0"/>
+            <Button Content="Удалить" Width="100" Click="DeleteButton_Click" Margin="5,0,0,0"/>
 
-            <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox x:Name="SearchTextBox"
-                     Width="300"
-                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="0,0,10,0"/>
+            <TextBox x:Name="SearchTextBox" Width="220" Margin="15,0,0,0"
+             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
 
-            <Button Content="Найти" Click="SearchButton_Click" Width="80" Margin="0,0,5,0"/>
-            <Button Content="Очистить" Click="ClearButton_Click" Width="90"/>
+            <Button Content="Найти" Width="80" Margin="5,0,0,0" Click="SearchButton_Click"/>
+            <Button Content="Очистить" Width="90" Margin="5,0,0,0" Click="ClearButton_Click"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1"

@@ -19,6 +19,31 @@ namespace AdminUP.Views
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await _viewModel.LoadUsersAsync();
+            _viewModel.FilterUsers();
+        }
+
+        private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            EditButton_Click(sender, e);
+        }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _viewModel.SearchText = SearchTextBox.Text;
+            _viewModel.FilterUsers();
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = string.Empty;
+            _viewModel.SearchText = string.Empty;
+            _viewModel.FilterUsers();
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SearchText = SearchTextBox.Text;
+            _viewModel.FilterUsers();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -50,17 +75,6 @@ namespace AdminUP.Views
             await _viewModel.DeleteUserAsync(_viewModel.SelectedUser.id);
         }
 
-        private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            EditButton_Click(sender, e);
-        }
-
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            _viewModel.SearchText = SearchTextBox.Text;
-            _viewModel.FilterUsers();
-        }
-
         private async void ShowEditDialog(User user, string title)
         {
             var dialog = new EditDialog(new Views.Controls.UserEditControl(user), title);
@@ -76,16 +90,6 @@ namespace AdminUP.Views
                         await _viewModel.UpdateUserAsync(editedUser.id, editedUser);
                 }
             }
-        }
-
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

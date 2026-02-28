@@ -1,14 +1,17 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
 using AdminUP.Views.Controls;
+using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace AdminUP.Views
 {
     public partial class InventoryItemPage : Page
     {
-        private InventoryItemPageViewModel _viewModel;
+        private readonly InventoryItemPageViewModel _viewModel;
+        private bool _loaded;
 
         public InventoryItemPage()
         {
@@ -17,47 +20,88 @@ namespace AdminUP.Views
             _viewModel = new InventoryItemPageViewModel(App.ApiService, App.CacheService);
             DataContext = _viewModel;
 
-            // Привязка ComboBox
-            InventoryComboBox.ItemsSource = _viewModel.InventoryList;
-            InventoryComboBox.DisplayMemberPath = "Name";
-            InventoryComboBox.SelectedValuePath = "Id";
-            InventoryComboBox.SelectedValue = _viewModel.SelectedInventoryId;
+            Loaded += Page_Loaded;
+
+            AddBtn.Click += AddButton_Click;
+            EditBtn.Click += EditButton_Click;
+            DeleteBtn.Click += DeleteButton_Click;
+
+            SearchBtn.Click += SearchButton_Click;
+            ClearBtn.Click += ClearButton_Click;
+
+            InventoryComboBox.SelectionChanged += InventoryComboBox_SelectionChanged;
+            ItemsGrid.MouseDoubleClick += DataGrid_MouseDoubleClick;
         }
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            await _viewModel.LoadDataAsync();
+            if (_loaded) return;
+            _loaded = true;
+
+            try
+            {
+                await _viewModel.LoadDataAsync();
+
+                InventoryComboBox.ItemsSource = _viewModel.InventoryList;
+
+                if (_viewModel.SelectedInventoryId.HasValue)
+                    InventoryComboBox.SelectedValue = _viewModel.SelectedInventoryId.Value;
+
+                _viewModel.FilterInventoryItems();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки страницы InventoryItem:\n\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var newItem = new InventoryItem();
+
+            if (InventoryComboBox.SelectedValue is int invId && invId != 0)
+                newItem.inventory_id = invId;
+
             ShowEditDialog(newItem, "Добавление элемента инвентаризации");
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedInventoryItem != null)
-            {
-                ShowEditDialog(_viewModel.SelectedInventoryItem, "Редактирование элемента инвентаризации");
-            }
-            else
+            if (_viewModel.SelectedInventoryItem == null)
             {
                 MessageBox.Show("Выберите элемент инвентаризации для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+
+            ShowEditDialog(_viewModel.SelectedInventoryItem, "Редактирование элемента инвентаризации");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedInventoryItem != null)
-            {
-                await _viewModel.DeleteInventoryItemAsync(_viewModel.SelectedInventoryItem.id);
-            }
-            else
+            if (_viewModel.SelectedInventoryItem == null)
             {
                 MessageBox.Show("Выберите элемент инвентаризации для удаления", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var res = MessageBox.Show("Удалить выбранный элемент?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (res != MessageBoxResult.Yes) return;
+
+            try
+            {
+                await _viewModel.DeleteInventoryItemAsync(_viewModel.SelectedInventoryItem.id);
+                await _viewModel.LoadDataAsync();
+                _viewModel.FilterInventoryItems();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка удаления:\n\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -70,36 +114,52 @@ namespace AdminUP.Views
         {
             SearchTextBox.Text = string.Empty;
             _viewModel.SearchText = string.Empty;
+            _viewModel.FilterInventoryItems();
         }
 
         private void InventoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (InventoryComboBox.SelectedValue is int selectedId)
-            {
+            if (!_loaded) return;
+
+            if (InventoryComboBox.SelectedValue is int selectedId && selectedId != 0)
                 _viewModel.SelectedInventoryId = selectedId;
-            }
+            else
+                _viewModel.SelectedInventoryId = null;
+
+            _viewModel.FilterInventoryItems();
         }
 
-        private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             EditButton_Click(sender, e);
         }
 
-        private async void ShowEditDialog(InventoryItem inventoryItem, string title)
+        private async void ShowEditDialog(InventoryItem item, string title)
         {
-            var control = new InventoryItemEditControl(inventoryItem);
+            var control = new InventoryItemEditControl(item);
+            var dialog = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
 
-            var editDialog = new EditDialog(control, title);
-            editDialog.Owner = Window.GetWindow(this);
-
-            if (editDialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true)
             {
-                var editedItem = control.GetInventoryItem();
+                var edited = control.GetInventoryItem();
+                if (edited == null) return;
 
-                if (editedItem.id == 0)
-                    await _viewModel.AddInventoryItemAsync(editedItem);
-                else
-                    await _viewModel.UpdateInventoryItemAsync(editedItem.id, editedItem);
+                try
+                {
+                    if (edited.id == 0)
+                        await _viewModel.AddInventoryItemAsync(edited);
+                    else
+                        await _viewModel.UpdateInventoryItemAsync(edited.id, edited);
+
+                    await _viewModel.LoadDataAsync();
+                    InventoryComboBox.ItemsSource = _viewModel.InventoryList;
+                    _viewModel.FilterInventoryItems();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка сохранения:\n\n" + ex.Message,
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

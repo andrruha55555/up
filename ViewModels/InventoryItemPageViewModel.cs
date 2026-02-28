@@ -1,5 +1,6 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -14,10 +15,9 @@ namespace AdminUP.ViewModels
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        public ObservableCollection<InventoryItem> InventoryItems { get; } = new();
-        public ObservableCollection<InventoryItem> FilteredInventoryItems { get; } = new();
+        public ObservableCollection<InventoryItem> InventoryItemList { get; } = new();
+        public ObservableCollection<InventoryItem> FilteredInventoryItemList { get; } = new();
 
-        // ТВОЙ code-behind ждёт InventoryList
         public ObservableCollection<Inventory> InventoryList { get; } = new();
 
         private InventoryItem? _selectedInventoryItem;
@@ -47,37 +47,31 @@ namespace AdminUP.ViewModels
             _cacheService = cacheService;
         }
 
-        // ТВОЙ code-behind ждёт LoadDataAsync()
         public async Task LoadDataAsync()
         {
-            var inventories = await _cacheService.GetOrAddAsync("inventories", async () =>
+            // inventories
+            var inventories = await _cacheService.GetOrAddAsync("inventories_page_list", async () =>
                 await _apiService.GetListAsync<Inventory>("InventoriesController"));
 
             InventoryList.Clear();
             if (inventories != null)
                 foreach (var x in inventories) InventoryList.Add(x);
 
-            var list = await _cacheService.GetOrAddAsync("inventory_items", async () =>
+            // items
+            var items = await _cacheService.GetOrAddAsync("inventory_items_page_list", async () =>
                 await _apiService.GetListAsync<InventoryItem>("InventoryItemsController"));
 
-            InventoryItems.Clear();
-            if (list != null)
-                foreach (var x in list) InventoryItems.Add(x);
+            InventoryItemList.Clear();
+            if (items != null)
+                foreach (var x in items) InventoryItemList.Add(x);
 
             FilterInventoryItems();
         }
 
-        // ТВОЙ code-behind вызывает FilterInventoryItems() без аргументов
         public void FilterInventoryItems()
         {
-            FilterInventoryItems(SearchText);
-        }
-
-        public void FilterInventoryItems(string search)
-        {
-            var q = (search ?? "").Trim().ToLowerInvariant();
-
-            IEnumerable<InventoryItem> items = InventoryItems;
+            var q = (SearchText ?? "").Trim().ToLowerInvariant();
+            IEnumerable<InventoryItem> items = InventoryItemList;
 
             if (SelectedInventoryId.HasValue)
                 items = items.Where(x => x.inventory_id == SelectedInventoryId.Value);
@@ -91,28 +85,28 @@ namespace AdminUP.ViewModels
                     (x.comment ?? "").ToLowerInvariant().Contains(q));
             }
 
-            FilteredInventoryItems.Clear();
-            foreach (var x in items) FilteredInventoryItems.Add(x);
+            FilteredInventoryItemList.Clear();
+            foreach (var x in items) FilteredInventoryItemList.Add(x);
         }
 
         public async Task AddInventoryItemAsync(InventoryItem item)
         {
             await _apiService.AddItemAsync("InventoryItemsController", item);
-            _cacheService.Remove("inventory_items");
+            _cacheService.Remove("inventory_items_page_list");
             await LoadDataAsync();
         }
 
         public async Task UpdateInventoryItemAsync(int id, InventoryItem item)
         {
             await _apiService.UpdateItemAsync("InventoryItemsController", id, item);
-            _cacheService.Remove("inventory_items");
+            _cacheService.Remove("inventory_items_page_list");
             await LoadDataAsync();
         }
 
         public async Task DeleteInventoryItemAsync(int id)
         {
             await _apiService.DeleteItemAsync("InventoryItemsController", id);
-            _cacheService.Remove("inventory_items");
+            _cacheService.Remove("inventory_items_page_list");
             await LoadDataAsync();
         }
 

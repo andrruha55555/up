@@ -51,7 +51,7 @@ namespace AdminUP.Views.Controls
 
         public bool Validate() => ValidateData();
 
-        public string Name
+        public string ConsumableTypeName
         {
             get => _consumableType?.name;
             set

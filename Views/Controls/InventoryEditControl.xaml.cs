@@ -57,7 +57,7 @@ namespace AdminUP.Views.Controls
         }
         public bool Validate() => ValidateData();
 
-        public string Name
+        public string InventoryName
         {
             get => _inventory?.name;
             set

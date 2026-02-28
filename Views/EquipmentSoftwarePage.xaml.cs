@@ -1,6 +1,7 @@
 ﻿using AdminUP.Models;
 using AdminUP.ViewModels;
 using AdminUP.Views.Controls;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,56 +9,71 @@ namespace AdminUP.Views
 {
     public partial class EquipmentSoftwarePage : Page
     {
-        private EquipmentSoftwarePageViewModel _viewModel;
+        private readonly EquipmentSoftwarePageViewModel _viewModel;
 
         public EquipmentSoftwarePage()
         {
             InitializeComponent();
-
             _viewModel = new EquipmentSoftwarePageViewModel(App.ApiService, App.CacheService);
             DataContext = _viewModel;
-
-            // Привязка ComboBox
-            EquipmentComboBox.ItemsSource = _viewModel.EquipmentList;
-            SoftwareComboBox.ItemsSource = _viewModel.SoftwareList;
         }
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            await _viewModel.LoadDataAsync();
+            try
+            {
+                await _viewModel.LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var newEquipmentSoftware = new EquipmentSoftware();
-            ShowEditDialog(newEquipmentSoftware, "Добавление связи оборудование-ПО");
+            ShowEditDialog(new EquipmentSoftware(), "Добавление связи оборудование-ПО");
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedEquipmentSoftware != null)
-            {
-                ShowEditDialog(_viewModel.SelectedEquipmentSoftware, "Редактирование связи оборудование-ПО");
-            }
-            else
+            if (_viewModel.SelectedEquipmentSoftware == null)
             {
                 MessageBox.Show("Выберите связь для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+
+            ShowEditDialog(_viewModel.SelectedEquipmentSoftware, "Редактирование связи оборудование-ПО");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedEquipmentSoftware != null)
+            if (_viewModel.SelectedEquipmentSoftware == null)
+            {
+                MessageBox.Show("Выберите связь для удаления", "Информация",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var res = MessageBox.Show("Удалить выбранную связь?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (res != MessageBoxResult.Yes) return;
+
+            try
             {
                 await _viewModel.DeleteEquipmentSoftwareAsync(
                     _viewModel.SelectedEquipmentSoftware.equipment_id,
                     _viewModel.SelectedEquipmentSoftware.software_id);
+
+                await _viewModel.LoadDataAsync(); // обновить таблицу
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Выберите связь для удаления", "Информация",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -70,18 +86,7 @@ namespace AdminUP.Views
         {
             SearchTextBox.Text = string.Empty;
             _viewModel.SearchText = string.Empty;
-        }
-
-        private void EquipmentComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (EquipmentComboBox.SelectedValue is int selectedId)
-                _viewModel.SelectedEquipmentId = selectedId;
-        }
-
-        private void SoftwareComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (SoftwareComboBox.SelectedValue is int selectedId)
-                _viewModel.SelectedSoftwareId = selectedId;
+            _viewModel.FilterEquipmentSoftware();
         }
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -91,21 +96,30 @@ namespace AdminUP.Views
 
         private async void ShowEditDialog(EquipmentSoftware item, string title)
         {
-            // ВАЖНО: у связи нет Id, ключ составной (EquipmentId + SoftwareId)
             bool isNew = item.equipment_id == 0 && item.software_id == 0;
 
-            var control = new EquipmentSoftwareEditControl(item);   // ✅ UserControl
-            var editDialog = new EditDialog(control, title);
-            editDialog.Owner = Window.GetWindow(this);
+            var control = new EquipmentSoftwareEditControl(item);
+            var dialog = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
 
-            if (editDialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true)
             {
+                // EditDialog умеет забирать GetEditedItem/GetXxx, но нам проще прямо:
                 var edited = control.GetEquipmentSoftware();
 
-                if (isNew)
-                    await _viewModel.AddEquipmentSoftwareAsync(edited);
-                else
-                    await _viewModel.UpdateEquipmentSoftwareAsync(edited);
+                try
+                {
+                    if (isNew)
+                        await _viewModel.AddEquipmentSoftwareAsync(edited);
+                    else
+                        await _viewModel.UpdateEquipmentSoftwareAsync(edited);
+
+                    await _viewModel.LoadDataAsync(); // обновить таблицу
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

@@ -27,14 +27,14 @@
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:*" Style="{StaticResource LabelText}"/>
             <TextBox Grid.Row="0" Grid.Column="1"
-                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                     Text="{Binding ConsumableName, UpdateSourceTrigger=PropertyChanged}"
                      Margin="5" MaxLength="100"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Тип:*" Style="{StaticResource LabelText}"/>
             <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding AvailableConsumableTypes}"
-                      DisplayMemberPath="Name"
-                      SelectedValuePath="Id"
+                      DisplayMemberPath="name"
+                      SelectedValuePath="id"
                       SelectedValue="{Binding ConsumableTypeId}"
                       Margin="5"/>
         </Grid>

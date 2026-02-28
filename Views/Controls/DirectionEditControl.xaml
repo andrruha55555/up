@@ -26,7 +26,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Название направления:*" Style="{StaticResource LabelText}"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DirectionName, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="5" MaxLength="100" Tag="Например: Мехатроника, WSR2022, Цифровая трансформация"/>
         </Grid>
 

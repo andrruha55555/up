@@ -55,7 +55,7 @@ namespace AdminUP.Views.Controls
         // чтобы диалог/страница могла вызвать валидацию
         public bool Validate() => ValidateData();
 
-        public string Name
+        public string DirectionName
         {
             get => _direction?.name;
             set

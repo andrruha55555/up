@@ -74,7 +74,7 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public string Name
+        public string ModelName
         {
             get => _model?.name;
             set

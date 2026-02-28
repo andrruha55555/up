@@ -6,8 +6,6 @@
         public int id { get; set; }
         public string name { get; set; } = "";
 
-        // WPF-friendly aliases
-        public int Id { get => id; set => id = value; }
-        public string Name { get => name; set => name = value; }
+
     }
 }

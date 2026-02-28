@@ -13,6 +13,10 @@ namespace AdminUP.Views.Controls
         {
             InitializeComponent();
             _user = user ?? new User();
+
+            if (string.IsNullOrWhiteSpace(_user.role))
+                _user.role = "staff";
+
             DataContext = _user;
         }
 
@@ -23,12 +27,14 @@ namespace AdminUP.Views.Controls
             if (string.IsNullOrWhiteSpace(_user.login) ||
                 string.IsNullOrWhiteSpace(_user.last_name) ||
                 string.IsNullOrWhiteSpace(_user.first_name) ||
-                string.IsNullOrWhiteSpace(_user.email))
+                string.IsNullOrWhiteSpace(_user.email) ||
+                string.IsNullOrWhiteSpace(_user.role))
             {
                 MessageBox.Show("Заполните все обязательные поля!", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
             if (_user.id == 0)
             {
                 if (string.IsNullOrWhiteSpace(PasswordBox.Password))

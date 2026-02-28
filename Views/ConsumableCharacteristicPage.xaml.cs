@@ -17,15 +17,15 @@ namespace AdminUP.Views
             DataContext = _viewModel;
         }
 
-        private async void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            await _viewModel.LoadDataAsync();
+        //private async void Page_Loaded(object sender, RoutedEventArgs e)
+        //{
+        //    await _viewModel.LoadDataAsync();
 
-            ConsumableComboBox.ItemsSource = _viewModel.ConsumableList;
-            ConsumableComboBox.DisplayMemberPath = "Name";
-            ConsumableComboBox.SelectedValuePath = "Id";
-            ConsumableComboBox.SelectedValue = _viewModel.SelectedConsumableId;
-        }
+        //    ConsumableComboBox.ItemsSource = _viewModel.ConsumableList;
+        //    ConsumableComboBox.DisplayMemberPath = "name";
+        //    ConsumableComboBox.SelectedValuePath = "id";
+        //    ConsumableComboBox.SelectedValue = _viewModel.SelectedConsumableId;
+        //}
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
@@ -70,13 +70,13 @@ namespace AdminUP.Views
             _viewModel.SearchText = string.Empty;
         }
 
-        private void ConsumableComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ConsumableComboBox.SelectedValue is int selectedId)
-            {
-                _viewModel.SelectedConsumableId = selectedId;
-            }
-        }
+        //private void ConsumableComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (ConsumableComboBox.SelectedValue is int selectedId)
+        //    {
+        //        _viewModel.SelectedConsumableId = selectedId;
+        //    }
+        //}
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {

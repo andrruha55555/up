@@ -61,7 +61,7 @@ namespace AdminUP.Views
             if (selected == null)
                 MessageBox.Show("Выберите элемент для удаления", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                await deleteFunc((selected as dynamic).Id);
+                await deleteFunc((selected as dynamic).id);
         }
 
         private void ClearSearch()

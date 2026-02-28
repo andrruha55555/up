@@ -3,8 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d"
-      Loaded="Page_Loaded">
+      mc:Ignorable="d">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -13,17 +12,16 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Добавить" Width="110" Margin="0,0,8,0" Click="AddButton_Click"/>
-            <Button Content="Редактировать" Width="130" Margin="0,0,8,0" Click="EditButton_Click"/>
-            <Button Content="Удалить" Width="110" Margin="0,0,16,0" Click="DeleteButton_Click"/>
+            <Button x:Name="AddBtn" Content="Добавить" Width="110" Margin="0,0,8,0"/>
+            <Button x:Name="EditBtn" Content="Редактировать" Width="130" Margin="0,0,8,0"/>
+            <Button x:Name="DeleteBtn" Content="Удалить" Width="110" Margin="0,0,16,0"/>
 
             <TextBlock Text="Инвентаризация:" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <ComboBox x:Name="InventoryComboBox"
                       Width="240"
                       DisplayMemberPath="name"
                       SelectedValuePath="id"
-                      Margin="0,0,16,0"
-                      SelectionChanged="InventoryComboBox_SelectionChanged"/>
+                      Margin="0,0,16,0"/>
 
             <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <TextBox x:Name="SearchTextBox"
@@ -31,16 +29,18 @@
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                      Margin="0,0,8,0"/>
 
-            <Button Content="Найти" Width="90" Margin="0,0,8,0" Click="SearchButton_Click"/>
-            <Button Content="Очистить" Width="100" Click="ClearButton_Click"/>
+            <Button x:Name="SearchBtn" Content="Найти" Width="90" Margin="0,0,8,0"/>
+            <Button x:Name="ClearBtn" Content="Очистить" Width="100"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1"
+        <DataGrid x:Name="ItemsGrid"
+                  Grid.Row="1"
                   ItemsSource="{Binding FilteredInventoryItemList}"
                   SelectedItem="{Binding SelectedInventoryItem}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
-                  MouseDoubleClick="DataGrid_MouseDoubleClick">
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="70"/>
                 <DataGridTextColumn Header="Инвентаризация ID" Binding="{Binding inventory_id}" Width="160"/>

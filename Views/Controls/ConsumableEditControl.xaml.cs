@@ -88,7 +88,7 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public string Name
+        public string ConsumableName
         {
             get => _consumable?.name;
             set

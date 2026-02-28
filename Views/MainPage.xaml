@@ -109,22 +109,7 @@
            x:Name="MainFrame"
            NavigationUIVisibility="Hidden"/>
 
-        <!-- ===== Нижняя панель ===== -->
-        <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#E0E0E0">
-            <StackPanel Orientation="Horizontal" Margin="10">
-                <Button Content="➕ Добавить" Width="100" Margin="0,0,5,0"
-                    Click="AddButton_Click"/>
-                <Button Content="✏️ Редактировать" Width="120" Margin="0,0,5,0"
-                    Click="EditButton_Click"/>
-                <Button Content="🗑️ Удалить" Width="100" Margin="0,0,5,0"
-                    Click="DeleteButton_Click"/>
-                <TextBox x:Name="SearchTextBox" Width="300" Margin="0,0,5,0"
-                     KeyDown="SearchTextBox_KeyDown"/>
-                <Button Content="🔍 Поиск" Width="80" Click="SearchButton_Click"/>
-                <Button Content="Очистить" Width="80" Margin="5,0,0,0"
-                    Click="ClearSearchButton_Click"/>
-            </StackPanel>
-        </Border>
+        
     </Grid>
 
 </Window>
