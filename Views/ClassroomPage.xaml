@@ -34,11 +34,11 @@
                   SelectionUnit="FullRow"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="60"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding name}" Width="*"/>
-                <DataGridTextColumn Header="Сокращение" Binding="{Binding short_name}" Width="120"/>
-                <DataGridTextColumn Header="Ответственный" Binding="{Binding responsible_user_id}" Width="140"/>
-                <DataGridTextColumn Header="Врем. ответственный" Binding="{Binding temp_responsible_user_id}" Width="160"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Сокращение" Binding="{Binding ShortName}" Width="120"/>
+                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUser}" Width="200"/>
+                <DataGridTextColumn Header="Врем. ответственный" Binding="{Binding TempResponsibleUser}" Width="200"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

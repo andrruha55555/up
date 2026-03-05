@@ -28,7 +28,7 @@
         </StackPanel>
 
         <DataGrid Grid.Row="1"
-                  ItemsSource="{Binding FilteredDeveloperList}"
+                  ItemsSource="{Binding FilteredDevelopers}"
                   SelectedItem="{Binding SelectedDeveloper}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"

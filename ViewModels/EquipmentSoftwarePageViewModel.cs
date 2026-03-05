@@ -241,15 +241,14 @@ namespace AdminUP.ViewModels
         {
             try
             {
-                var result = MessageBox.Show("Вы уверены, что хотите удалить эту связь?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes) return false;
-
-                // В API нет метода Delete для EquipmentSoftware по equipment_id и software_id
-                // Нужно реализовать свой метод или использовать другой подход
-                MessageBox.Show("Удаление связей пока не реализовано в API", "Информация",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var success = await _apiService.DeleteItemAsync("EquipmentSoftwareController",
+                    $"equipmentId={equipmentId}&softwareId={softwareId}");
+                if (success)
+                {
+                    _cacheService.Remove("equipment_software_page_list");
+                    await LoadEquipmentSoftwareAsync();
+                    return true;
+                }
                 return false;
             }
             catch (Exception ex)

@@ -21,8 +21,9 @@ namespace AdminUP.Views.Controls
         }
 
         public User GetUser() => _user;
+        public object GetEditedItem() => _user;
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        public bool Validate()
         {
             if (string.IsNullOrWhiteSpace(_user.login) ||
                 string.IsNullOrWhiteSpace(_user.last_name) ||
@@ -32,7 +33,7 @@ namespace AdminUP.Views.Controls
             {
                 MessageBox.Show("Заполните все обязательные поля!", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                return false;
             }
 
             if (_user.id == 0)
@@ -41,9 +42,8 @@ namespace AdminUP.Views.Controls
                 {
                     MessageBox.Show("Для нового пользователя пароль обязателен!", "Ошибка",
                         MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    return false;
                 }
-
                 _user.password_hash = PasswordHasher.Hash(PasswordBox.Password);
             }
             else
@@ -52,22 +52,7 @@ namespace AdminUP.Views.Controls
                     _user.password_hash = PasswordHasher.Hash(PasswordBox.Password);
             }
 
-            var wnd = Window.GetWindow(this);
-            if (wnd != null)
-            {
-                wnd.DialogResult = true;
-                wnd.Close();
-            }
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            var wnd = Window.GetWindow(this);
-            if (wnd != null)
-            {
-                wnd.DialogResult = false;
-                wnd.Close();
-            }
+            return true;
         }
     }
 }

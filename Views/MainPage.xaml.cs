@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdminUP.Services;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -118,6 +119,11 @@ namespace AdminUP.Views
         {
             if (sender is Button button && button.Tag is string pageName)
             {
+                if (pageName == "ExportReport")
+                {
+                    _ = new ExportService(App.ApiService).ExportEquipmentReportAsync();
+                    return;
+                }
                 NavigateToPage(pageName);
             }
         }
@@ -197,7 +203,7 @@ namespace AdminUP.Views
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (_closeWithoutConfirm) return; 
+            if (_closeWithoutConfirm) return;
 
             var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Подтверждение выхода",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);

@@ -25,24 +25,29 @@ namespace AdminUP.Views
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedSoftware == null)
+            var row = _viewModel.SelectedSoftware as SoftwareRow;
+            if (row == null)
             {
                 MessageBox.Show("Выберите ПО для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            ShowEditDialog(_viewModel.SelectedSoftware, "Редактирование ПО");
+            ShowEditDialog(row.Software, "Редактирование ПО");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedSoftware == null)
+            var row = _viewModel.SelectedSoftware as SoftwareRow;
+            if (row == null)
             {
                 MessageBox.Show("Выберите ПО для удаления", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            await _viewModel.DeleteSoftwareAsync(_viewModel.SelectedSoftware.id);
+            var confirm = MessageBox.Show("Вы уверены, что хотите удалить это ПО?",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirm == MessageBoxResult.Yes)
+                await _viewModel.DeleteSoftwareAsync(row.Software.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -60,16 +65,11 @@ namespace AdminUP.Views
         private async void ShowEditDialog(SoftwareEntity software, string title)
         {
             var control = new SoftwareEditControl(software);
-
-            var dlg = new EditDialog(control, title)
-            {
-                Owner = Window.GetWindow(this)
-            };
+            var dlg = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
 
             if (dlg.ShowDialog() == true)
             {
                 var edited = control.GetSoftware();
-
                 if (edited.id == 0)
                     await _viewModel.AddSoftwareAsync(edited);
                 else

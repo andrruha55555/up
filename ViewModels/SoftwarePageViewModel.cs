@@ -1,6 +1,7 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -15,13 +16,14 @@ namespace AdminUP.ViewModels
         private readonly CacheService _cache;
 
         public ObservableCollection<SoftwareEntity> SoftwareList { get; } = new();
-        public ObservableCollection<SoftwareEntity> FilteredSoftwareList { get; } = new();
-
-        // ✅ разработчики
+        public ObservableCollection<SoftwareRow> FilteredSoftwareList { get; } = new();
         public ObservableCollection<Developer> DeveloperList { get; } = new();
 
-        private SoftwareEntity? _selectedSoftware;
-        public SoftwareEntity? SelectedSoftware
+        private List<SoftwareRow> _allRows = new();
+        private Dictionary<int, string> _developerNames = new();
+
+        private object? _selectedSoftware;
+        public object? SelectedSoftware
         {
             get => _selectedSoftware;
             set { _selectedSoftware = value; OnPropertyChanged(); }
@@ -52,31 +54,33 @@ namespace AdminUP.ViewModels
             IsLoading = true;
             try
             {
-                // ✅ Developers
-                var developers = await _cache.GetOrSetAsync("developers_list",
+                var developersTask = _cache.GetOrSetAsync("developers_list",
                     async () => await _api.GetListAsync<Developer>("DevelopersController"));
-
-                DeveloperList.Clear();
-                if (developers != null)
-                    foreach (var d in developers)
-                        DeveloperList.Add(d);
-
-                OnPropertyChanged(nameof(DeveloperList));
-
-                // ✅ Software
-                var software = await _cache.GetOrSetAsync("software_list",
+                var softwareTask = _cache.GetOrSetAsync("software_list",
                     async () => await _api.GetListAsync<SoftwareEntity>("SoftwareController"));
 
+                await Task.WhenAll(developersTask, softwareTask);
+
+                var developers = developersTask.Result ?? new();
+                _developerNames = developers.ToDictionary(d => d.id, d => d.name ?? d.id.ToString());
+
+                DeveloperList.Clear();
+                foreach (var d in developers) DeveloperList.Add(d);
+                OnPropertyChanged(nameof(DeveloperList));
+
                 SoftwareList.Clear();
-                if (software != null)
-                    foreach (var s in software)
-                        SoftwareList.Add(s);
+                _allRows.Clear();
+                var software = softwareTask.Result ?? new();
+                foreach (var s in software)
+                {
+                    SoftwareList.Add(s);
+                    _allRows.Add(new SoftwareRow(s, _developerNames));
+                }
 
                 FilterSoftware();
             }
             catch (Exception ex)
             {
-                // важно чтобы ты видел ошибку API/DB
                 System.Windows.MessageBox.Show($"Ошибка загрузки ПО/разработчиков:\n{ex.Message}", "Ошибка");
             }
             finally
@@ -90,18 +94,17 @@ namespace AdminUP.ViewModels
             FilteredSoftwareList.Clear();
 
             var q = (SearchText ?? "").Trim().ToLowerInvariant();
-            var items = SoftwareList.AsEnumerable();
+            IEnumerable<SoftwareRow> source = _allRows;
 
             if (!string.IsNullOrWhiteSpace(q))
             {
-                items = items.Where(x =>
-                    (x.name ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.version ?? "").ToLowerInvariant().Contains(q));
+                source = source.Where(r =>
+                    (r.Software.name ?? "").ToLowerInvariant().Contains(q) ||
+                    (r.Software.version ?? "").ToLowerInvariant().Contains(q) ||
+                    (r.DeveloperName ?? "").ToLowerInvariant().Contains(q));
             }
 
-            foreach (var i in items)
-                FilteredSoftwareList.Add(i);
-
+            foreach (var r in source) FilteredSoftwareList.Add(r);
             OnPropertyChanged(nameof(FilteredSoftwareList));
         }
 
@@ -131,6 +134,21 @@ namespace AdminUP.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? name = null)
-      => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+          => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    public class SoftwareRow
+    {
+        public SoftwareEntity Software { get; }
+        public int Id => Software.id;
+        public string Name => Software.name;
+        public string DeveloperName { get; }
+        public string Version => Software.version;
+
+        public SoftwareRow(SoftwareEntity s, Dictionary<int, string> developers)
+        {
+            Software = s;
+            DeveloperName = s.developer_id.HasValue && developers.TryGetValue(s.developer_id.Value, out var d) ? d : "—";
+        }
     }
 }

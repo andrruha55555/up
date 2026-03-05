@@ -21,7 +21,7 @@ namespace AdminUP.Views.Controls
             DataContext = this;
         }
 
-        public string? Name
+        public string? StatusName
         {
             get => _status.name;
             set

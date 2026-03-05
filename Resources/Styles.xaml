@@ -159,8 +159,8 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="Border" Property="BorderBrush" 
                                     Value="{StaticResource PrimaryBrush}"/>
-                            <Setter TargetName="Border"  
-                                    Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="Border" Property="Background"
+                                    Value="#EEF5FF"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Border" Property="BorderBrush" 

@@ -34,10 +34,10 @@
                   IsReadOnly="True"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="70"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding name}" Width="260"/>
-                <DataGridTextColumn Header="Разработчик ID" Binding="{Binding developer_id}" Width="140"/>
-                <DataGridTextColumn Header="Версия" Binding="{Binding version}" Width="120"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="260"/>
+                <DataGridTextColumn Header="Разработчик" Binding="{Binding DeveloperName}" Width="200"/>
+                <DataGridTextColumn Header="Версия" Binding="{Binding Version}" Width="120"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

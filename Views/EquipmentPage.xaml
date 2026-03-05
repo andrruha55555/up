@@ -14,11 +14,16 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
             <Button Content="Добавить" Width="100" Click="AddButton_Click"/>
             <Button Content="Редактировать" Width="120" Click="EditButton_Click"/>
             <Button Content="Удалить" Width="100" Click="DeleteButton_Click"/>
-            <TextBox x:Name="SearchTextBox" Width="200" Margin="10 0" 
+            <Separator Width="1" Margin="10,0" Background="#DDDDDD"/>
+            <Button Content="📊 Экспорт в Excel" Width="140" Click="ExportButton_Click"
+                    Background="#1D6F42" Foreground="White" FontWeight="SemiBold"/>
+            <Separator Width="1" Margin="10,0" Background="#DDDDDD"/>
+            <TextBox x:Name="SearchTextBox" Width="220" Margin="0,0,5,0" 
+                     VerticalContentAlignment="Center"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Content="Найти" Width="80" Click="SearchButton_Click"/>
             <Button Content="Очистить" Width="80" Margin="5,0,0,0" Click="ClearButton_Click"/>
@@ -33,14 +38,14 @@
                   SelectionUnit="FullRow"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="50"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding name}" Width="200"/>
-                <DataGridTextColumn Header="Инв.номер" Binding="{Binding inventory_number}" Width="120"/>
-                <DataGridTextColumn Header="Аудитория" Binding="{Binding classroom_id}" Width="90"/>
-                <DataGridTextColumn Header="Ответственный" Binding="{Binding responsible_user_id}" Width="120"/>
-                <DataGridTextColumn Header="Стоимость" Binding="{Binding cost, StringFormat={}{0:N2}}" Width="100"/>
-                <DataGridTextColumn Header="Статус" Binding="{Binding status_id}" Width="90"/>
-                <DataGridTextColumn Header="Модель" Binding="{Binding model_id}" Width="90"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
+                <DataGridTextColumn Header="Инв.номер" Binding="{Binding InventoryNumber}" Width="120"/>
+                <DataGridTextColumn Header="Аудитория" Binding="{Binding ClassroomName}" Width="110"/>
+                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUser}" Width="160"/>
+                <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost}" Width="100"/>
+                <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="100"/>
+                <DataGridTextColumn Header="Модель" Binding="{Binding ModelName}" Width="130"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

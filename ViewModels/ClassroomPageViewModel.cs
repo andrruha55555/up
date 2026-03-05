@@ -1,6 +1,7 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -16,9 +17,10 @@ namespace AdminUP.ViewModels
         private readonly CacheService _cacheService;
 
         private ObservableCollection<Classroom> _classroomList;
-        private Classroom _selectedClassroom;
+        private ClassroomRow _selectedClassroom;
         private bool _isLoading;
         private string _searchText;
+        private Dictionary<int, string> _userNames = new();
 
         public ObservableCollection<Classroom> ClassroomList
         {
@@ -30,7 +32,7 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public Classroom SelectedClassroom
+        public ClassroomRow SelectedClassroom
         {
             get => _selectedClassroom;
             set
@@ -64,7 +66,8 @@ namespace AdminUP.ViewModels
 
         public bool IsClassroomSelected => SelectedClassroom != null;
 
-        public ObservableCollection<Classroom> FilteredClassroomList { get; set; }
+        public ObservableCollection<ClassroomRow> FilteredClassroomList { get; set; }
+        private List<ClassroomRow> _allRows = new();
 
         public ClassroomPageViewModel(ApiService apiService, CacheService cacheService)
         {
@@ -72,7 +75,7 @@ namespace AdminUP.ViewModels
             _cacheService = cacheService;
 
             ClassroomList = new ObservableCollection<Classroom>();
-            FilteredClassroomList = new ObservableCollection<Classroom>();
+            FilteredClassroomList = new ObservableCollection<ClassroomRow>();
         }
 
         public async Task LoadClassroomsAsync()
@@ -80,15 +83,25 @@ namespace AdminUP.ViewModels
             IsLoading = true;
             try
             {
-                var classrooms = await _cacheService.GetOrSetAsync("classrooms_page_list",
+                var usersTask = _apiService.GetListAsync<User>("UsersController");
+                var classroomsTask = _cacheService.GetOrSetAsync("classrooms_page_list",
                     async () => await _apiService.GetListAsync<Classroom>("ClassroomsController"));
 
+                await Task.WhenAll(usersTask, classroomsTask);
+
+                _userNames = (usersTask.Result ?? new())
+                    .ToDictionary(u => u.id, u => u.FullName);
+
+                var classrooms = classroomsTask.Result;
                 ClassroomList.Clear();
+                _allRows.Clear();
+
                 if (classrooms != null)
                 {
                     foreach (var item in classrooms)
                     {
                         ClassroomList.Add(item);
+                        _allRows.Add(new ClassroomRow(item, _userNames));
                     }
                 }
 
@@ -109,25 +122,19 @@ namespace AdminUP.ViewModels
         {
             FilteredClassroomList.Clear();
 
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                foreach (var item in ClassroomList)
-                {
-                    FilteredClassroomList.Add(item);
-                }
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = ClassroomList.Where(c =>
-                    (c.name?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.short_name?.ToLower().Contains(searchLower) ?? false));
+            IEnumerable<ClassroomRow> source = _allRows;
 
-                foreach (var item in filtered)
-                {
-                    FilteredClassroomList.Add(item);
-                }
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var s = SearchText.ToLower();
+                source = source.Where(r =>
+                    (r.Classroom.name?.ToLower().Contains(s) ?? false) ||
+                    (r.Classroom.short_name?.ToLower().Contains(s) ?? false) ||
+                    (r.ResponsibleUser?.ToLower().Contains(s) ?? false));
             }
+
+            foreach (var row in source)
+                FilteredClassroomList.Add(row);
         }
 
         public async Task<bool> AddClassroomAsync(Classroom classroom)
@@ -202,6 +209,23 @@ namespace AdminUP.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class ClassroomRow
+    {
+        public Classroom Classroom { get; }
+        public int Id => Classroom.id;
+        public string Name => Classroom.name;
+        public string ShortName => Classroom.short_name;
+        public string ResponsibleUser { get; }
+        public string TempResponsibleUser { get; }
+
+        public ClassroomRow(Classroom c, Dictionary<int, string> users)
+        {
+            Classroom = c;
+            ResponsibleUser = c.responsible_user_id.HasValue && users.TryGetValue(c.responsible_user_id.Value, out var u) ? u : "—";
+            TempResponsibleUser = c.temp_responsible_user_id.HasValue && users.TryGetValue(c.temp_responsible_user_id.Value, out var t) ? t : "—";
         }
     }
 }

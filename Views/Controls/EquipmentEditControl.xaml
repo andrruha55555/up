@@ -42,31 +42,31 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:*" Margin="5"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Margin="5"
-                         Text="{Binding Equipment.name, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding EquipmentName, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Инвентарный номер:*" Margin="5"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Margin="5"
-                         Text="{Binding Equipment.inventory_number, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding EquipmentInventoryNumber, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Аудитория:" Margin="5"/>
                 <ComboBox Grid.Row="2" Grid.Column="1" Margin="5"
                           ItemsSource="{Binding AvailableClassrooms}"
                           DisplayMemberPath="name"
                           SelectedValuePath="id"
-                          SelectedValue="{Binding Equipment.classroom_id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                          SelectedValue="{Binding ClassroomId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Ответственный:" Margin="5"/>
                 <ComboBox Grid.Row="3" Grid.Column="1" Margin="5"
                           ItemsSource="{Binding AvailableUsers}"
                           SelectedValuePath="id"
-                          SelectedValue="{Binding Equipment.responsible_user_id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                          SelectedValue="{Binding ResponsibleUserId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock>
                                 <Run Text="{Binding last_name}"/>
-                                <Run Text=""/>
+                                <Run Text=" "/>
                                 <Run Text="{Binding first_name}"/>
-                                <Run Text=""/>
+                                <Run Text=" "/>
                                 <Run Text="{Binding middle_name}"/>
                             </TextBlock>
                         </DataTemplate>
@@ -75,37 +75,37 @@
 
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Стоимость:" Margin="5"/>
                 <TextBox Grid.Row="4" Grid.Column="1" Margin="5"
-                         Text="{Binding Equipment.cost, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="Направление:" Margin="5"/>
                 <ComboBox Grid.Row="5" Grid.Column="1" Margin="5"
                           ItemsSource="{Binding AvailableDirections}"
                           DisplayMemberPath="name"
                           SelectedValuePath="id"
-                          SelectedValue="{Binding Equipment.direction_id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                          SelectedValue="{Binding DirectionId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="6" Grid.Column="0" Text="Статус:*" Margin="5"/>
                 <ComboBox Grid.Row="6" Grid.Column="1" Margin="5"
                           ItemsSource="{Binding AvailableStatuses}"
                           DisplayMemberPath="name"
                           SelectedValuePath="id"
-                          SelectedValue="{Binding Equipment.status_id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                          SelectedValue="{Binding StatusId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="7" Grid.Column="0" Text="Модель:" Margin="5"/>
                 <ComboBox Grid.Row="7" Grid.Column="1" Margin="5"
                           ItemsSource="{Binding AvailableModels}"
                           DisplayMemberPath="name"
                           SelectedValuePath="id"
-                          SelectedValue="{Binding Equipment.model_id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                          SelectedValue="{Binding ModelId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Комментарий:" Margin="5"/>
                 <TextBox Grid.Row="8" Grid.Column="1" Margin="5"
                          Height="60" TextWrapping="Wrap" AcceptsReturn="True"
-                         Text="{Binding Equipment.comment, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="9" Grid.Column="0" Text="Путь к изображению:" Margin="5"/>
                 <TextBox Grid.Row="9" Grid.Column="1" Margin="5"
-                         Text="{Binding Equipment.image_path, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2"
                            Margin="0,10,0,0"

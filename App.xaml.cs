@@ -19,7 +19,7 @@ namespace AdminUP
             ApiService = new ApiService();
             AuthService = new AuthService();
             CacheService = new CacheService();
-            ExportService = new ExportService();
+            ExportService = new ExportService(ApiService);
 
             var loginWindow = new LoginWindow();
             var ok = loginWindow.ShowDialog() == true;

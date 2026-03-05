@@ -59,7 +59,7 @@ namespace AdminUP.Views.Controls
                 if (_developer != null)
                 {
                     _developer.name = value;
-                    RaisePropertyChanged(); 
+                    RaisePropertyChanged();
                 }
             }
         }

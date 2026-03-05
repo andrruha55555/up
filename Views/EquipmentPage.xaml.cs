@@ -1,4 +1,5 @@
 ﻿using AdminUP.Models;
+using AdminUP.Services;
 using AdminUP.ViewModels;
 using AdminUP.Views.Controls;
 using System.Windows;
@@ -9,12 +10,14 @@ namespace AdminUP.Views
     public partial class EquipmentPage : Page
     {
         private EquipmentPageViewModel _viewModel;
+        private readonly ExportService _exportService;
 
         public EquipmentPage()
         {
             InitializeComponent();
 
             _viewModel = new EquipmentPageViewModel(App.ApiService, App.CacheService);
+            _exportService = new ExportService(App.ApiService);
             DataContext = _viewModel;
         }
 
@@ -31,28 +34,27 @@ namespace AdminUP.Views
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedEquipment != null)
-            {
-                ShowEditDialog(_viewModel.SelectedEquipment, "Редактирование оборудования");
-            }
+            var row = _viewModel.SelectedEquipment;
+            if (row != null)
+                ShowEditDialog(row.Equipment, "Редактирование оборудования");
             else
-            {
                 MessageBox.Show("Выберите оборудование для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
-            }
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedEquipment != null)
-            {
-                await _viewModel.DeleteEquipmentAsync(_viewModel.SelectedEquipment.id);
-            }
+            var row = _viewModel.SelectedEquipment;
+            if (row != null)
+                await _viewModel.DeleteEquipmentAsync(row.Equipment.id);
             else
-            {
                 MessageBox.Show("Выберите оборудование для удаления", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+        }
+
+        private async void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            await _exportService.ExportEquipmentReportAsync();
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -74,14 +76,11 @@ namespace AdminUP.Views
         private async void ShowEditDialog(Equipment equipment, string title)
         {
             var control = new EquipmentEditControl(equipment);
-
-            var editDialog = new EditDialog(control, title);
-            editDialog.Owner = Window.GetWindow(this);
+            var editDialog = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
 
             if (editDialog.ShowDialog() == true)
             {
                 var editedEquipment = control.GetEquipment();
-
                 if (editedEquipment != null)
                 {
                     if (editedEquipment.id == 0)

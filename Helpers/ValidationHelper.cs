@@ -28,7 +28,7 @@ namespace AdminUP.Helpers
         public static bool ValidatePhone(string phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
-                return true; 
+                return true;
 
             return Regex.IsMatch(phone, @"^[\d\s\-\+\(\)]+$");
         }

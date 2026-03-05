@@ -29,26 +29,26 @@ namespace AdminUP.Views
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedClassroom == null)
+            var row = _viewModel.SelectedClassroom;
+            if (row == null)
             {
                 MessageBox.Show("Выберите аудиторию для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-
-            ShowEditDialog(_viewModel.SelectedClassroom, "Редактирование аудитории");
+            ShowEditDialog(row.Classroom, "Редактирование аудитории");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedClassroom == null)
+            var row = _viewModel.SelectedClassroom;
+            if (row == null)
             {
                 MessageBox.Show("Выберите аудиторию для удаления", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-
-            await _viewModel.DeleteClassroomAsync(_viewModel.SelectedClassroom.id);
+            await _viewModel.DeleteClassroomAsync(row.Classroom.id);
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -71,7 +71,6 @@ namespace AdminUP.Views
         private async void ShowEditDialog(Classroom classroom, string title)
         {
             var control = new ClassroomEditControl(classroom);
-
             var dialog = new EditDialog(control, title);
             dialog.Owner = Window.GetWindow(this);
 

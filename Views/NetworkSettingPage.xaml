@@ -28,7 +28,7 @@
         </StackPanel>
 
         <DataGrid Grid.Row="1"
-                  ItemsSource="{Binding FilteredNetworkList}"
+                  ItemsSource="{Binding FilteredNetworkSettings}"
                   SelectedItem="{Binding SelectedNetworkSetting}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"

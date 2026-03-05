@@ -94,7 +94,7 @@ namespace AdminUP.Views.Controls
             {
                 if (_characteristic != null)
                 {
-                    _characteristic.characteristic_value = value;
+                    _characteristic.characteristic_name = value;
                     RaisePropertyChanged(nameof(CharacteristicName));
                 }
             }

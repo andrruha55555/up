@@ -152,9 +152,6 @@ namespace AdminUP.Views.Controls
             if (_classroom.short_name?.Length > 20)
                 AddValidationError("Сокращение не должно превышать 20 символов");
 
-            if (_classroom.short_name?.All(char.IsDigit) == false)
-                AddValidationError("Сокращение должно содержать только цифры");
-
             return !HasErrors;
         }
     }

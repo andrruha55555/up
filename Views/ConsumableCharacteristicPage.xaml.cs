@@ -18,14 +18,13 @@ namespace AdminUP.Views
         }
 
         //private async void Page_Loaded(object sender, RoutedEventArgs e)
-        //{
         //    await _viewModel.LoadDataAsync();
-
-        //    ConsumableComboBox.ItemsSource = _viewModel.ConsumableList;
-        //    ConsumableComboBox.DisplayMemberPath = "name";
-        //    ConsumableComboBox.SelectedValuePath = "id";
-        //    ConsumableComboBox.SelectedValue = _viewModel.SelectedConsumableId;
         //}
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            await _viewModel.LoadDataAsync();
+        }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {

@@ -103,7 +103,7 @@ namespace AdminUP.ViewModels
             _apiService = apiService;
             _cacheService = cacheService;
             _authService = App.AuthService;
-            _exportService = new ExportService();
+            _exportService = new ExportService(apiService);
 
             InitializeCollections();
         }

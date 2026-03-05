@@ -78,6 +78,18 @@ namespace AdminUP.Services
             return true;
         }
 
+        public async Task<bool> DeleteItemAsync(string controller, string queryParams)
+        {
+            var url = BuildUrl(controller, "Delete") + "?" + queryParams;
+            using var resp = await _http.DeleteAsync(url);
+
+            var content = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                throw BuildHttpException("DELETE", url, resp, content);
+
+            return true;
+        }
+
         private string BuildUrl(string controller, string actionPath)
         {
             var c = NormalizeController(controller);

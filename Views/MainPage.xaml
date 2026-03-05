@@ -66,6 +66,8 @@
               HorizontalScrollBarVisibility="Disabled"
               CanContentScroll="True">
                 <StackPanel>
+
+                    <Separator Margin="0,4" Background="#DDDDDD"/>
                     <Button Content="📝 История оборудования" Style="{StaticResource MenuButtonFixed}"
                         Tag="EquipmentHistoryPage" Click="MenuButton_Click"/>
                     <Button Content="🔗 Оборудование-ПО" Style="{StaticResource MenuButtonFixed}"
@@ -109,7 +111,24 @@
            x:Name="MainFrame"
            NavigationUIVisibility="Hidden"/>
 
-        
+        <!-- ===== Статус-бар ===== -->
+        <Border Grid.Row="2" Grid.ColumnSpan="2"
+                Background="#F0F0F0"
+                BorderBrush="#DDDDDD"
+                BorderThickness="0,1,0,0">
+            <DockPanel Margin="15,0">
+                <TextBlock DockPanel.Dock="Right"
+                           Text="AdminUP v1.0"
+                           Foreground="#999999"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="StatusBarText"
+                           Text="Готово"
+                           Foreground="#555555"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
     </Grid>
 
 </Window>

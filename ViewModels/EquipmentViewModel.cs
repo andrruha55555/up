@@ -1,7 +1,7 @@
 ﻿using AdminUP.Models;
 using AdminUP.Services;
-using AdminUP.Views;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -17,9 +17,15 @@ namespace AdminUP.ViewModels
         private readonly CacheService _cacheService;
 
         private ObservableCollection<Equipment> _equipmentList;
-        private Equipment _selectedEquipment;
+        private EquipmentRow _selectedEquipment;
         private bool _isLoading;
         private string _searchText;
+
+        // Lookup-словари для отображения имён вместо ID
+        public Dictionary<int, string> ClassroomNames { get; private set; } = new();
+        public Dictionary<int, string> UserNames { get; private set; } = new();
+        public Dictionary<int, string> StatusNames { get; private set; } = new();
+        public Dictionary<int, string> ModelNames { get; private set; } = new();
 
         public ObservableCollection<Equipment> EquipmentList
         {
@@ -31,7 +37,7 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public Equipment SelectedEquipment
+        public EquipmentRow SelectedEquipment
         {
             get => _selectedEquipment;
             set
@@ -65,7 +71,8 @@ namespace AdminUP.ViewModels
 
         public bool IsEquipmentSelected => SelectedEquipment != null;
 
-        public ObservableCollection<Equipment> FilteredEquipmentList { get; set; }
+        public ObservableCollection<EquipmentRow> FilteredEquipmentList { get; set; }
+        private List<EquipmentRow> _allRows = new();
 
         public EquipmentPageViewModel(ApiService apiService, CacheService cacheService)
         {
@@ -73,7 +80,7 @@ namespace AdminUP.ViewModels
             _cacheService = cacheService;
 
             EquipmentList = new ObservableCollection<Equipment>();
-            FilteredEquipmentList = new ObservableCollection<Equipment>();
+            FilteredEquipmentList = new ObservableCollection<EquipmentRow>();
         }
 
         public async Task LoadEquipmentAsync()
@@ -81,15 +88,35 @@ namespace AdminUP.ViewModels
             IsLoading = true;
             try
             {
-                var equipment = await _cacheService.GetOrSetAsync("equipment_page_list",
+                // Загрузка справочников параллельно
+                var classroomsTask = _apiService.GetListAsync<Classroom>("ClassroomsController");
+                var usersTask = _apiService.GetListAsync<User>("UsersController");
+                var statusesTask = _apiService.GetListAsync<Status>("StatusesController");
+                var modelsTask = _apiService.GetListAsync<ModelEntity>("ModelsController");
+                var equipmentTask = _cacheService.GetOrSetAsync("equipment_page_list",
                     async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
 
+                await Task.WhenAll(classroomsTask, usersTask, statusesTask, modelsTask, equipmentTask);
+
+                ClassroomNames = (classroomsTask.Result ?? new())
+                    .ToDictionary(c => c.id, c => c.name ?? c.short_name ?? c.id.ToString());
+                UserNames = (usersTask.Result ?? new())
+                    .ToDictionary(u => u.id, u => u.FullName);
+                StatusNames = (statusesTask.Result ?? new())
+                    .ToDictionary(s => s.id, s => s.name ?? s.id.ToString());
+                ModelNames = (modelsTask.Result ?? new())
+                    .ToDictionary(m => m.id, m => m.name ?? m.id.ToString());
+
+                var equipment = equipmentTask.Result;
                 EquipmentList.Clear();
+                _allRows.Clear();
+
                 if (equipment != null)
                 {
                     foreach (var item in equipment)
                     {
                         EquipmentList.Add(item);
+                        _allRows.Add(new EquipmentRow(item, ClassroomNames, UserNames, StatusNames, ModelNames));
                     }
                 }
 
@@ -110,26 +137,21 @@ namespace AdminUP.ViewModels
         {
             FilteredEquipmentList.Clear();
 
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                foreach (var item in EquipmentList)
-                {
-                    FilteredEquipmentList.Add(item);
-                }
-            }
-            else
-            {
-                var searchLower = SearchText.ToLower();
-                var filtered = EquipmentList.Where(e =>
-                    (e.name?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.inventory_number?.ToLower().Contains(searchLower) ?? false) ||
-                    (e.comment?.ToLower().Contains(searchLower) ?? false));
+            IEnumerable<EquipmentRow> source = _allRows;
 
-                foreach (var item in filtered)
-                {
-                    FilteredEquipmentList.Add(item);
-                }
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var s = SearchText.ToLower();
+                source = source.Where(r =>
+                    (r.Equipment.name?.ToLower().Contains(s) ?? false) ||
+                    (r.Equipment.inventory_number?.ToLower().Contains(s) ?? false) ||
+                    (r.ClassroomName?.ToLower().Contains(s) ?? false) ||
+                    (r.StatusName?.ToLower().Contains(s) ?? false) ||
+                    (r.Equipment.comment?.ToLower().Contains(s) ?? false));
             }
+
+            foreach (var row in source)
+                FilteredEquipmentList.Add(row);
         }
 
         public async Task<bool> AddEquipmentAsync(Equipment equipment)
@@ -204,6 +226,36 @@ namespace AdminUP.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    /// <summary>
+    /// Строка таблицы оборудования с разрешёнными именами вместо FK-ID
+    /// </summary>
+    public class EquipmentRow
+    {
+        public Equipment Equipment { get; }
+
+        public int Id => Equipment.id;
+        public string Name => Equipment.name;
+        public string InventoryNumber => Equipment.inventory_number;
+        public string ClassroomName { get; }
+        public string ResponsibleUser { get; }
+        public string Cost => Equipment.cost.HasValue ? Equipment.cost.Value.ToString("N2") : "—";
+        public string StatusName { get; }
+        public string ModelName { get; }
+
+        public EquipmentRow(Equipment eq,
+            Dictionary<int, string> classrooms,
+            Dictionary<int, string> users,
+            Dictionary<int, string> statuses,
+            Dictionary<int, string> models)
+        {
+            Equipment = eq;
+            ClassroomName = eq.classroom_id.HasValue && classrooms.TryGetValue(eq.classroom_id.Value, out var c) ? c : "—";
+            ResponsibleUser = eq.responsible_user_id.HasValue && users.TryGetValue(eq.responsible_user_id.Value, out var u) ? u : "—";
+            StatusName = statuses.TryGetValue(eq.status_id, out var s) ? s : eq.status_id.ToString();
+            ModelName = eq.model_id.HasValue && models.TryGetValue(eq.model_id.Value, out var m) ? m : "—";
         }
     }
 }
