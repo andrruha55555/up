@@ -44,9 +44,36 @@ namespace ApiUp.Controllers
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
+
+                // Проверка на дубликат
+                var exists = await _context.EquipmentSoftware
+                    .AnyAsync(x => x.equipment_id == item.equipment_id && x.software_id == item.software_id);
+                if (exists)
+                    return Conflict(new { message = "Такая связь уже существует" });
+
                 _context.EquipmentSoftware.Add(item);
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Связь создана", equipment_id = item.equipment_id, software_id = item.software_id });
+            }
+            catch (Exception exp) { return StatusCode(500, exp.Message); }
+        }
+
+        [Route("Delete")]
+        [HttpDelete]
+        [ApiExplorerSettings(GroupName = "v4")]
+        public async Task<ActionResult> Delete(int equipmentId, int softwareId)
+        {
+            try
+            {
+                var item = await _context.EquipmentSoftware
+                    .Where(x => x.equipment_id == equipmentId && x.software_id == softwareId)
+                    .FirstOrDefaultAsync();
+
+                if (item == null) return NotFound($"Связь equipment={equipmentId}, software={softwareId} не найдена");
+
+                _context.EquipmentSoftware.Remove(item);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Связь удалена" });
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
