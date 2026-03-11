@@ -45,6 +45,14 @@ namespace AdminUP.Views
             await _viewModel.DeleteNetworkSettingAsync(_viewModel.SelectedNetworkSetting.id);
         }
 
+        /// <summary>Запускает ICMP-проверку всех устройств через RAW-сокет.</summary>
+        private async void CheckAllButton_Click(object sender, RoutedEventArgs e)
+            => await _viewModel.CheckAllDevicesAsync();
+
+        /// <summary>Отменяет текущую ICMP-проверку.</summary>
+        private void CancelCheckButton_Click(object sender, RoutedEventArgs e)
+            => _viewModel.CancelCheck();
+
         private void SearchButton_Click(object sender, RoutedEventArgs e)
             => _viewModel.FilterNetwork();
 
@@ -57,22 +65,14 @@ namespace AdminUP.Views
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
             => EditButton_Click(sender, e);
 
-        private void CheckNetworkButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Проверка сети пока не реализована.\n(Можно добавить Ping по IP)", "Информация",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
         private async void ShowEditDialog(NetworkSetting item, string title)
         {
             var control = new NetworkSettingEditControl(item);
-
             var dlg = new EditDialog(control, title) { Owner = Window.GetWindow(this) };
 
             if (dlg.ShowDialog() == true)
             {
                 var edited = control.GetNetworkSetting();
-
                 if (edited.id == 0)
                     await _viewModel.AddNetworkSettingAsync(edited);
                 else

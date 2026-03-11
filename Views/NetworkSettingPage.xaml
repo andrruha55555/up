@@ -6,42 +6,145 @@
       mc:Ignorable="d"
       Loaded="Page_Loaded">
 
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Page.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Добавить" Width="110" Margin="0,0,8,0" Click="AddButton_Click"/>
+        <!-- ===== Панель CRUD + поиск ===== -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Добавить"      Width="110" Margin="0,0,8,0" Click="AddButton_Click"/>
             <Button Content="Редактировать" Width="130" Margin="0,0,8,0" Click="EditButton_Click"/>
-            <Button Content="Удалить" Width="110" Margin="0,0,16,0" Click="DeleteButton_Click"/>
+            <Button Content="Удалить"       Width="110" Margin="0,0,16,0" Click="DeleteButton_Click"/>
+
+            <Separator Width="1" Background="#DDDDDD" Margin="0,2,16,2"/>
 
             <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <TextBox x:Name="SearchTextBox"
-                     Width="260"
+                     Width="240"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                      Margin="0,0,8,0"/>
-
-            <Button Content="Найти" Width="90" Margin="0,0,8,0" Click="SearchButton_Click"/>
-            <Button Content="Очистить" Width="100" Click="ClearButton_Click"/>
+            <Button Content="Найти"   Width="80" Margin="0,0,8,0" Click="SearchButton_Click"/>
+            <Button Content="Очистить" Width="90" Click="ClearButton_Click"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1"
+        <!-- ===== Панель проверки сети (ICMP) ===== -->
+        <Border Grid.Row="1"
+                Background="#EEF4FF"
+                BorderBrush="#4472C4"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="10,7"
+                Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <TextBlock Text="🌐 Проверка устройств в сети (ICMP):"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+
+                <!-- Кнопка "Проверить" -->
+                <Button Content="▶ Проверить все"
+                        Width="140"
+                        Margin="0,0,8,0"
+                        Background="#0060AC"
+                        Foreground="White"
+                        FontWeight="SemiBold"
+                        IsEnabled="{Binding CanCheck}"
+                        Click="CheckAllButton_Click"/>
+
+                <!-- Кнопка "Отмена" — видна только во время проверки -->
+                <Button Content="⏹ Отмена"
+                        Width="90"
+                        Margin="0,0,16,0"
+                        Visibility="{Binding IsChecking,
+                            Converter={StaticResource BoolToVis}}"
+                        Click="CancelCheckButton_Click"/>
+
+                <!-- ProgressBar -->
+                <ProgressBar Width="200"
+                             Height="18"
+                             Margin="0,0,12,0"
+                             IsIndeterminate="{Binding IsChecking}"
+                             Visibility="{Binding IsChecking,
+                                 Converter={StaticResource BoolToVis}}"/>
+
+                <!-- Текст прогресса -->
+                <TextBlock Text="{Binding CheckProgress}"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Foreground="#333333"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== DataGrid ===== -->
+        <DataGrid Grid.Row="2"
                   ItemsSource="{Binding FilteredNetworkSettings}"
-                  SelectedItem="{Binding SelectedNetworkSetting}"
+                  SelectedItem="{Binding SelectedNetworkSetting, Mode=TwoWay}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
+
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="70"/>
-                <DataGridTextColumn Header="Оборудование ID" Binding="{Binding equipment_id}" Width="140"/>
-                <DataGridTextColumn Header="IP" Binding="{Binding ip_address}" Width="140"/>
-                <DataGridTextColumn Header="Маска" Binding="{Binding subnet_mask}" Width="140"/>
-                <DataGridTextColumn Header="Шлюз" Binding="{Binding gateway}" Width="140"/>
-                <DataGridTextColumn Header="DNS1" Binding="{Binding dns1}" Width="140"/>
-                <DataGridTextColumn Header="DNS2" Binding="{Binding dns2}" Width="140"/>
-                <DataGridTextColumn Header="Создано" Binding="{Binding created_at, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="170"/>
+                <DataGridTextColumn Header="ID"          Binding="{Binding Id}"          Width="55"/>
+                <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="180"/>
+                <DataGridTextColumn Header="IP-адрес"    Binding="{Binding IpAddress}"    Width="130">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Courier New"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Маска"       Binding="{Binding SubnetMask}"   Width="130">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Courier New"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Шлюз"        Binding="{Binding Gateway}"      Width="130">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Courier New"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="DNS 1"       Binding="{Binding Dns1}"         Width="120"/>
+                <DataGridTextColumn Header="DNS 2"       Binding="{Binding Dns2}"         Width="120"/>
+                <DataGridTextColumn Header="Добавлено"   Binding="{Binding CreatedAt}"    Width="140"/>
+
+                <!-- Колонка со статусом ICMP-проверки -->
+                <DataGridTextColumn Header="Статус в сети"
+                                    Binding="{Binding StatusText}"
+                                    Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusText[0]}" Value="✅">
+                                    <Setter Property="Foreground" Value="#1D6F42"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusText[0]}" Value="❌">
+                                    <Setter Property="Foreground" Value="#C00000"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusText[0]}" Value="🔄">
+                                    <Setter Property="Foreground" Value="#0060AC"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusText[0]}" Value="⏳">
+                                    <Setter Property="Foreground" Value="#888888"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
