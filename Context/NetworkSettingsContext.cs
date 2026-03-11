@@ -14,6 +14,7 @@ namespace ApiUp.Context
             {
                 entity.ToTable("network_settings");
                 entity.HasKey(e => e.id);
+                entity.Property(e => e.id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.equipment_id).HasColumnName("equipment_id").IsRequired();
                 entity.Property(e => e.ip_address).HasColumnName("ip_address").IsRequired(false);
@@ -23,7 +24,10 @@ namespace ApiUp.Context
                 entity.Property(e => e.dns2).HasColumnName("dns2").IsRequired(false);
                 entity.Property(e => e.created_at).HasColumnName("created_at").IsRequired(false);
 
-                entity.HasIndex(e => e.ip_address).IsUnique();
+                // Уникальный индекс только по непустым IP (допускает несколько NULL)
+                entity.HasIndex(e => e.ip_address)
+                      .IsUnique()
+                      .HasFilter("ip_address IS NOT NULL");
             });
         }
     }

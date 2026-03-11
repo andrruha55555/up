@@ -41,9 +41,25 @@ namespace ApiUp.Controllers
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
+                item.id = 0;
+
+                // Проверка уникальности IP перед сохранением
+                if (!string.IsNullOrWhiteSpace(item.ip_address))
+                {
+                    var exists = await _context.NetworkSettings
+                        .AnyAsync(x => x.ip_address == item.ip_address);
+                    if (exists)
+                        return StatusCode(409, $"IP-адрес {item.ip_address} уже используется другим устройством.");
+                }
+
                 _context.NetworkSettings.Add(item);
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Сетевые настройки созданы", id = item.id });
+            }
+            catch (DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, $"Ошибка сохранения: {inner}");
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
@@ -59,6 +75,15 @@ namespace ApiUp.Controllers
                 var item = await _context.NetworkSettings.Where(x => x.id == id).FirstOrDefaultAsync();
                 if (item == null) return NotFound($"Сетевые настройки с ID {id} не найдены");
 
+                // Проверка уникальности IP (исключая текущую запись)
+                if (!string.IsNullOrWhiteSpace(dto.ip_address))
+                {
+                    var exists = await _context.NetworkSettings
+                        .AnyAsync(x => x.ip_address == dto.ip_address && x.id != id);
+                    if (exists)
+                        return StatusCode(409, $"IP-адрес {dto.ip_address} уже используется другим устройством.");
+                }
+
                 item.equipment_id = dto.equipment_id;
                 item.ip_address = dto.ip_address;
                 item.subnet_mask = dto.subnet_mask;
@@ -69,6 +94,11 @@ namespace ApiUp.Controllers
 
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Сетевые настройки обновлены" });
+            }
+            catch (DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, $"Ошибка сохранения: {inner}");
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
@@ -86,6 +116,10 @@ namespace ApiUp.Controllers
                 _context.NetworkSettings.Remove(item);
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Сетевые настройки удалены" });
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(409, "Невозможно удалить запись: она используется в других таблицах.");
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
