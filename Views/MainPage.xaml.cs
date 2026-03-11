@@ -8,9 +8,17 @@ namespace AdminUP.Views
     public partial class MainPage : Window
     {
         private string _currentPageTitle;
-
-        // ✅ флаг: закрываем без подтверждения (logout/переключение окон)
         private bool _closeWithoutConfirm = false;
+
+        /// <summary>Кнопки меню, доступные только администратору</summary>
+        private System.Windows.Controls.Control[] AdminOnlyButtons => new System.Windows.Controls.Control[]
+        {
+            AdminSeparator,
+            BtnUsers, BtnClassrooms, BtnConsumables, BtnStatuses,
+            BtnEqTypes, BtnModels, BtnConsumableTypes, BtnCharacteristics,
+            BtnDevelopers, BtnDirections, BtnSoftware,
+            BtnInventory, BtnInventoryItems
+        };
 
         public string CurrentPageTitle
         {
@@ -25,7 +33,23 @@ namespace AdminUP.Views
         public MainPage()
         {
             InitializeComponent();
+
+            // Скрываем административные пункты меню для не-админов
+            if (!App.AuthService.IsAdmin)
+                HideAdminMenuItems();
+
+            // Показываем имя пользователя в заголовке
+            UserNameText.Text = $"👤 {App.AuthService.CurrentUserObject?.last_name} {App.AuthService.CurrentUserObject?.first_name}  [{App.AuthService.CurrentRole}]";
+
             NavigateToPage("EquipmentPage");
+        }
+
+        /// <summary>Скрывает пункты меню, недоступные рядовому пользователю</summary>
+        private void HideAdminMenuItems()
+        {
+            // Не-админ видит только: своё оборудование, ПО, историю, сетевые настройки
+            foreach (var btn in AdminOnlyButtons)
+                btn.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         private void NavigateToPage(string pageName)

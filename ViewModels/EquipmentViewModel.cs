@@ -111,10 +111,20 @@ namespace AdminUP.ViewModels
                 EquipmentList.Clear();
                 _allRows.Clear();
 
+                // Фильтрация по ответственному: не-админ видит только своё оборудование
+                bool isAdmin = App.AuthService.IsAdmin;
+                int myId = App.AuthService.CurrentUserId;
+
                 if (equipment != null)
                 {
                     foreach (var item in equipment)
                     {
+                        // Не-админ видит оборудование где он responsible или temp_responsible
+                        if (!isAdmin &&
+                            item.responsible_user_id != myId &&
+                            item.temp_responsible_user_id != myId)
+                            continue;
+
                         EquipmentList.Add(item);
                         _allRows.Add(new EquipmentRow(item, ClassroomNames, UserNames, StatusNames, ModelNames));
                     }

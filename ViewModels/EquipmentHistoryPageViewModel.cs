@@ -110,12 +110,24 @@ namespace AdminUP.ViewModels
         {
             var history = await _cacheService.GetOrSetAsync("equipment_history_page_list",
                 async () => await _apiService.GetListAsync<EquipmentHistory>("EquipmentHistoryController"));
+            var allEquip = await _apiService.GetListAsync<Equipment>("EquipmentController");
+
+            // Не-админ видит только историю своего оборудования
+            bool isAdmin = App.AuthService.IsAdmin;
+            var myIds = isAdmin
+                ? null
+                : (allEquip ?? new())
+                    .Where(e => e.responsible_user_id == App.AuthService.CurrentUserId ||
+                                e.temp_responsible_user_id == App.AuthService.CurrentUserId)
+                    .Select(e => e.id)
+                    .ToHashSet();
 
             HistoryList.Clear();
             if (history != null)
             {
                 foreach (var item in history)
                 {
+                    if (!isAdmin && !myIds!.Contains(item.equipment_id)) continue;
                     HistoryList.Add(item);
                 }
             }
@@ -128,11 +140,18 @@ namespace AdminUP.ViewModels
             var equipment = await _cacheService.GetOrSetAsync("equipment_for_history",
                 async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
 
+            // Не-админ видит только своё оборудование в dropdown при добавлении записи
+            bool isAdmin = App.AuthService.IsAdmin;
+            int myId = App.AuthService.CurrentUserId;
+
             EquipmentList.Clear();
             if (equipment != null)
             {
                 foreach (var item in equipment)
                 {
+                    if (!isAdmin &&
+                        item.responsible_user_id != myId &&
+                        item.temp_responsible_user_id != myId) continue;
                     EquipmentList.Add(item);
                 }
             }

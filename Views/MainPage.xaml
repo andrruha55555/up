@@ -49,6 +49,10 @@
                        HorizontalAlignment="Center"/>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0 0 20 0">
+                    <TextBlock x:Name="UserNameText"
+                               Foreground="White" FontSize="12"
+                               VerticalAlignment="Center" Margin="0,0,16,0"
+                               Opacity="0.85"/>
                     <Button Content="🔄 Обновить" Width="100" Margin="5 0"
                         Click="RefreshButton_Click"/>
                     <Button Content="🚪 Выход" Width="80" Margin="5 0"
@@ -66,42 +70,56 @@
               HorizontalScrollBarVisibility="Disabled"
               CanContentScroll="True">
                 <StackPanel>
-
+                    <Border Background="#0060AC" Padding="10,8">
+                        <Button Content="📊 Отчёт по оборудованию"
+                                Style="{StaticResource MenuButtonFixed}"
+                                Background="#1D6F42"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Tag="ExportReport"
+                                Click="MenuButton_Click"/>
+                    </Border>
                     <Separator Margin="0,4" Background="#DDDDDD"/>
-                    <Button Content="📝 История оборудования" Style="{StaticResource MenuButtonFixed}"
-                        Tag="EquipmentHistoryPage" Click="MenuButton_Click"/>
-                    <Button Content="🔗 Оборудование-ПО" Style="{StaticResource MenuButtonFixed}"
-                        Tag="EquipmentSoftwarePage" Click="MenuButton_Click"/>
+                    <!-- Кнопки видны всем ролям -->
                     <Button Content="📦 Оборудование" Style="{StaticResource MenuButtonFixed}"
                         Tag="EquipmentPage" Click="MenuButton_Click"/>
-                    <Button Content="👥 Пользователи" Style="{StaticResource MenuButtonFixed}"
-                        Tag="UserPage" Click="MenuButton_Click"/>
-                    <Button Content="🏫 Аудитории" Style="{StaticResource MenuButtonFixed}"
-                        Tag="ClassroomPage" Click="MenuButton_Click"/>
-                    <Button Content="🖨️ Расходники" Style="{StaticResource MenuButtonFixed}"
-                        Tag="ConsumablePage" Click="MenuButton_Click"/>
-                    <Button Content="📈 Статусы" Style="{StaticResource MenuButtonFixed}"
-                        Tag="StatusPage" Click="MenuButton_Click"/>
-                    <Button Content="💻 Типы оборудования" Style="{StaticResource MenuButtonFixed}"
-                        Tag="EquipmentTypePage" Click="MenuButton_Click"/>
-                    <Button Content="🖥️ Модели" Style="{StaticResource MenuButtonFixed}"
-                        Tag="ModelPage" Click="MenuButton_Click"/>
-                    <Button Content="📊 Типы расходников" Style="{StaticResource MenuButtonFixed}"
-                        Tag="ConsumableTypePage" Click="MenuButton_Click"/>
-                    <Button Content="📝 Характеристики" Style="{StaticResource MenuButtonFixed}"
-                        Tag="ConsumableCharacteristicPage" Click="MenuButton_Click"/>
-                    <Button Content="👨‍💻 Разработчики" Style="{StaticResource MenuButtonFixed}"
-                        Tag="DeveloperPage" Click="MenuButton_Click"/>
-                    <Button Content="🎯 Направления" Style="{StaticResource MenuButtonFixed}"
-                        Tag="DirectionPage" Click="MenuButton_Click"/>
-                    <Button Content="🛠️ ПО" Style="{StaticResource MenuButtonFixed}"
-                        Tag="SoftwarePage" Click="MenuButton_Click"/>
-                    <Button Content="📋 Инвентаризации" Style="{StaticResource MenuButtonFixed}"
-                        Tag="InventoryPage" Click="MenuButton_Click"/>
-                    <Button Content="✓ Элементы инвентаризации" Style="{StaticResource MenuButtonFixed}"
-                        Tag="InventoryItemPage" Click="MenuButton_Click"/>
+                    <Button Content="🔗 Оборудование-ПО" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentSoftwarePage" Click="MenuButton_Click"/>
+                    <Button Content="📝 История оборудования" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentHistoryPage" Click="MenuButton_Click"/>
                     <Button Content="🌐 Сетевые настройки" Style="{StaticResource MenuButtonFixed}"
                         Tag="NetworkSettingPage" Click="MenuButton_Click"/>
+
+                    <!-- Разделитель — admin only ниже -->
+                    <Separator x:Name="AdminSeparator" Margin="8,4" Background="#DDDDDD"/>
+
+                    <!-- Пункты только для администратора -->
+                    <Button x:Name="BtnUsers" Content="👥 Пользователи" Style="{StaticResource MenuButtonFixed}"
+                        Tag="UserPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnClassrooms" Content="🏫 Аудитории" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ClassroomPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnConsumables" Content="🖨️ Расходники" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ConsumablePage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnStatuses" Content="📈 Статусы" Style="{StaticResource MenuButtonFixed}"
+                        Tag="StatusPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnEqTypes" Content="💻 Типы оборудования" Style="{StaticResource MenuButtonFixed}"
+                        Tag="EquipmentTypePage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnModels" Content="🖥️ Модели" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ModelPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnConsumableTypes" Content="📊 Типы расходников" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ConsumableTypePage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnCharacteristics" Content="📝 Характеристики" Style="{StaticResource MenuButtonFixed}"
+                        Tag="ConsumableCharacteristicPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnDevelopers" Content="👨‍💻 Разработчики" Style="{StaticResource MenuButtonFixed}"
+                        Tag="DeveloperPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnDirections" Content="🎯 Направления" Style="{StaticResource MenuButtonFixed}"
+                        Tag="DirectionPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnSoftware" Content="🛠️ ПО" Style="{StaticResource MenuButtonFixed}"
+                        Tag="SoftwarePage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnInventory" Content="📋 Инвентаризации" Style="{StaticResource MenuButtonFixed}"
+                        Tag="InventoryPage" Click="MenuButton_Click"/>
+                    <Button x:Name="BtnInventoryItems" Content="✓ Элементы инвентаризации" Style="{StaticResource MenuButtonFixed}"
+                        Tag="InventoryItemPage" Click="MenuButton_Click"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>

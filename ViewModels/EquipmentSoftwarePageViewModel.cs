@@ -125,11 +125,23 @@ namespace AdminUP.ViewModels
             var equipmentSoftware = await _cacheService.GetOrSetAsync("equipment_software_page_list",
                 async () => await _apiService.GetListAsync<EquipmentSoftware>("EquipmentSoftwareController"));
 
+            // Не-админ видит только ПО своего оборудования
+            bool isAdmin1 = App.AuthService.IsAdmin;
+            var allEq1 = await _apiService.GetListAsync<Equipment>("EquipmentController");
+            var myIds1 = isAdmin1
+                ? null
+                : (allEq1 ?? new())
+                    .Where(e => e.responsible_user_id == App.AuthService.CurrentUserId ||
+                                e.temp_responsible_user_id == App.AuthService.CurrentUserId)
+                    .Select(e => e.id)
+                    .ToHashSet();
+
             EquipmentSoftwareList.Clear();
             if (equipmentSoftware != null)
             {
                 foreach (var item in equipmentSoftware)
                 {
+                    if (!isAdmin1 && !myIds1!.Contains(item.equipment_id)) continue;
                     EquipmentSoftwareList.Add(item);
                 }
             }
@@ -142,11 +154,17 @@ namespace AdminUP.ViewModels
             var equipment = await _cacheService.GetOrSetAsync("equipment_for_software",
                 async () => await _apiService.GetListAsync<Equipment>("EquipmentController"));
 
+            bool isAdmin2 = App.AuthService.IsAdmin;
+            int myId2 = App.AuthService.CurrentUserId;
+
             EquipmentList.Clear();
             if (equipment != null)
             {
                 foreach (var item in equipment)
                 {
+                    if (!isAdmin2 &&
+                        item.responsible_user_id != myId2 &&
+                        item.temp_responsible_user_id != myId2) continue;
                     EquipmentList.Add(item);
                 }
             }

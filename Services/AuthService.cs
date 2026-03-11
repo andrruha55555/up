@@ -13,9 +13,23 @@ namespace AdminUP.Services
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
 
+        /// <summary>Логин текущего пользователя</summary>
         public string CurrentUser { get; private set; }
+
+        /// <summary>Роль текущего пользователя (admin / teacher / staff)</summary>
         public string CurrentRole { get; private set; }
+
+        /// <summary>ID текущего пользователя в БД</summary>
+        public int CurrentUserId { get; private set; }
+
+        /// <summary>Полный объект текущего пользователя</summary>
+        public User CurrentUserObject { get; private set; }
+
+        /// <summary>True — пользователь авторизован</summary>
         public bool IsAuthenticated { get; private set; }
+
+        /// <summary>True — администратор, видит все данные без фильтрации</summary>
+        public bool IsAdmin => CurrentRole == "admin";
 
         public AuthService(string baseUrl = "http://localhost:5152")
         {
@@ -39,21 +53,12 @@ namespace AdminUP.Services
 
                 bool passwordValid = false;
 
-                // 1) bcrypt ($2y$...)
                 if (!string.IsNullOrWhiteSpace(user.password_hash) && user.password_hash.StartsWith("$2"))
-                {
                     passwordValid = BCrypt.Net.BCrypt.Verify(password, user.password_hash);
-                }
-                // 2) fallback: если вдруг хранится в твоём формате v1$...
                 else if (!string.IsNullOrWhiteSpace(user.password_hash) && user.password_hash.StartsWith("v1$"))
-                {
                     passwordValid = AdminUP.Security.BCrypt.Verify(password, user.password_hash);
-                }
                 else
-                {
-                    // временно (если где-то лежит plain text)
                     passwordValid = password == user.password_hash;
-                }
 
                 if (!passwordValid)
                 {
@@ -64,6 +69,8 @@ namespace AdminUP.Services
 
                 CurrentUser = user.login;
                 CurrentRole = user.role;
+                CurrentUserId = user.id;
+                CurrentUserObject = user;
                 IsAuthenticated = true;
                 return true;
             }
@@ -79,6 +86,8 @@ namespace AdminUP.Services
         {
             CurrentUser = null;
             CurrentRole = null;
+            CurrentUserObject = null;
+            CurrentUserId = 0;
             IsAuthenticated = false;
         }
 
@@ -99,6 +108,7 @@ namespace AdminUP.Services
                 return null;
             }
         }
+
         public bool HasPermission(string requiredRole)
         {
             if (!IsAuthenticated) return false;

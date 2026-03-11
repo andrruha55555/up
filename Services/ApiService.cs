@@ -45,6 +45,15 @@ namespace AdminUP.Services
             using var resp = await _http.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
 
             var content = await resp.Content.ReadAsStringAsync();
+
+            // 409 — бизнес-конфликт (дубликат IP, FK и т.д.) — показываем сообщение, не крашим
+            if ((int)resp.StatusCode == 409)
+            {
+                System.Windows.MessageBox.Show(content, "Ошибка сохранения",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return false;
+            }
+
             if (!resp.IsSuccessStatusCode)
                 throw BuildHttpException("POST", url, resp, content);
 
@@ -59,6 +68,15 @@ namespace AdminUP.Services
             using var resp = await _http.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
 
             var content = await resp.Content.ReadAsStringAsync();
+
+            // 409 — бизнес-конфликт — показываем сообщение, не крашим
+            if ((int)resp.StatusCode == 409)
+            {
+                System.Windows.MessageBox.Show(content, "Ошибка сохранения",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return false;
+            }
+
             if (!resp.IsSuccessStatusCode)
                 throw BuildHttpException("PUT", url, resp, content);
 

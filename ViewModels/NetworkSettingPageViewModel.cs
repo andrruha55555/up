@@ -124,8 +124,19 @@ namespace AdminUP.ViewModels
             NetworkSettings.Clear();
             _allRows.Clear();
 
+            // Не-админ видит только настройки оборудования, за которое отвечает
+            bool isAdmin = App.AuthService.IsAdmin;
+            var myEquipmentIds = isAdmin
+                ? null
+                : equipment
+                    .Where(e => e.responsible_user_id == App.AuthService.CurrentUserId ||
+                                e.temp_responsible_user_id == App.AuthService.CurrentUserId)
+                    .Select(e => e.id)
+                    .ToHashSet();
+
             foreach (var s in settings)
             {
+                if (!isAdmin && !myEquipmentIds!.Contains(s.equipment_id)) continue;
                 NetworkSettings.Add(s);
                 _allRows.Add(new NetworkRow(s, eqMap));
             }
@@ -230,23 +241,49 @@ namespace AdminUP.ViewModels
 
         public async Task AddNetworkSettingAsync(NetworkSetting item)
         {
-            await _apiService.AddItemAsync("NetworkSettingsController", item);
-            _cacheService.Remove("network_settings");
-            await LoadDataAsync();
+            try
+            {
+                var ok = await _apiService.AddItemAsync("NetworkSettingsController", item);
+                if (!ok) return; // 409 уже показан в ApiService
+                _cacheService.Remove("network_settings");
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка добавления: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public async Task UpdateNetworkSettingAsync(int id, NetworkSetting item)
         {
-            await _apiService.UpdateItemAsync("NetworkSettingsController", id, item);
-            _cacheService.Remove("network_settings");
-            await LoadDataAsync();
+            try
+            {
+                var ok = await _apiService.UpdateItemAsync("NetworkSettingsController", id, item);
+                if (!ok) return; // 409 уже показан в ApiService
+                _cacheService.Remove("network_settings");
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка обновления: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public async Task DeleteNetworkSettingAsync(int id)
         {
-            await _apiService.DeleteItemAsync("NetworkSettingsController", id);
-            _cacheService.Remove("network_settings");
-            await LoadDataAsync();
+            try
+            {
+                await _apiService.DeleteItemAsync("NetworkSettingsController", id);
+                _cacheService.Remove("network_settings");
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
