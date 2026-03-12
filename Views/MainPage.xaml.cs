@@ -145,7 +145,18 @@ namespace AdminUP.Views
             {
                 if (pageName == "ExportReport")
                 {
-                    _ = new ExportService(App.ApiService).ExportEquipmentReportAsync();
+                    _ = new AdminUP.Services.ExportService(App.ApiService).ExportEquipmentReportAsync();
+                    return;
+                }
+                if (pageName == "GenerateAct")
+                {
+                    var actWin = new AdminUP.Views.ActGeneratorWindow(App.ApiService) { Owner = this };
+                    actWin.ShowDialog();
+                    return;
+                }
+                if (pageName == "StaffReport")
+                {
+                    _ = App.StaffReportService.GenerateAsync();
                     return;
                 }
                 NavigateToPage(pageName);

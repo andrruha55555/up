@@ -1,0 +1,171 @@
+﻿<Window x:Class="AdminUP.Views.ActGeneratorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Генерация акта приёма-передачи"
+        Width="480" SizeToContent="Height"
+        MaxHeight="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F4F7FC">
+
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="Foreground" Value="#222"/>
+            <Setter Property="Margin"     Value="0,10,0,2"/>
+            <Setter Property="Padding"    Value="0"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height"   Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding"  Value="6,4"/>
+            <Setter Property="BorderBrush" Value="#B8CCE4"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Height"   Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding"  Value="6,4"/>
+            <Setter Property="BorderBrush" Value="#B8CCE4"/>
+        </Style>
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Height"     Value="36"/>
+            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor"     Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Шапка ── -->
+        <Border Grid.Row="0" Background="#0060AC">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0">
+                <TextBlock Text="📄" FontSize="22" Foreground="White"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Генерация акта приёма-передачи"
+                               FontFamily="Segoe UI" FontSize="14"
+                               FontWeight="Bold" Foreground="White"/>
+                    <TextBlock x:Name="SubtitleText"
+                               Text="Заполните поля и нажмите «Сформировать»"
+                               FontFamily="Segoe UI" FontSize="11"
+                               Foreground="#AACCFF"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Форма ── -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20,8,20,12">
+
+                <!-- Тип акта -->
+                <Label Content="Тип акта:"/>
+                <ComboBox x:Name="ActTypeCombo" SelectionChanged="ActTypeCombo_SelectionChanged">
+                    <ComboBoxItem Tag="1" IsSelected="True">
+                        Приложение 1 — передача оборудования на временное пользование
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="2">
+                        Приложение 2 — передача расходных материалов
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="3">
+                        Приложение 3 — передача оборудования
+                    </ComboBoxItem>
+                </ComboBox>
+
+                <!-- Дата -->
+                <Label Content="Дата акта:"/>
+                <TextBox x:Name="DateBox"/>
+
+                <!-- Сотрудник -->
+                <Label Content="Сотрудник (получатель):"/>
+                <ComboBox x:Name="EmployeeCombo" IsEditable="True"
+                          IsTextSearchEnabled="True"
+                          TextSearch.TextPath="FullName"
+                          DisplayMemberPath="FullName"/>
+
+                <Separator Margin="0,14,0,0" Background="#D0D8E8"/>
+
+                <!-- ── Панель оборудования (Акт 1 и 3) ── -->
+                <StackPanel x:Name="EquipmentPanel">
+                    <Label Content="Оборудование:" FontWeight="SemiBold" Foreground="#0060AC"/>
+                    <ComboBox x:Name="EquipmentCombo"
+                              IsEditable="True" IsTextSearchEnabled="True"
+                              TextSearch.TextPath="DisplayName"
+                              DisplayMemberPath="DisplayName"
+                              SelectionChanged="EquipmentCombo_SelectionChanged"/>
+
+                    <Label Content="Серийный номер (если есть):"/>
+                    <TextBox x:Name="SerialBox"/>
+
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <Label Content="Инвентарный номер:"/>
+                            <TextBox x:Name="InvNumBox"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <Label Content="Стоимость (руб.):"/>
+                            <TextBox x:Name="CostBox"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
+                <!-- ── Панель расходников (Акт 2) ── -->
+                <StackPanel x:Name="ConsumablePanel" Visibility="Collapsed">
+                    <Label Content="Расходный материал:" FontWeight="SemiBold" Foreground="#0060AC"/>
+                    <ComboBox x:Name="ConsumableCombo"
+                              IsEditable="True" IsTextSearchEnabled="True"
+                              TextSearch.TextPath="DisplayName"
+                              DisplayMemberPath="DisplayName"
+                              SelectionChanged="ConsumableCombo_SelectionChanged"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <Label Content="Количество (шт.):"/>
+                            <TextBox x:Name="QtyBox"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <Label Content="Стоимость (руб.):"/>
+                            <TextBox x:Name="ConsCostBox"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ── Кнопки ── -->
+        <Border Grid.Row="2" Background="#EEF4FF"
+                BorderBrush="#C8D8EE" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center" Margin="0,0,20,0">
+                <Button Content="Отмена" Width="90" Margin="0,0,10,0"
+                        Style="{StaticResource ActionBtn}"
+                        Background="#E0E6F0" Foreground="#333"
+                        Click="CancelButton_Click"/>
+                <Button x:Name="GenerateBtn"
+                        Content="📄 Сформировать акт" Width="185"
+                        Style="{StaticResource ActionBtn}"
+                        Background="#0060AC" Foreground="White"
+                        Click="GenerateButton_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

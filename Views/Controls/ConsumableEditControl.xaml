@@ -37,6 +37,23 @@
                       SelectedValuePath="id"
                       SelectedValue="{Binding ConsumableTypeId}"
                       Margin="5"/>
+            <!-- Фотография расходника -->
+            <Grid Margin="5,0,5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" MinWidth="110"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Фотография:" VerticalAlignment="Center" Margin="5"/>
+                <TextBox Grid.Column="1" x:Name="ConsImagePathBox"
+                     IsReadOnly="True" Background="#F0F4FA" Margin="5"
+                     Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Column="2" Content="📷" Width="34" Margin="0,5,5,5"
+                    ToolTip="Выбрать фото (jpg, png, gif, bmp)"
+                    Click="PickPhotoButton_Click"
+                    Background="#0060AC" Foreground="White"
+                    BorderThickness="0" FontSize="14"/>
+            </Grid>
         </Grid>
 
         <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}">

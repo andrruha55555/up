@@ -101,6 +101,12 @@ namespace AdminUP.Views.Controls
             }
         }
 
+        public string ImagePath
+        {
+            get => _consumable?.image_path ?? "";
+            set { if (_consumable != null) { _consumable.image_path = value; OnPropertyChanged(); } }
+        }
+
         public int ConsumableTypeId
         {
             get => _consumable?.consumable_type_id ?? 0;
@@ -130,6 +136,15 @@ namespace AdminUP.Views.Controls
                 AddValidationError("Выберите тип расходника");
 
             return !HasErrors;
+        }
+        private void PickPhotoButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var path = App.PhotoService.PickAndSave("cons");
+            if (path != null)
+            {
+                ConsImagePathBox.Text = path;
+                ImagePath = path;
+            }
         }
     }
 }

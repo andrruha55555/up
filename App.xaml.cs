@@ -10,6 +10,8 @@ namespace AdminUP
         public static AuthService AuthService { get; private set; }
         public static CacheService CacheService { get; private set; }
         public static ExportService ExportService { get; private set; }
+        public static PhotoService PhotoService { get; private set; }
+        public static StaffReportService StaffReportService { get; private set; }
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -20,6 +22,8 @@ namespace AdminUP
             AuthService = new AuthService();
             CacheService = new CacheService();
             ExportService = new ExportService(ApiService);
+            PhotoService = new PhotoService();
+            StaffReportService = new StaffReportService(ApiService);
 
             var loginWindow = new LoginWindow();
             var ok = loginWindow.ShowDialog() == true;

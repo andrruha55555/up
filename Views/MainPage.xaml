@@ -78,6 +78,20 @@
                                 FontWeight="Bold"
                                 Tag="ExportReport"
                                 Click="MenuButton_Click"/>
+                        <Button Content="📄 Генерация актов"
+                            Style="{StaticResource MenuButtonFixed}"
+                            Background="#6B4E9F"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Tag="GenerateAct"
+                            Click="MenuButton_Click"/>
+                        <Button Content="👥 Отчёт по сотрудникам"
+                            Style="{StaticResource MenuButtonFixed}"
+                            Background="#2B5A2B"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Tag="StaffReport"
+                            Click="MenuButton_Click"/>
                     </Border>
                     <Separator Margin="0,4" Background="#DDDDDD"/>
                     <!-- Кнопки видны всем ролям -->

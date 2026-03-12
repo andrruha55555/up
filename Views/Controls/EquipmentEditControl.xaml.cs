@@ -1,4 +1,5 @@
 ﻿using AdminUP.Models;
+using AdminUP.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -201,6 +202,17 @@ namespace AdminUP.Views.Controls
                     _equipment.cost = d;
                     RaisePropertyChanged();
                 }
+            }
+        }
+        private void PickPhotoButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var path = App.PhotoService.PickAndSave("eq");
+            if (path != null)
+            {
+                ImagePathBox.Text = path;
+                // Обновляем через биндинг вручную
+                if (DataContext is ViewModels.EquipmentViewModel vm)
+                    vm.ImagePath = path;
             }
         }
     }
