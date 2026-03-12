@@ -32,13 +32,14 @@
                   IsReadOnly="True"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
+                  CanUserSortColumns="True"
                   MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Сокращение" Binding="{Binding ShortName}" Width="120"/>
-                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUser}" Width="200"/>
-                <DataGridTextColumn Header="Врем. ответственный" Binding="{Binding TempResponsibleUser}" Width="200"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" SortMemberPath="Id"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" SortMemberPath="Name"/>
+                <DataGridTextColumn Header="Сокращение" Binding="{Binding ShortName}" Width="120" SortMemberPath="ShortName"/>
+                <DataGridTextColumn Header="Ответственный" Binding="{Binding ResponsibleUser}" Width="200" SortMemberPath="ResponsibleUser"/>
+                <DataGridTextColumn Header="Врем. ответственный" Binding="{Binding TempResponsibleUser}" Width="200" SortMemberPath="TempResponsibleUser"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
