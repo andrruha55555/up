@@ -2,7 +2,6 @@
 using AdminUP.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -17,11 +16,10 @@ namespace AdminUP.Views.Controls
         private readonly ApiService _apiService;
 
         public ObservableCollection<ConsumableType> AvailableConsumableTypes { get; private set; } = new();
-
         public ObservableCollection<string> ValidationErrors { get; } = new();
         public bool HasErrors => ValidationErrors.Count > 0;
 
-        public ConsumableEditControl(Consumable consumable = null)
+        public ConsumableEditControl(Consumable? consumable = null)
         {
             InitializeComponent();
 
@@ -88,7 +86,7 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        public string ConsumableName
+        public string? ConsumableName
         {
             get => _consumable?.name;
             set
@@ -104,7 +102,16 @@ namespace AdminUP.Views.Controls
         public string ImagePath
         {
             get => _consumable?.image_path ?? "";
-            set { if (_consumable != null) { _consumable.image_path = value; OnPropertyChanged(); } }
+            set
+            {
+                if (_consumable != null)
+                {
+                    _consumable.image_path = value;
+                    // ✅ CS7036: было OnPropertyChanged() — конфликт с FrameworkElement.OnPropertyChanged(DependencyPropertyChangedEventArgs)
+                    // Заменено на RaisePropertyChanged() — наш собственный метод
+                    RaisePropertyChanged();
+                }
+            }
         }
 
         public int ConsumableTypeId
@@ -137,6 +144,7 @@ namespace AdminUP.Views.Controls
 
             return !HasErrors;
         }
+
         private void PickPhotoButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var path = App.PhotoService.PickAndSave("cons");

@@ -16,13 +16,18 @@ namespace AdminUP.ViewModels
         private readonly ApiService _apiService;
         private readonly CacheService _cacheService;
 
-        private ObservableCollection<Classroom> _classroomList;
-        private ClassroomRow _selectedClassroom;
-        private bool _isLoading;
-        private string _searchText;
-        private Dictionary<int, string> _userNames = new();
+        // ✅ CS8618: поля допускают null (nullable)
+        private ObservableCollection<Classroom>? _classroomList;
+        private ClassroomRow? _selectedClassroom;
+        private string? _searchText;
 
-        public ObservableCollection<Classroom> ClassroomList
+        // ✅ IDE0044: поле только для чтения
+        private readonly List<ClassroomRow> _allRows = [];
+
+        // ✅ IDE0028: упрощённая инициализация словаря
+        private Dictionary<int, string> _userNames = [];
+
+        public ObservableCollection<Classroom>? ClassroomList
         {
             get => _classroomList;
             set
@@ -32,7 +37,7 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public ClassroomRow SelectedClassroom
+        public ClassroomRow? SelectedClassroom
         {
             get => _selectedClassroom;
             set
@@ -52,8 +57,9 @@ namespace AdminUP.ViewModels
                 OnPropertyChanged();
             }
         }
+        private bool _isLoading;
 
-        public string SearchText
+        public string? SearchText
         {
             get => _searchText;
             set
@@ -66,16 +72,16 @@ namespace AdminUP.ViewModels
 
         public bool IsClassroomSelected => SelectedClassroom != null;
 
-        public ObservableCollection<ClassroomRow> FilteredClassroomList { get; set; }
-        private List<ClassroomRow> _allRows = new();
+        // ✅ IDE0028: упрощённая инициализация коллекций
+        public ObservableCollection<ClassroomRow> FilteredClassroomList { get; set; } = [];
 
         public ClassroomPageViewModel(ApiService apiService, CacheService cacheService)
         {
             _apiService = apiService;
             _cacheService = cacheService;
 
-            ClassroomList = new ObservableCollection<Classroom>();
-            FilteredClassroomList = new ObservableCollection<ClassroomRow>();
+            // ✅ IDE0028: упрощённая инициализация
+            ClassroomList = [];
         }
 
         public async Task LoadClassroomsAsync()
@@ -89,11 +95,11 @@ namespace AdminUP.ViewModels
 
                 await Task.WhenAll(usersTask, classroomsTask);
 
-                _userNames = (usersTask.Result ?? new())
+                _userNames = (usersTask.Result ?? [])
                     .ToDictionary(u => u.id, u => u.FullName);
 
                 var classrooms = classroomsTask.Result;
-                ClassroomList.Clear();
+                ClassroomList!.Clear();
                 _allRows.Clear();
 
                 if (classrooms != null)
@@ -126,11 +132,11 @@ namespace AdminUP.ViewModels
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
-                var s = SearchText.ToLower();
+                // ✅ CA1862: используем StringComparison вместо ToLower()
                 source = source.Where(r =>
-                    (r.Classroom.name?.ToLower().Contains(s) ?? false) ||
-                    (r.Classroom.short_name?.ToLower().Contains(s) ?? false) ||
-                    (r.ResponsibleUser?.ToLower().Contains(s) ?? false));
+                    (r.Classroom.name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Classroom.short_name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.ResponsibleUser?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false));
             }
 
             foreach (var row in source)
@@ -205,27 +211,21 @@ namespace AdminUP.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
-    public class ClassroomRow
+    public class ClassroomRow(Classroom c, Dictionary<int, string> users)
     {
-        public Classroom Classroom { get; }
+        public Classroom Classroom { get; } = c;
         public int Id => Classroom.id;
-        public string Name => Classroom.name;
-        public string ShortName => Classroom.short_name;
-        public string ResponsibleUser { get; }
-        public string TempResponsibleUser { get; }
-
-        public ClassroomRow(Classroom c, Dictionary<int, string> users)
-        {
-            Classroom = c;
-            ResponsibleUser = c.responsible_user_id.HasValue && users.TryGetValue(c.responsible_user_id.Value, out var u) ? u : "—";
-            TempResponsibleUser = c.temp_responsible_user_id.HasValue && users.TryGetValue(c.temp_responsible_user_id.Value, out var t) ? t : "—";
-        }
+        public string? Name => Classroom.name;
+        public string? ShortName => Classroom.short_name;
+        public string ResponsibleUser { get; } = c.responsible_user_id.HasValue && users.TryGetValue(c.responsible_user_id.Value, out var u) ? u : "—";
+        public string TempResponsibleUser { get; } = c.temp_responsible_user_id.HasValue && users.TryGetValue(c.temp_responsible_user_id.Value, out var t) ? t : "—";
     }
 }

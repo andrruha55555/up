@@ -24,7 +24,7 @@ namespace AdminUP.Views.Controls
         public ObservableCollection<Status> AvailableStatuses { get; } = new();
         public ObservableCollection<ModelEntity> AvailableModels { get; } = new();
 
-        public EquipmentEditControl(Equipment equipment = null)
+        public EquipmentEditControl(Equipment? equipment = null)
         {
             InitializeComponent();
 
@@ -38,7 +38,6 @@ namespace AdminUP.Views.Controls
         private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        // под EditDialog
         public bool Validate()
         {
             if (string.IsNullOrWhiteSpace(_equipment.name))
@@ -68,7 +67,6 @@ namespace AdminUP.Views.Controls
         public object GetEditedItem() => _equipment;
         public Equipment GetEquipment() => _equipment;
 
-        // если в XAML есть Loaded="UserControl_Loaded" — оставь
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (_loaded) return;
@@ -129,7 +127,7 @@ namespace AdminUP.Views.Controls
             }
         }
 
-        // ===== свойства под XAML =====
+        // ===== Свойства под XAML =====
 
         public string EquipmentName
         {
@@ -204,15 +202,14 @@ namespace AdminUP.Views.Controls
                 }
             }
         }
+
         private void PickPhotoButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var path = App.PhotoService.PickAndSave("eq");
             if (path != null)
             {
                 ImagePathBox.Text = path;
-                // Обновляем через биндинг вручную
-                if (DataContext is ViewModels.EquipmentViewModel vm)
-                    vm.ImagePath = path;
+                ImagePath = path;
             }
         }
     }

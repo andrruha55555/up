@@ -70,28 +70,31 @@
               HorizontalScrollBarVisibility="Disabled"
               CanContentScroll="True">
                 <StackPanel>
+                    <!-- ✅ ИСПРАВЛЕНО: три кнопки обёрнуты в StackPanel внутри Border -->
                     <Border Background="#0060AC" Padding="10,8">
-                        <Button Content="📊 Отчёт по оборудованию"
+                        <StackPanel>
+                            <Button Content="📊 Отчёт по оборудованию"
+                                    Style="{StaticResource MenuButtonFixed}"
+                                    Background="#1D6F42"
+                                    Foreground="White"
+                                    FontWeight="Bold"
+                                    Tag="ExportReport"
+                                    Click="MenuButton_Click"/>
+                            <Button Content="📄 Генерация актов"
                                 Style="{StaticResource MenuButtonFixed}"
-                                Background="#1D6F42"
+                                Background="#6B4E9F"
                                 Foreground="White"
                                 FontWeight="Bold"
-                                Tag="ExportReport"
+                                Tag="GenerateAct"
                                 Click="MenuButton_Click"/>
-                        <Button Content="📄 Генерация актов"
-                            Style="{StaticResource MenuButtonFixed}"
-                            Background="#6B4E9F"
-                            Foreground="White"
-                            FontWeight="Bold"
-                            Tag="GenerateAct"
-                            Click="MenuButton_Click"/>
-                        <Button Content="👥 Отчёт по сотрудникам"
-                            Style="{StaticResource MenuButtonFixed}"
-                            Background="#2B5A2B"
-                            Foreground="White"
-                            FontWeight="Bold"
-                            Tag="StaffReport"
-                            Click="MenuButton_Click"/>
+                            <Button Content="👥 Отчёт по сотрудникам"
+                                Style="{StaticResource MenuButtonFixed}"
+                                Background="#2B5A2B"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Tag="StaffReport"
+                                Click="MenuButton_Click"/>
+                        </StackPanel>
                     </Border>
                     <Separator Margin="0,4" Background="#DDDDDD"/>
                     <!-- Кнопки видны всем ролям -->
@@ -162,5 +165,4 @@
             </DockPanel>
         </Border>
     </Grid>
-
 </Window>
