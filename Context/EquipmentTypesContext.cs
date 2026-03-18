@@ -15,6 +15,7 @@ namespace ApiUp.Context
             {
                 entity.ToTable("equipment_types");
                 entity.HasKey(e => e.id);
+                entity.Property(e => e.id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.id).HasColumnName("id");
                 entity.Property(e => e.name).HasColumnName("name").IsRequired().HasMaxLength(50);

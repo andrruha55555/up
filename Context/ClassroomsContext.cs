@@ -14,6 +14,7 @@ namespace ApiUp.Context
             {
                 entity.ToTable("classrooms");
                 entity.HasKey(e => e.id);
+                entity.Property(e => e.id).ValueGeneratedOnAdd();
                 entity.Property(e => e.name).HasColumnName("name").IsRequired().HasMaxLength(100);
                 entity.Property(e => e.short_name).HasColumnName("short_name").HasMaxLength(20);
                 entity.Property(e => e.responsible_user_id).HasColumnName("responsible_user_id");

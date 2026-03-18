@@ -14,6 +14,7 @@ namespace ApiUp.Context
             {
                 entity.ToTable("users");
                 entity.HasKey(e => e.id);
+                entity.Property(e => e.id).ValueGeneratedOnAdd();
                 entity.Property(e => e.login).HasColumnName("login").IsRequired().HasMaxLength(50);
                 entity.Property(e => e.password_hash).HasColumnName("password_hash").IsRequired().HasMaxLength(255);
                 entity.Property(e => e.role).HasColumnName("role").IsRequired();
