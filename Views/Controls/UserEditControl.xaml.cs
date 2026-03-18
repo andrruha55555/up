@@ -13,10 +13,8 @@ namespace AdminUP.Views.Controls
         {
             InitializeComponent();
             _user = user ?? new User();
-
             if (string.IsNullOrWhiteSpace(_user.role))
                 _user.role = "staff";
-
             DataContext = _user;
         }
 
@@ -25,22 +23,23 @@ namespace AdminUP.Views.Controls
 
         public bool Validate()
         {
-            if (string.IsNullOrWhiteSpace(_user.login) ||
-                string.IsNullOrWhiteSpace(_user.last_name) ||
-                string.IsNullOrWhiteSpace(_user.first_name) ||
-                string.IsNullOrWhiteSpace(_user.email) ||
-                string.IsNullOrWhiteSpace(_user.role))
+            if (string.IsNullOrWhiteSpace(_user.login))
             {
-                MessageBox.Show("Заполните все обязательные поля!", "Ошибка",
+                MessageBox.Show("Введите логин.", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
-
+            if (string.IsNullOrWhiteSpace(_user.last_name))
+            {
+                MessageBox.Show("Введите фамилию.", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
             if (_user.id == 0)
             {
                 if (string.IsNullOrWhiteSpace(PasswordBox.Password))
                 {
-                    MessageBox.Show("Для нового пользователя пароль обязателен!", "Ошибка",
+                    MessageBox.Show("Введите пароль.", "Ошибка",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
@@ -51,7 +50,6 @@ namespace AdminUP.Views.Controls
                 if (!string.IsNullOrWhiteSpace(PasswordBox.Password))
                     _user.password_hash = PasswordHasher.Hash(PasswordBox.Password);
             }
-
             return true;
         }
     }

@@ -63,7 +63,7 @@
                          Text="{Binding last_name, UpdateSourceTrigger=PropertyChanged}"
                          Margin="5"/>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="Имя:*" Margin="5"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Имя:" Margin="5"/>
                 <TextBox Grid.Row="4" Grid.Column="1"
                          Text="{Binding first_name, UpdateSourceTrigger=PropertyChanged}"
                          Margin="5"/>
@@ -73,7 +73,7 @@
                          Text="{Binding middle_name, UpdateSourceTrigger=PropertyChanged}"
                          Margin="5"/>
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="Email:*" Margin="5"/>
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Email:" Margin="5"/>
                 <TextBox Grid.Row="6" Grid.Column="1"
                          Text="{Binding email, UpdateSourceTrigger=PropertyChanged}"
                          Margin="5"/>

@@ -23,7 +23,9 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#0D47A1"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#0D47A1"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -35,12 +37,19 @@
         <Style x:Key="DangerBtnS" TargetType="Button" BasedOn="{StaticResource ToolBtn}">
             <Setter Property="Background" Value="#C62828"/>
         </Style>
+        <Style x:Key="GreenBtnS" TargetType="Button" BasedOn="{StaticResource ToolBtn}">
+            <Setter Property="Background" Value="#2E7D32"/>
+        </Style>
     </Page.Resources>
+
     <Grid Background="#F4F6FA">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
+        <!-- Тулбар -->
         <Border Grid.Row="0" Background="White" BorderBrush="#E0E4EA" BorderThickness="0,0,0,1" Padding="16,10">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -49,13 +58,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Button x:Name="AddBtn"    Content="+ Добавить" Style="{StaticResource ToolBtn}"/>
+                    <Button x:Name="AddBtn"    Content="+ Добавить"  Style="{StaticResource ToolBtn}"/>
                     <Button x:Name="EditBtn"   Content="✎ Изменить" Style="{StaticResource EditBtnS}"/>
                     <Button x:Name="DeleteBtn" Content="✕ Удалить"  Style="{StaticResource DangerBtnS}"/>
                     <Rectangle Width="1" Fill="#E0E4EA" Margin="4,4,12,4"/>
                     <TextBlock Text="Инвентаризация:" VerticalAlignment="Center"
                                Foreground="#546E7A" FontWeight="SemiBold" FontSize="13" Margin="0,0,8,0"/>
-                    <ComboBox x:Name="InventoryComboBox" Width="220" Height="34"
+                    <ComboBox x:Name="InventoryComboBox" Width="240" Height="34"
                               DisplayMemberPath="name" SelectedValuePath="id"
                               VerticalContentAlignment="Center" BorderBrush="#CFD4DC" Padding="8,0"/>
                 </StackPanel>
@@ -65,7 +74,7 @@
                         <TextBox x:Name="SearchTextBox" Width="240" BorderThickness="0" Background="Transparent"
                                  VerticalContentAlignment="Center" Height="30" FontSize="13"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Button x:Name="SearchBtn" Content="Поиск" Height="26" Width="56"
+                        <Button x:Name="SearchBtn" Content="Поиск" Height="26" Width="60"
                                 Style="{StaticResource ToolBtn}" Margin="4,0,4,0" FontSize="12"/>
                         <Button x:Name="ClearBtn" Content="✕" Width="22" Height="22"
                                 Background="Transparent" BorderThickness="0"
@@ -74,7 +83,23 @@
                 </Border>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Margin="16" Background="White" CornerRadius="8" BorderBrush="#E0E4EA" BorderThickness="1">
+
+        <!-- Статистика по выбранной инвентаризации -->
+        <Border Grid.Row="1" Background="#EEF4FF" BorderBrush="#1565C0" BorderThickness="0,0,0,1"
+                Padding="16,8"
+                Visibility="{Binding HasSelectedInventory, Converter={StaticResource BoolToVis}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Итого позиций: " FontWeight="SemiBold" Foreground="#1565C0" FontSize="13"/>
+                <TextBlock Text="{Binding TotalCount}" FontWeight="Bold" Foreground="#1565C0" FontSize="13" Margin="0,0,20,0"/>
+                <TextBlock Text="✅ Проверено: " FontWeight="SemiBold" Foreground="#2E7D32" FontSize="13"/>
+                <TextBlock Text="{Binding CheckedCount}" FontWeight="Bold" Foreground="#2E7D32" FontSize="13" Margin="0,0,20,0"/>
+                <TextBlock Text="⏳ Не проверено: " FontWeight="SemiBold" Foreground="#E65100" FontSize="13"/>
+                <TextBlock Text="{Binding UncheckedCount}" FontWeight="Bold" Foreground="#E65100" FontSize="13"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Таблица -->
+        <Border Grid.Row="2" Margin="16" Background="White" CornerRadius="8" BorderBrush="#E0E4EA" BorderThickness="1">
             <Border.Effect>
                 <DropShadowEffect Color="#000000" Opacity="0.06" BlurRadius="10" ShadowDepth="2"/>
             </Border.Effect>
@@ -84,7 +109,8 @@
                       AutoGenerateColumns="False" IsReadOnly="True"
                       SelectionMode="Single" SelectionUnit="FullRow"
                       CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False"
-                      RowHeight="44" BorderThickness="0"
+                      CanUserSortColumns="True"
+                      RowHeight="46" BorderThickness="0"
                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F0F2F5"
                       Background="White" AlternatingRowBackground="#FAFBFF">
                 <DataGrid.ColumnHeaderStyle>
@@ -103,8 +129,12 @@
                     <Style TargetType="DataGridRow">
                         <Setter Property="BorderThickness" Value="0"/>
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#EEF4FF"/></Trigger>
-                            <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#DBEAFE"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#EEF4FF"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#DBEAFE"/>
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.RowStyle>
@@ -123,48 +153,84 @@
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#1A237E"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="#1A237E"/>
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding id}" Width="55">
+                    <!-- Статус проверки -->
+                    <DataGridTemplateColumn Header="Статус" Width="110" SortMemberPath="IsChecked">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#FFF3E0"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                    <Setter Property="Background" Value="#E8F5E9"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock FontSize="12" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="⏳ Не проверено"/>
+                                                <Setter Property="Foreground" Value="#E65100"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                        <Setter Property="Text" Value="✅ Проверено"/>
+                                                        <Setter Property="Foreground" Value="#2E7D32"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Оборудование -->
+                    <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="220" SortMemberPath="EquipmentName">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Foreground" Value="#212121"/>
                                 <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="Foreground" Value="#9E9E9E"/>
-                                <Setter Property="FontFamily" Value="Consolas"/>
-                                <Setter Property="FontSize" Value="12"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Инвентаризация ID" Binding="{Binding inventory_id}" Width="150">
+
+                    <!-- Инв. номер -->
+                    <DataGridTextColumn Header="Инв. номер" Binding="{Binding InventoryNumber}" Width="120" SortMemberPath="InventoryNumber">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="Foreground" Value="#9E9E9E"/>
-                                <Setter Property="FontFamily" Value="Consolas"/>
-                                <Setter Property="FontSize" Value="12"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Оборудование ID" Binding="{Binding equipment_id}" Width="150">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center"/>
                                 <Setter Property="Foreground" Value="#546E7A"/>
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                                <Setter Property="FontSize" Value="12"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Проверил (ID)" Binding="{Binding checked_by_user_id}" Width="130">
+
+                    <!-- Кто проверил -->
+                    <DataGridTextColumn Header="Проверил" Binding="{Binding CheckedByUserName}" Width="170" SortMemberPath="CheckedByUserName">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                 <Setter Property="Foreground" Value="#37474F"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Дата проверки" Binding="{Binding checked_at, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="150">
+
+                    <!-- Дата проверки -->
+                    <DataGridTextColumn Header="Дата проверки" Binding="{Binding CheckedAtStr}" Width="140" SortMemberPath="CheckedAtStr">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -174,7 +240,9 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Примечание" Binding="{Binding comment}" Width="*">
+
+                    <!-- Комментарий -->
+                    <DataGridTextColumn Header="Комментарий" Binding="{Binding Comment}" Width="*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>

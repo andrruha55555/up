@@ -40,37 +40,42 @@ namespace AdminUP.Views.Controls
 
         public bool Validate()
         {
+            // Название
             if (string.IsNullOrWhiteSpace(_equipment.name))
             {
-                MessageBox.Show("Название обязательно для заполнения", "Ошибка",
+                MessageBox.Show("Введите название оборудования.", "Валидация",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
+            // Инвентарный номер
             if (string.IsNullOrWhiteSpace(_equipment.inventory_number))
             {
-                MessageBox.Show("Инвентарный номер обязателен для заполнения", "Ошибка",
+                MessageBox.Show("Введите инвентарный номер.", "Валидация",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
-            var invNum = _equipment.inventory_number?.Trim() ?? "";
+            var invNum = (_equipment.inventory_number ?? "").Trim();
+            if (!System.Text.RegularExpressions.Regex.IsMatch(invNum, @"^\d+$"))
+            {
+                MessageBox.Show("Инвентарный номер должен содержать только цифры.", "Валидация",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
             if (invNum.Length > 50)
             {
                 MessageBox.Show("Инвентарный номер не может быть длиннее 50 символов.", "Валидация",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
+            // Статус
             if (_equipment.status_id == 0)
             {
-                MessageBox.Show("Статус обязателен для выбора", "Ошибка",
+                MessageBox.Show("Выберите статус оборудования.", "Валидация",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
             return true;
         }
-
         public object GetEditedItem() => _equipment;
         public Equipment GetEquipment() => _equipment;
 

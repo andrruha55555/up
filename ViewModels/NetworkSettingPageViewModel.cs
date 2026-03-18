@@ -67,7 +67,12 @@ namespace AdminUP.ViewModels
 
         private NetworkSetting? _selectedNetworkSetting;
         /// <summary>Выбранная настройка в DataGrid</summary>
-        public NetworkRow? SelectedRow { get; set; }
+        private NetworkRow? _selectedRow;
+        public NetworkRow? SelectedRow
+        {
+            get => _selectedRow;
+            set { _selectedRow = value; SelectedNetworkSetting = value?.Setting; OnPropertyChanged(); }
+        }
         public NetworkSetting? SelectedNetworkSetting
         {
             get => _selectedNetworkSetting;

@@ -90,6 +90,12 @@ namespace AdminUP.Services
             using var resp = await _http.DeleteAsync(url);
 
             var content = await resp.Content.ReadAsStringAsync();
+            if ((int)resp.StatusCode == 409)
+            {
+                System.Windows.MessageBox.Show(content, "Удаление невозможно",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return false;
+            }
             if (!resp.IsSuccessStatusCode)
                 throw BuildHttpException("DELETE", url, resp, content);
 
