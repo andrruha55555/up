@@ -1,4 +1,5 @@
 ﻿using ApiUp.Context;
+using Microsoft.EntityFrameworkCore;
 using ApiUp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,9 @@ namespace ApiUp.Controllers
     public class ConsumableTypesController : Controller
     {
         private readonly ConsumableTypesContext _context;
-        public ConsumableTypesController(ConsumableTypesContext context) { _context = context; }
+        private readonly ConsumablesContext _consumablesContext;
+        public ConsumableTypesController(ConsumableTypesContext context, ConsumablesContext consumablesContext)
+        { _context = context; _consumablesContext = consumablesContext; }
 
         [Route("List")]
         [HttpGet]
@@ -73,6 +76,9 @@ namespace ApiUp.Controllers
         [ApiExplorerSettings(GroupName = "v4")]
         public async Task<ActionResult> Delete(int id)
         {
+            var hasConsumables = await _consumablesContext.Consumables.AnyAsync(c => c.consumable_type_id == id);
+            if (hasConsumables) return StatusCode(409, "Невозможно удалить тип расходника: есть расходники этого типа.");
+
             try
             {
                 var item = await _context.ConsumableTypes.Where(x => x.id == id).FirstOrDefaultAsync();
@@ -82,6 +88,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Тип расходника удален" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { Console.WriteLine($"Error in ConsumableTypes Delete: {exp.Message}"); return StatusCode(500, "Internal server error"); }
         }
     }

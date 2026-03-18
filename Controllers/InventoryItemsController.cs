@@ -43,6 +43,7 @@ namespace ApiUp.Controllers
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
+                if (!item.checked_at.HasValue) item.checked_at = DateTime.UtcNow;
                 _context.InventoryItems.Add(item);
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Позиция инвентаризации создана", id = item.id });
@@ -87,6 +88,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Позиция инвентаризации удалена" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { Console.WriteLine($"Error in InventoryItems Delete: {exp.Message}"); return StatusCode(500, "Internal server error"); }
         }
     }

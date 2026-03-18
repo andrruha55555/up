@@ -1,4 +1,5 @@
 ﻿using ApiUp.Context;
+using Microsoft.EntityFrameworkCore;
 using ApiUp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,9 @@ namespace ApiUp.Controllers
     public class InventoriesController : Controller
     {
         private readonly InventoriesContext _context;
-        public InventoriesController(InventoriesContext context) { _context = context; }
+        private readonly InventoryItemsContext _itemsContext;
+        public InventoriesController(InventoriesContext context, InventoryItemsContext itemsContext)
+        { _context = context; _itemsContext = itemsContext; }
 
         [Route("List")]
         [HttpGet]
@@ -76,6 +79,9 @@ namespace ApiUp.Controllers
         [ApiExplorerSettings(GroupName = "v4")]
         public async Task<ActionResult> Delete(int id)
         {
+            var hasItems = await _itemsContext.InventoryItems.AnyAsync(i => i.inventory_id == id);
+            if (hasItems) return StatusCode(409, "Невозможно удалить инвентаризацию: в ней есть позиции.");
+
             try
             {
                 var item = await _context.Inventories.Where(x => x.id == id).FirstOrDefaultAsync();
@@ -85,6 +91,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Инвентаризация удалена" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { Console.WriteLine($"Error in Inventories Delete: {exp.Message}"); return StatusCode(500, "Internal server error"); }
         }
     }

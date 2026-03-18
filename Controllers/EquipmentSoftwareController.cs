@@ -75,6 +75,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Связь удалена" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
     }

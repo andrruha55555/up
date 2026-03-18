@@ -1,11 +1,11 @@
-﻿﻿namespace ApiUp.Models;
+﻿namespace ApiUp.Models;
 
 public class User
 {
     public int id { get; set; }
-    public string? login { get; set; }
+    public string login { get; set; } = null!;
     public string? password_hash { get; set; }
-    public string? role { get; set; } 
+    public string role { get; set; } = "staff";
     public string? email { get; set; }
     public string? last_name { get; set; }
     public string? first_name { get; set; }

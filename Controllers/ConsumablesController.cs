@@ -1,4 +1,5 @@
 ﻿using ApiUp.Context;
+using Microsoft.EntityFrameworkCore;
 using ApiUp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,9 @@ namespace ApiUp.Controllers
     public class ConsumablesController : Controller
     {
         private readonly ConsumablesContext _context;
-        public ConsumablesController(ConsumablesContext context) { _context = context; }
+        private readonly ConsumableCharacteristicsContext _charContext;
+        public ConsumablesController(ConsumablesContext context, ConsumableCharacteristicsContext charContext)
+        { _context = context; _charContext = charContext; }
 
         [Route("List")]
         [HttpGet]
@@ -82,6 +85,9 @@ namespace ApiUp.Controllers
         [ApiExplorerSettings(GroupName = "v4")]
         public async Task<ActionResult> Delete(int id)
         {
+            var hasChars = await _charContext.ConsumableCharacteristics.AnyAsync(c => c.consumable_id == id);
+            if (hasChars) return StatusCode(409, "Невозможно удалить расходник: у него есть характеристики. Сначала удалите их.");
+
             try
             {
                 var item = await _context.Consumables.Where(x => x.id == id).FirstOrDefaultAsync();
@@ -91,6 +97,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Расходник удален" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { Console.WriteLine($"Error in Consumables Delete: {exp.Message}"); return StatusCode(500, "Internal server error"); }
         }
     }

@@ -95,6 +95,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Пользователь удален" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { Console.WriteLine($"Error in Users Delete: {exp.Message}"); return StatusCode(500, "Internal server error"); }
         }
     }

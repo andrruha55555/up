@@ -10,7 +10,9 @@ namespace ApiUp.Controllers
     public class EquipmentController : Controller
     {
         private readonly EquipmentContext _context;
-        public EquipmentController(EquipmentContext context) { _context = context; }
+        private readonly EquipmentHistoryContext _historyContext;
+        public EquipmentController(EquipmentContext context, EquipmentHistoryContext historyContext)
+        { _context = context; _historyContext = historyContext; }
 
         [Route("List")]
         [HttpGet]
@@ -72,6 +74,16 @@ namespace ApiUp.Controllers
                 item.image_path = dto.image_path;
 
                 await _context.SaveChangesAsync();
+                // Record history
+                _historyContext.EquipmentHistory.Add(new EquipmentHistory
+                {
+                    equipment_id = id,
+                    classroom_id = item.classroom_id,
+                    responsible_user_id = item.responsible_user_id,
+                    comment = $"Обновлено через систему",
+                    changed_at = DateTime.UtcNow
+                });
+                await _historyContext.SaveChangesAsync();
                 return Ok(new { message = "Оборудование обновлено" });
             }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
@@ -91,6 +103,7 @@ namespace ApiUp.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Оборудование удалено" });
             }
+            catch (DbUpdateException) { return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их."); }
             catch (Exception exp) { return StatusCode(500, exp.Message); }
         }
     }

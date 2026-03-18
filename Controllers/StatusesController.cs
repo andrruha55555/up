@@ -1,4 +1,5 @@
 ﻿using ApiUp.Context;
+using Microsoft.EntityFrameworkCore;
 using ApiUp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,9 @@ namespace ApiUp.Controllers
     public class StatusesController : Controller
     {
         private readonly StatusesContext _context;
-        public StatusesController(StatusesContext context) { _context = context; }
+        private readonly EquipmentContext _equipmentContext;
+        public StatusesController(StatusesContext context, EquipmentContext equipmentContext)
+        { _context = context; _equipmentContext = equipmentContext; }
 
         [HttpGet("List")]
         public async Task<ActionResult> List()
@@ -66,6 +69,9 @@ namespace ApiUp.Controllers
         [ApiExplorerSettings(GroupName = "v4")]
         public async Task<ActionResult> Delete(int id)
         {
+            var hasEquipment = await _equipmentContext.Equipment.AnyAsync(e => e.status_id == id);
+            if (hasEquipment) return StatusCode(409, "Невозможно удалить статус: он используется в оборудовании.");
+
             try
             {
                 var item = await _context.Statuses.FirstOrDefaultAsync(x => x.id == id);

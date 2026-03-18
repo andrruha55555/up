@@ -20,7 +20,7 @@ namespace ApiUp.Context
                 entity.Property(e => e.role).HasColumnName("role").IsRequired();
                 entity.Property(e => e.email).HasColumnName("email").HasMaxLength(100);
                 entity.Property(e => e.last_name).HasColumnName("last_name").IsRequired().HasMaxLength(50);
-                entity.Property(e => e.first_name).HasColumnName("first_name").IsRequired().HasMaxLength(50);
+                entity.Property(e => e.first_name).HasColumnName("first_name").HasMaxLength(50);
                 entity.Property(e => e.middle_name).HasColumnName("middle_name").HasMaxLength(50);
                 entity.Property(e => e.phone).HasColumnName("phone").HasMaxLength(20);
                 entity.Property(e => e.address).HasColumnName("address");

@@ -131,6 +131,10 @@ namespace ApiUp.Controllers
 
                 return Ok(new { message = "Характеристика удалена" });
             }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            {
+                return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их.");
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);

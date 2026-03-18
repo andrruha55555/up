@@ -1,4 +1,5 @@
 ﻿using ApiUp.Context;
+using Microsoft.EntityFrameworkCore;
 using ApiUp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,9 @@ namespace ApiUp.Controllers
     public class EquipmentTypesController : Controller
     {
         private readonly EquipmentTypesContext _context;
-        public EquipmentTypesController(EquipmentTypesContext context) { _context = context; }
+        private readonly ModelsContext _modelsContext;
+        public EquipmentTypesController(EquipmentTypesContext context, ModelsContext modelsContext)
+        { _context = context; _modelsContext = modelsContext; }
 
         [HttpGet("List")]
         public async Task<ActionResult> List()
@@ -55,11 +58,21 @@ namespace ApiUp.Controllers
         [ApiExplorerSettings(GroupName = "v4")]
         public async Task<ActionResult> Delete(int id)
         {
+            var hasModels = await _modelsContext.Models.AnyAsync(m => m.equipment_type_id == id);
+            if (hasModels) return StatusCode(409, "Невозможно удалить: есть модели этого типа оборудования.");
+
             var item = await _context.EquipmentTypes.FirstOrDefaultAsync(x => x.id == id);
             if (item == null) return NotFound($"Тип оборудования с ID {id} не найден");
 
             _context.EquipmentTypes.Remove(item);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            {
+                return StatusCode(409, "Невозможно удалить: есть связанные записи. Сначала удалите их.");
+            }
             return Ok(new { message = "Тип оборудования удален" });
         }
     }
