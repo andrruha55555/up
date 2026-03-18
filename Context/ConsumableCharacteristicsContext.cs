@@ -14,6 +14,7 @@ namespace ApiUp.Context
             {
                 entity.ToTable("consumable_characteristics");
                 entity.HasKey(e => e.id);
+                entity.Property(e => e.id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.id).HasColumnName("id");
                 entity.Property(e => e.consumable_id).HasColumnName("consumable_id").IsRequired();

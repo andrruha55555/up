@@ -14,6 +14,7 @@ namespace ApiUp.Context
             {
                 entity.ToTable("inventory_items");
                 entity.HasKey(e => e.id);
+                entity.Property(e => e.id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.id).HasColumnName("id");
                 entity.Property(e => e.inventory_id).HasColumnName("inventory_id").IsRequired();
