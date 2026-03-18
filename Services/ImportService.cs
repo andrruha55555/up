@@ -40,7 +40,7 @@ namespace AdminUP.Services
         // Строка, с которой начинаются данные в шаблоне
         // (после заголовков: 2 строки учреждения + 1 разделитель + 5 инструкций +
         //  1 пустая + 1 «пример» + 6 примеров + 1 разделитель + 1 заголовки = строка 19)
-        private const int DataStartRow = 19;
+        private const int DataStartRow = 4;
 
         public ImportService(ApiService apiService)
         {
@@ -289,7 +289,27 @@ namespace AdminUP.Services
         // ─── Утилиты ─────────────────────────────────────────────────────────
 
         private static string Cell(IXLWorksheet ws, int row, int col)
-            => ws.Cell(row, col).GetValue<string>()?.Trim() ?? "";
+        {
+            var cell = ws.Cell(row, col);
+            if (cell.IsEmpty()) return "";
+            // Handle numeric, date, boolean and text cells uniformly
+            var val = cell.Value;
+            if (val.IsDateTime)
+                return val.GetDateTime().ToString("dd.MM.yyyy");
+            if (val.IsNumber)
+            {
+                var num = val.GetNumber();
+                // Return integer string if no fractional part (e.g. 123 not 123.0)
+                return (num % 1 == 0)
+                    ? ((long)num).ToString()
+                    : num.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            }
+            if (val.IsText)
+                return val.GetText()?.Trim() ?? "";
+            if (val.IsBoolean)
+                return val.GetBoolean().ToString();
+            return cell.GetFormattedString()?.Trim() ?? "";
+        }
 
         private static Dictionary<string, int> BuildDict<T>(
             List<T>? list, Func<T, string?> keySelector, Func<T, int> valueSelector)
