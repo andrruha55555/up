@@ -254,6 +254,7 @@ namespace AdminUP.ViewModels
         public string Cost => Equipment.cost.HasValue ? Equipment.cost.Value.ToString("N2") : "—";
         public string StatusName { get; }
         public string ModelName { get; }
+        public string? ImagePath => Equipment.image_path;
 
         public EquipmentRow(Equipment eq,
             Dictionary<int, string> classrooms,

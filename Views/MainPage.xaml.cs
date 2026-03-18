@@ -1,5 +1,6 @@
 ﻿using AdminUP.Services;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -159,6 +160,16 @@ namespace AdminUP.Views
                     _ = App.StaffReportService.GenerateAsync();
                     return;
                 }
+                if (pageName == "ImportEquipment")
+                {
+                    _ = RunImportAsync();
+                    return;
+                }
+                if (pageName == "DownloadTemplate")
+                {
+                    App.ImportService.DownloadTemplate();
+                    return;
+                }
                 NavigateToPage(pageName);
             }
         }
@@ -246,6 +257,26 @@ namespace AdminUP.Views
             if (result != MessageBoxResult.Yes)
                 e.Cancel = true;
         }
+
+
+        private async System.Threading.Tasks.Task RunImportAsync()
+        {
+            try
+            {
+                var (added, skipped, errors, log) = await App.ImportService.ImportFromFileAsync();
+                if (added == 0 && skipped == 0 && errors == 0) return;
+                var errorLines = log.Where(l => l.Contains("❌")).Take(5).ToList();
+                var errDetail = errorLines.Count > 0 ? "\n\n" + string.Join("\n", errorLines) : "";
+                var summary = $"Импорт завершён:\n✅ Добавлено: {added}\n⚠️ Пропущено: {skipped}\n❌ Ошибок: {errors}{errDetail}";
+                System.Windows.MessageBox.Show(summary, "Импорт",
+                    System.Windows.MessageBoxButton.OK,
+                    errors > 0 ? System.Windows.MessageBoxImage.Warning : System.Windows.MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show("Ошибка импорта:\n" + ex.Message,
+                    "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
     }
 }
-
