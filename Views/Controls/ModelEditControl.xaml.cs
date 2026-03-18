@@ -11,7 +11,6 @@ namespace AdminUP.Views.Controls
     public partial class ModelEditControl : UserControl, INotifyPropertyChanged
     {
         private readonly ModelEntity _model;
-        private readonly ApiService _apiService;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -25,7 +24,6 @@ namespace AdminUP.Views.Controls
             InitializeComponent();
 
             _model = model ?? new ModelEntity();
-            _apiService = new ApiService();
 
             DataContext = this;
 
@@ -63,7 +61,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadEquipmentTypesAsync()
         {
-            var types = await _apiService.GetListAsync<EquipmentType>("EquipmentTypesController");
+            var types = await App.ApiService.GetListAsync<EquipmentType>("EquipmentTypesController");
             if (types != null)
             {
                 AvailableEquipmentTypes.Clear();
@@ -82,7 +80,7 @@ namespace AdminUP.Views.Controls
                 if (_model != null)
                 {
                     _model.name = value;
-                    RaisePropertyChanged(nameof(Name));
+                    RaisePropertyChanged(nameof(ModelName));
                 }
             }
         }

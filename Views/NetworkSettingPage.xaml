@@ -86,7 +86,7 @@
         <!-- ===== DataGrid ===== -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding FilteredNetworkSettings}"
-                  SelectedItem="{Binding SelectedNetworkSetting, Mode=TwoWay}"
+                  SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   SelectionMode="Single"

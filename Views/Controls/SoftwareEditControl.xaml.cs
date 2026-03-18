@@ -11,7 +11,6 @@ namespace AdminUP.Views.Controls
     public partial class SoftwareEditControl : UserControl, INotifyPropertyChanged
     {
         private readonly SoftwareEntity _software;
-        private readonly ApiService _apiService;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -25,7 +24,6 @@ namespace AdminUP.Views.Controls
             InitializeComponent();
 
             _software = software ?? new SoftwareEntity();
-            _apiService = new ApiService();
 
             DataContext = this;
 
@@ -82,7 +80,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadDevelopersAsync()
         {
-            var developers = await _apiService.GetListAsync<Developer>("DevelopersController");
+            var developers = await App.ApiService.GetListAsync<Developer>("DevelopersController");
             if (developers != null)
             {
                 AvailableDevelopers.Clear();
@@ -101,7 +99,7 @@ namespace AdminUP.Views.Controls
                 if (_software != null)
                 {
                     _software.name = value;
-                    RaisePropertyChanged(nameof(Name));
+                    RaisePropertyChanged(nameof(SoftwareName));
                 }
             }
         }

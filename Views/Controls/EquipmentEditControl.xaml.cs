@@ -54,6 +54,13 @@ namespace AdminUP.Views.Controls
                 return false;
             }
 
+            var invNum = _equipment.inventory_number?.Trim() ?? "";
+            if (invNum.Length > 50)
+            {
+                MessageBox.Show("Инвентарный номер не может быть длиннее 50 символов.", "Валидация",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
             if (_equipment.status_id == 0)
             {
                 MessageBox.Show("Статус обязателен для выбора", "Ошибка",
@@ -78,6 +85,7 @@ namespace AdminUP.Views.Controls
             RaisePropertyChanged(nameof(EquipmentInventoryNumber));
             RaisePropertyChanged(nameof(ClassroomId));
             RaisePropertyChanged(nameof(ResponsibleUserId));
+            RaisePropertyChanged(nameof(TempResponsibleUserId));
             RaisePropertyChanged(nameof(DirectionId));
             RaisePropertyChanged(nameof(StatusId));
             RaisePropertyChanged(nameof(ModelId));
@@ -138,7 +146,7 @@ namespace AdminUP.Views.Controls
         public string EquipmentInventoryNumber
         {
             get => _equipment?.inventory_number ?? "";
-            set { _equipment.inventory_number = value; RaisePropertyChanged(); }
+            set { _equipment.inventory_number = value?.Trim(); RaisePropertyChanged(); }
         }
 
         public int? ClassroomId
@@ -151,6 +159,11 @@ namespace AdminUP.Views.Controls
         {
             get => _equipment?.responsible_user_id;
             set { _equipment.responsible_user_id = (value == 0) ? null : value; RaisePropertyChanged(); }
+        }
+        public int? TempResponsibleUserId
+        {
+            get => _equipment?.temp_responsible_user_id;
+            set { _equipment.temp_responsible_user_id = (value == 0) ? null : value; RaisePropertyChanged(); }
         }
 
         public int? DirectionId

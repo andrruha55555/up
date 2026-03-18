@@ -12,7 +12,6 @@ namespace AdminUP.Views.Controls
     public partial class InventoryItemEditControl : UserControl, INotifyPropertyChanged
     {
         private InventoryItem _inventoryItem;
-        private readonly ApiService _apiService;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -32,7 +31,6 @@ namespace AdminUP.Views.Controls
                 checked_at = DateTime.Now
             };
 
-            _apiService = new ApiService();
             AvailableInventories = new ObservableCollection<Inventory>();
             AvailableEquipment = new ObservableCollection<Equipment>();
             AvailableUsers = new ObservableCollection<User>();
@@ -53,7 +51,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadInventoriesAsync()
         {
-            var inventories = await _apiService.GetListAsync<Inventory>("InventoriesController");
+            var inventories = await App.ApiService.GetListAsync<Inventory>("InventoriesController");
             if (inventories != null)
             {
                 AvailableInventories.Clear();
@@ -66,7 +64,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadEquipmentAsync()
         {
-            var equipment = await _apiService.GetListAsync<Equipment>("EquipmentController");
+            var equipment = await App.ApiService.GetListAsync<Equipment>("EquipmentController");
             if (equipment != null)
             {
                 AvailableEquipment.Clear();
@@ -79,7 +77,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadUsersAsync()
         {
-            var users = await _apiService.GetListAsync<User>("UsersController");
+            var users = await App.ApiService.GetListAsync<User>("UsersController");
             if (users != null)
             {
                 AvailableUsers.Clear();

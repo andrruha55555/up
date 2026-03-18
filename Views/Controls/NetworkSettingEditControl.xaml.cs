@@ -12,7 +12,6 @@ namespace AdminUP.Views.Controls
     public partial class NetworkSettingEditControl : UserControl, INotifyPropertyChanged
     {
         private readonly NetworkSetting _networkSetting;
-        private readonly ApiService _apiService;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -26,7 +25,6 @@ namespace AdminUP.Views.Controls
             InitializeComponent();
 
             _networkSetting = networkSetting ?? new NetworkSetting();
-            _apiService = new ApiService();
 
             DataContext = this;
 
@@ -64,7 +62,7 @@ namespace AdminUP.Views.Controls
 
         private async Task LoadEquipmentAsync()
         {
-            var equipment = await _apiService.GetListAsync<Equipment>("EquipmentController");
+            var equipment = await App.ApiService.GetListAsync<Equipment>("EquipmentController");
             if (equipment != null)
             {
                 AvailableEquipment.Clear();

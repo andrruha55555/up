@@ -13,9 +13,9 @@ namespace AdminUP.Views.Controls
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private Consumable _consumable;
-        private readonly ApiService _apiService;
 
         public ObservableCollection<ConsumableType> AvailableConsumableTypes { get; private set; } = new();
+        public ObservableCollection<User> AvailableUsers { get; private set; } = new();
         public ObservableCollection<string> ValidationErrors { get; } = new();
         public bool HasErrors => ValidationErrors.Count > 0;
 
@@ -24,11 +24,11 @@ namespace AdminUP.Views.Controls
             InitializeComponent();
 
             _consumable = consumable ?? new Consumable();
-            _apiService = new ApiService();
 
             DataContext = this;
 
             _ = LoadTypesAsync();
+            _ = LoadUsersAsync();
         }
 
         // ===== Helpers =====
@@ -64,7 +64,7 @@ namespace AdminUP.Views.Controls
         // ===== Data load =====
         private async Task LoadTypesAsync()
         {
-            var types = await _apiService.GetListAsync<ConsumableType>("ConsumableTypesController");
+            var types = await App.ApiService.GetListAsync<ConsumableType>("ConsumableTypesController");
             if (types != null)
             {
                 AvailableConsumableTypes.Clear();
@@ -75,6 +75,17 @@ namespace AdminUP.Views.Controls
             }
         }
 
+        private async System.Threading.Tasks.Task LoadUsersAsync()
+        {
+            var users = await App.ApiService.GetListAsync<User>("UsersController");
+            if (users != null)
+            {
+                AvailableUsers.Clear();
+                AvailableUsers.Add(new User { id = 0, last_name = "—", first_name = "", middle_name = "" });
+                foreach (var u in users) AvailableUsers.Add(u);
+                RaisePropertyChanged(nameof(AvailableUsers));
+            }
+        }
         // ===== Bindings =====
         public Consumable Consumable
         {
@@ -127,6 +138,26 @@ namespace AdminUP.Views.Controls
             }
         }
 
+        public int Quantity
+        {
+            get => _consumable?.quantity ?? 0;
+            set { if (_consumable != null) { _consumable.quantity = value; RaisePropertyChanged(); } }
+        }
+        public string? Description
+        {
+            get => _consumable?.description;
+            set { if (_consumable != null) { _consumable.description = value; RaisePropertyChanged(); } }
+        }
+        public DateTime ArrivalDate
+        {
+            get => _consumable?.arrival_date ?? DateTime.Now;
+            set { if (_consumable != null) { _consumable.arrival_date = value; RaisePropertyChanged(); } }
+        }
+        public int? ResponsibleUserId
+        {
+            get => _consumable?.responsible_user_id;
+            set { if (_consumable != null) { _consumable.responsible_user_id = (value == 0) ? null : value; RaisePropertyChanged(); } }
+        }
         public Consumable GetConsumable() => _consumable;
 
         private bool ValidateData()
@@ -139,6 +170,8 @@ namespace AdminUP.Views.Controls
             if (_consumable.name?.Length > 100)
                 AddValidationError("Название расходника не должно превышать 100 символов");
 
+            if (_consumable.quantity < 0)
+                AddValidationError("Количество не может быть отрицательным.");
             if (_consumable.consumable_type_id <= 0)
                 AddValidationError("Выберите тип расходника");
 

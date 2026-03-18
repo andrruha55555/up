@@ -76,6 +76,23 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
+            <!-- Временно ответственный -->
+            <TextBlock Text="Временно ответственный" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+            <ComboBox Style="{StaticResource FieldCombo}" Margin="0,0,0,12"
+                      ItemsSource="{Binding AvailableUsers}"
+                      SelectedValuePath="id"
+                      SelectedValue="{Binding TempResponsibleUserId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                            <Run Text="{Binding last_name}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding first_name}"/>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
             <!-- Стоимость -->
             <TextBlock Text="Стоимость" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
             <TextBox Style="{StaticResource FieldBox}" Margin="0,0,0,12"

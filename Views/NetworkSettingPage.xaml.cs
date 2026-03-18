@@ -25,13 +25,14 @@ namespace AdminUP.Views
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.SelectedNetworkSetting == null)
+            var selRow = _viewModel.SelectedRow;
+            if (selRow == null)
             {
                 MessageBox.Show("Выберите запись для редактирования", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            ShowEditDialog(_viewModel.SelectedNetworkSetting, "Редактирование сетевых настроек");
+            ShowEditDialog(selRow.Setting, "Редактирование сетевых настроек");
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -42,7 +43,9 @@ namespace AdminUP.Views
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            await _viewModel.DeleteNetworkSettingAsync(_viewModel.SelectedNetworkSetting.id);
+            var delRow = _viewModel.SelectedRow;
+            if (delRow == null) return;
+            await _viewModel.DeleteNetworkSettingAsync(delRow.Setting.id);
         }
 
         /// <summary>Запускает ICMP-проверку всех устройств через RAW-сокет.</summary>

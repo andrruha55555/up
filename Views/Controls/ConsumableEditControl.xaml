@@ -15,47 +15,79 @@
 
         <TextBlock Grid.Row="0" Text="Редактирование расходника" Style="{StaticResource HeaderText}"/>
 
-        <Grid Grid.Row="1" Margin="0,20,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,8,0,0">
+                <TextBlock Text="Название *" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <TextBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
+                         BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
+                         Text="{Binding ConsumableName, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"/>
 
-            <TextBlock Grid.Row="0" Grid.Column="0" Text="Название:*" Style="{StaticResource LabelText}"/>
-            <TextBox Grid.Row="0" Grid.Column="1"
-                     Text="{Binding ConsumableName, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="5" MaxLength="100"/>
+                <TextBlock Text="Тип расходника *" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <ComboBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
+                          BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
+                          ItemsSource="{Binding AvailableConsumableTypes}"
+                          DisplayMemberPath="name" SelectedValuePath="id"
+                          SelectedValue="{Binding ConsumableTypeId}"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Тип:*" Style="{StaticResource LabelText}"/>
-            <ComboBox Grid.Row="1" Grid.Column="1"
-                      ItemsSource="{Binding AvailableConsumableTypes}"
-                      DisplayMemberPath="name"
-                      SelectedValuePath="id"
-                      SelectedValue="{Binding ConsumableTypeId}"
-                      Margin="5"/>
-            <!-- Фотография расходника -->
-            <Grid Margin="5,0,5,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" MinWidth="110"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="36"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Фотография:" VerticalAlignment="Center" Margin="5"/>
-                <TextBox Grid.Column="1" x:Name="ConsImagePathBox"
-                     IsReadOnly="True" Background="#F0F4FA" Margin="5"
-                     Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Grid.Column="2" Content="📷" Width="34" Margin="0,5,5,5"
-                    ToolTip="Выбрать фото (jpg, png, gif, bmp)"
-                    Click="PickPhotoButton_Click"
-                    Background="#0060AC" Foreground="White"
-                    BorderThickness="0" FontSize="14"/>
-            </Grid>
-        </Grid>
+                <TextBlock Text="Количество *" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <TextBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
+                         BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
+                         Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"/>
 
+                <TextBlock Text="Дата поступления *" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <DatePicker Height="34" Margin="0,0,0,12" FirstDayOfWeek="Monday"
+                            SelectedDate="{Binding ArrivalDate}"/>
+
+                <TextBlock Text="Описание" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <TextBox Height="60" FontSize="13" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True"
+                         BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
+                         Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Text="Ответственный" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <ComboBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
+                          BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
+                          ItemsSource="{Binding AvailableUsers}"
+                          SelectedValuePath="id" SelectedValue="{Binding ResponsibleUserId}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding last_name}"/>
+                                <Run Text=" "/>
+                                <Run Text="{Binding first_name}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="Фото" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="38"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="ConsImagePathBox" Height="34" FontSize="13" Padding="8,0"
+                             VerticalContentAlignment="Center" IsReadOnly="True" Background="#F8F9FB"
+                             BorderBrush="#CFD4DC" BorderThickness="1,1,0,1"
+                             Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Column="1" Content="..." Width="38" Height="34"
+                            Background="#1565C0" Foreground="White" FontSize="14" FontWeight="Bold"
+                            BorderThickness="0" Cursor="Hand" Click="PickPhotoButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="0,4,4,0">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#0D47A1"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
         <ItemsControl Grid.Row="2" ItemsSource="{Binding ValidationErrors}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>

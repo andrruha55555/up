@@ -28,7 +28,7 @@ namespace AdminUP.ViewModels
         public string SearchText
         {
             get => _searchText;
-            set { _searchText = value ?? ""; OnPropertyChanged(); }
+            set { _searchText = value ?? ""; OnPropertyChanged(); FilterDevelopers(); }
         }
 
         public DeveloperPageViewModel(ApiService apiService, CacheService cacheService)

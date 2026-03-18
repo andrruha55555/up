@@ -69,6 +69,7 @@ namespace AdminUP.Views
 
             if (dlg.ShowDialog() == true)
             {
+                if (!control.Validate()) return;
                 var edited = control.GetSoftware();
                 if (edited.id == 0)
                     await _viewModel.AddSoftwareAsync(edited);
