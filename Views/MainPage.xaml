@@ -91,6 +91,22 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
+                    <Button Content="Сменить" Height="28" Padding="12,0" FontSize="12"
+                            Margin="0,0,6,0" Background="#7B1FA2" BorderThickness="0"
+                            Foreground="White" Cursor="Hand" Click="SwitchUserButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#6A1B9A"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                     <Button Content="Выйти" Height="28" Padding="12,0" FontSize="12"
                             Background="#C62828" BorderThickness="0"
                             Foreground="White" Cursor="Hand" Click="LogoutButton_Click">
@@ -119,7 +135,7 @@
 
                     <!-- Отчёты и действия -->
                     <TextBlock Text="ОТЧЁТЫ" FontSize="10" FontWeight="Bold"
-                               Foreground="#B0BEC5" Margin="16,10,0,3" />
+                               Foreground="#B0BEC5" Margin="16,10,0,3"/>
 
                     <Button Tag="ExportReport" Click="MenuButton_Click" Style="{StaticResource SideBtn}">
                         <StackPanel Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">

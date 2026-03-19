@@ -17,8 +17,8 @@ namespace AdminUP.Views
             AdminSeparator,
             BtnUsers, BtnClassrooms, BtnConsumables, BtnStatuses,
             BtnEqTypes, BtnModels, BtnConsumableTypes, BtnCharacteristics,
-            BtnDevelopers, BtnDirections, BtnSoftware,
-            BtnInventory, BtnInventoryItems
+            BtnDevelopers, BtnDirections, BtnSoftware
+            // BtnInventory и BtnInventoryItems доступны всем ролям
         };
 
         public string CurrentPageTitle
@@ -236,7 +236,53 @@ namespace AdminUP.Views
             }
         }
 
-        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        private void SwitchUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.AuthService.Logout();
+
+            var loginWindow = new LoginWindow();
+            loginWindow.Owner = this;
+            loginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
+
+            if (loginWindow.ShowDialog() == true)
+            {
+                UserNameText.Text = $"{App.AuthService.CurrentUserObject?.last_name} " +
+                                    $"{App.AuthService.CurrentUserObject?.first_name}  " +
+                                    $"[{App.AuthService.CurrentRole}]";
+                if (!App.AuthService.IsAdmin)
+                    HideAdminMenuItems();
+                else
+                    ShowAdminMenuItems();
+                NavigateToPage("EquipmentPage");
+                App.CacheService.Clear();
+            }
+            else
+            {
+                // Отменил — снова запрашиваем вход
+                var loginWindow2 = new LoginWindow();
+                loginWindow2.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+                if (loginWindow2.ShowDialog() != true)
+                {
+                    _closeWithoutConfirm = true;
+                    Close();
+                    return;
+                }
+                UserNameText.Text = $"{App.AuthService.CurrentUserObject?.last_name} " +
+                                    $"{App.AuthService.CurrentUserObject?.first_name}  " +
+                                    $"[{App.AuthService.CurrentRole}]";
+                if (!App.AuthService.IsAdmin) HideAdminMenuItems();
+                else ShowAdminMenuItems();
+                App.CacheService.Clear();
+            }
+        }
+
+        private void ShowAdminMenuItems()
+        {
+            foreach (var btn in AdminOnlyButtons)
+                btn.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             App.AuthService.Logout();
 

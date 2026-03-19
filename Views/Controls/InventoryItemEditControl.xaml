@@ -3,55 +3,189 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" d:DesignHeight="380" d:DesignWidth="500">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20,16,20,16">
-            <TextBlock Text="Инвентаризация *" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
-            <ComboBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
-                      BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
-                      ItemsSource="{Binding AvailableInventories}"
-                      DisplayMemberPath="name" SelectedValuePath="id"
-                      SelectedValue="{Binding InventoryId}"/>
+             mc:Ignorable="d" d:DesignHeight="500" d:DesignWidth="620">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <TextBlock Text="Оборудование *" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
-            <ComboBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
-                      BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
-                      ItemsSource="{Binding AvailableEquipment}"
-                      DisplayMemberPath="name" SelectedValuePath="id"
-                      SelectedValue="{Binding EquipmentId}"/>
+        <!-- Поиск + кнопки -->
+        <Border Grid.Row="0" Background="#F8F9FB" BorderBrush="#E0E4EA"
+                BorderThickness="0,0,0,1" Padding="12,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="White" CornerRadius="5" BorderBrush="#CFD4DC"
+                        BorderThickness="1" Padding="8,0">
+                    <TextBox BorderThickness="0" Background="Transparent" Height="30"
+                             FontSize="13" VerticalContentAlignment="Center"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="Поиск по названию или инв. номеру..."/>
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="8,0,0,0">
+                    <Button Content="Все" Width="50" Height="30" FontSize="12"
+                            Background="#1565C0" Foreground="White" BorderThickness="0"
+                            Cursor="Hand" Margin="0,0,4,0" Click="SelectAll_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="4"
+                                        Padding="6,0">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#0D47A1"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Content="Снять" Width="54" Height="30" FontSize="12"
+                            Background="#546E7A" Foreground="White" BorderThickness="0"
+                            Cursor="Hand" Click="DeselectAll_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="4"
+                                        Padding="6,0">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#37474F"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-            <TextBlock Text="Проверил (по умолчанию — вы)" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
-            <ComboBox Height="34" FontSize="13" Padding="8,0" VerticalContentAlignment="Center"
-                      BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,12"
-                      ItemsSource="{Binding AvailableUsers}"
-                      SelectedValuePath="id" SelectedValue="{Binding CheckedByUserId}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock>
-                            <Run Text="{Binding last_name}"/>
-                            <Run Text=" "/>
-                            <Run Text="{Binding first_name}"/>
-                        </TextBlock>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+        <!-- Счётчик -->
+        <Border Grid.Row="1" Background="#EEF4FF" Padding="12,6">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Отмечено: " FontSize="12" Foreground="#546E7A"/>
+                <TextBlock Text="{Binding CheckedCount}" FontSize="12" FontWeight="Bold"
+                           Foreground="#1565C0"/>
+                <TextBlock Text=" из " FontSize="12" Foreground="#546E7A"/>
+                <TextBlock Text="{Binding FilteredItems.Count}" FontSize="12" FontWeight="Bold"
+                           Foreground="#546E7A"/>
+                <TextBlock Text=" позиций" FontSize="12" Foreground="#546E7A"/>
+            </StackPanel>
+        </Border>
 
-            <TextBlock Text="Дата проверки" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
-            <DatePicker Height="34" Margin="0,0,0,12" FirstDayOfWeek="Monday"
-                        SelectedDate="{Binding CheckedAt}"/>
+        <!-- Заголовок колонок -->
+        <Border Grid.Row="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <TextBlock Text="Комментарий" FontSize="12" FontWeight="SemiBold" Foreground="#546E7A" Margin="0,0,0,4"/>
-            <TextBox Height="70" FontSize="13" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True"
-                     BorderBrush="#CFD4DC" BorderThickness="1" Margin="0,0,0,8"
-                     Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Grid.Row="0" Background="#F0F2F5" Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="36"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="" Width="36"/>
+                    <TextBlock Grid.Column="1" Text="Оборудование" FontSize="11"
+                               FontWeight="SemiBold" Foreground="#546E7A" Margin="4,6"/>
+                    <TextBlock Grid.Column="2" Text="Инв. номер" FontSize="11"
+                               FontWeight="SemiBold" Foreground="#546E7A" Margin="4,6"/>
+                    <TextBlock Grid.Column="3" Text="Комментарий" FontSize="11"
+                               FontWeight="SemiBold" Foreground="#546E7A" Margin="4,6"/>
+                </Grid>
 
-            <ItemsControl ItemsSource="{Binding ValidationErrors}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}" Foreground="#C62828" FontSize="12" Margin="0,2,0,0"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-    </ScrollViewer>
+                <!-- Список оборудования -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding FilteredItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="4,3" BorderBrush="#F0F2F5" BorderThickness="0,0,0,1">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                    <Setter Property="Background" Value="#F0FFF4"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="36"/>
+                                            <ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Чекбокс -->
+                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                        <!-- Название оборудования -->
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding EquipmentName}"
+                                                   FontSize="13" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="4,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#546E7A"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                            <Setter Property="Foreground" Value="#1B5E20"/>
+                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <!-- Инв. номер -->
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding InventoryNumber}"
+                                                   FontSize="12" FontFamily="Consolas"
+                                                   Foreground="#9E9E9E"
+                                                   VerticalAlignment="Center"
+                                                   Margin="4,0"/>
+
+                                        <!-- Поле комментария -->
+                                        <TextBox Grid.Column="3"
+                                                 Text="{Binding Comment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="12" Height="26" Padding="6,0"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderBrush="#CFD4DC" BorderThickness="1"
+                                                 Background="White" Margin="4,2">
+                                            <TextBox.IsEnabled>
+                                                <Binding Path="IsChecked"/>
+                                            </TextBox.IsEnabled>
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter Property="Background" Value="#F5F5F5"/>
+                                                            <Setter Property="Foreground" Value="#BDBDBD"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

@@ -1,112 +1,193 @@
 ﻿
 using AdminUP.Models;
-using AdminUP.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace AdminUP.Views.Controls
 {
+    public class EquipmentCheckItem : INotifyPropertyChanged
+    {
+        public int EquipmentId { get; }
+        public string EquipmentName { get; }
+        public string InventoryNumber { get; }
+        public int? ExistingItemId { get; set; }
+
+        private bool _isChecked;
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set { _isChecked = value; OnPC(); }
+        }
+
+        private string _comment = "";
+        public string Comment
+        {
+            get => _comment;
+            set { _comment = value ?? ""; OnPC(); }
+        }
+
+        public EquipmentCheckItem(Equipment eq, bool isChecked = false, string? comment = null, int? existingId = null)
+        {
+            EquipmentId = eq.id;
+            EquipmentName = eq.name ?? $"ID {eq.id}";
+            InventoryNumber = eq.inventory_number ?? "";
+            IsChecked = isChecked;
+            Comment = comment ?? "";
+            ExistingItemId = existingId;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPC([CallerMemberName] string? n = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+    }
+
     public partial class InventoryItemEditControl : UserControl, INotifyPropertyChanged
     {
-        private InventoryItem _inventoryItem;
         public event PropertyChangedEventHandler? PropertyChanged;
-        public ObservableCollection<string> ValidationErrors { get; } = new();
-        public bool HasErrors => ValidationErrors.Count > 0;
-        public ObservableCollection<Inventory> AvailableInventories { get; set; } = new();
-        public ObservableCollection<Equipment> AvailableEquipment { get; set; } = new();
-        public ObservableCollection<User> AvailableUsers { get; set; } = new();
 
-        public InventoryItemEditControl(InventoryItem? inventoryItem = null)
+        private int _inventoryId;
+        private int _checkedByUserId;
+
+        public ObservableCollection<EquipmentCheckItem> EquipmentItems { get; } = new();
+        public ObservableCollection<EquipmentCheckItem> FilteredItems { get; } = new();
+
+        private string _searchText = "";
+        public string SearchText
+        {
+            get => _searchText;
+            set { _searchText = value ?? ""; Raise(); FilterItems(); }
+        }
+
+        private int _checkedCount;
+        public int CheckedCount
+        {
+            get => _checkedCount;
+            private set { _checkedCount = value; Raise(); }
+        }
+
+        public InventoryItemEditControl(int inventoryId, int checkedByUserId,
+            List<Equipment> allEquipment,
+            List<InventoryItem> existingItems)
         {
             InitializeComponent();
-            _inventoryItem = inventoryItem ?? new InventoryItem
-            {
-                checked_at = DateTime.Now,
-                // По умолчанию — текущий авторизованный пользователь
-                checked_by_user_id = App.AuthService.CurrentUserId
-            };
+            _inventoryId = inventoryId;
+            _checkedByUserId = checkedByUserId;
             DataContext = this;
-            _ = LoadDataAsync();
+
+            // existingMap: equipment_id -> existing InventoryItem
+            var existingMap = existingItems.ToDictionary(i => i.equipment_id, i => i);
+
+            foreach (var eq in allEquipment.OrderBy(e => e.name))
+            {
+                bool alreadyChecked = existingMap.TryGetValue(eq.id, out var existing)
+                                      && existing.checked_by_user_id.HasValue;
+                var item = new EquipmentCheckItem(
+                    eq,
+                    isChecked: alreadyChecked,
+                    comment: existing?.comment,
+                    existingId: existing?.id
+                );
+                item.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(EquipmentCheckItem.IsChecked))
+                        UpdateCount();
+                };
+                EquipmentItems.Add(item);
+            }
+            FilterItems();
+            UpdateCount();
         }
 
-        private async Task LoadDataAsync()
+        private void FilterItems()
         {
-            await Task.WhenAll(LoadInventoriesAsync(), LoadEquipmentAsync(), LoadUsersAsync());
+            var q = _searchText.Trim().ToLowerInvariant();
+            FilteredItems.Clear();
+            foreach (var item in EquipmentItems)
+            {
+                if (string.IsNullOrWhiteSpace(q) ||
+                    item.EquipmentName.ToLowerInvariant().Contains(q) ||
+                    item.InventoryNumber.ToLowerInvariant().Contains(q))
+                    FilteredItems.Add(item);
+            }
         }
 
-        private async Task LoadInventoriesAsync()
+        private void UpdateCount()
+            => CheckedCount = EquipmentItems.Count(i => i.IsChecked);
+
+        private void SelectAll_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var list = await App.ApiService.GetListAsync<Inventory>("InventoriesController");
-            AvailableInventories.Clear();
-            if (list != null) foreach (var x in list) AvailableInventories.Add(x);
-            RaisePropertyChanged(nameof(AvailableInventories));
+            foreach (var i in FilteredItems) i.IsChecked = true;
         }
 
-        private async Task LoadEquipmentAsync()
+        private void DeselectAll_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var list = await App.ApiService.GetListAsync<Equipment>("EquipmentController");
-            AvailableEquipment.Clear();
-            if (list != null) foreach (var x in list) AvailableEquipment.Add(x);
-            RaisePropertyChanged(nameof(AvailableEquipment));
+            foreach (var i in FilteredItems) i.IsChecked = false;
         }
 
-        private async Task LoadUsersAsync()
+        /// <summary>
+        /// toAdd    = новые отметки (галочка поставлена, записи не было)
+        /// toUpdate = обновление (галочка была и есть или комментарий изменился)  
+        /// toUncheck = снятые галочки (запись есть, но checked_by = null теперь)
+        /// </summary>
+        public (List<InventoryItem> toAdd,
+                List<InventoryItem> toUpdate,
+                List<InventoryItem> toUncheck) GetChanges()
         {
-            var list = await App.ApiService.GetListAsync<User>("UsersController");
-            AvailableUsers.Clear();
-            if (list != null) foreach (var x in list) AvailableUsers.Add(x);
-            RaisePropertyChanged(nameof(AvailableUsers));
+            var toAdd = new List<InventoryItem>();
+            var toUpdate = new List<InventoryItem>();
+            var toUncheck = new List<InventoryItem>();
+            var now = DateTime.Now;
+
+            foreach (var eq in EquipmentItems)
+            {
+                if (eq.IsChecked && !eq.ExistingItemId.HasValue)
+                {
+                    toAdd.Add(new InventoryItem
+                    {
+                        inventory_id = _inventoryId,
+                        equipment_id = eq.EquipmentId,
+                        checked_by_user_id = _checkedByUserId,
+                        checked_at = now,
+                        comment = string.IsNullOrWhiteSpace(eq.Comment) ? null : eq.Comment
+                    });
+                }
+                else if (eq.IsChecked && eq.ExistingItemId.HasValue)
+                {
+                    toUpdate.Add(new InventoryItem
+                    {
+                        id = eq.ExistingItemId.Value,
+                        inventory_id = _inventoryId,
+                        equipment_id = eq.EquipmentId,
+                        checked_by_user_id = _checkedByUserId,
+                        checked_at = now,
+                        comment = string.IsNullOrWhiteSpace(eq.Comment) ? null : eq.Comment
+                    });
+                }
+                else if (!eq.IsChecked && eq.ExistingItemId.HasValue)
+                {
+                    // Снята галочка — обнуляем проверку, но запись оставляем
+                    toUncheck.Add(new InventoryItem
+                    {
+                        id = eq.ExistingItemId.Value,
+                        inventory_id = _inventoryId,
+                        equipment_id = eq.EquipmentId,
+                        checked_by_user_id = null,
+                        checked_at = null,
+                        comment = null
+                    });
+                }
+            }
+            return (toAdd, toUpdate, toUncheck);
         }
 
-        public int InventoryId
-        {
-            get => _inventoryItem?.inventory_id ?? 0;
-            set { if (_inventoryItem != null) { _inventoryItem.inventory_id = value; RaisePropertyChanged(); } }
-        }
+        public bool Validate() => true;
 
-        public int EquipmentId
-        {
-            get => _inventoryItem?.equipment_id ?? 0;
-            set { if (_inventoryItem != null) { _inventoryItem.equipment_id = value; RaisePropertyChanged(); } }
-        }
-
-        public int? CheckedByUserId
-        {
-            get => _inventoryItem?.checked_by_user_id;
-            set { if (_inventoryItem != null) { _inventoryItem.checked_by_user_id = value; RaisePropertyChanged(); } }
-        }
-
-        public DateTime CheckedAt
-        {
-            get => _inventoryItem?.checked_at ?? DateTime.Now;
-            set { if (_inventoryItem != null) { _inventoryItem.checked_at = value; RaisePropertyChanged(); } }
-        }
-
-        public string? Comment
-        {
-            get => _inventoryItem?.comment;
-            set { if (_inventoryItem != null) { _inventoryItem.comment = value; RaisePropertyChanged(); } }
-        }
-
-        public InventoryItem GetInventoryItem() => _inventoryItem;
-
-        public bool Validate()
-        {
-            ValidationErrors.Clear();
-            if (_inventoryItem.inventory_id <= 0)
-                ValidationErrors.Add("Выберите инвентаризацию.");
-            if (_inventoryItem.equipment_id <= 0)
-                ValidationErrors.Add("Выберите оборудование.");
-            RaisePropertyChanged(nameof(ValidationErrors));
-            RaisePropertyChanged(nameof(HasErrors));
-            return !HasErrors;
-        }
-
-        private void RaisePropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void Raise([CallerMemberName] string? n = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 }
